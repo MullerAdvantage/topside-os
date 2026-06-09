@@ -1,0 +1,48 @@
+# Windows system files
+NTUSER.DAT*
+ntuser.dat*
+ntuser.ini
+AppData/
+Contacts/
+Cookies/
+Desktop/
+Downloads/
+Favorites/
+Intuit/
+Links/
+Music/
+OneDrive/
+Pictures/
+Saved Games/
+Searches/
+Videos/
+3D Objects/
+NetHood/
+PrintHood/
+Recent/
+SendTo/
+Start Menu/
+Templates/
+My Documents/
+
+# Tools / config (not source code)
+.cache/
+.claude/
+.claude.json
+.codex/
+.copilot/
+.gitconfig
+.local/
+.ollama/
+.vscode/
+.vscode-shared/
+.agents/
+weather/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+Documents/Marketing/.venv/
+Documents/Marketing/__pycache__/
+Documents/Marketing/.pytest_cache/
