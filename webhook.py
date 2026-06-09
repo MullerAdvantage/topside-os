@@ -63,17 +63,31 @@ class WebhookEvent(BaseModel):
 
 # --- Claude helper ---
 
-async def ask_claude(prompt: str, max_tokens: int = 512) -> str:
+# Keep this ≥ 1024 tokens to clear the prompt-cache minimum on Haiku.
+SYSTEM_PROMPT = """You are a CRM assistant for Topside Roofing & Siding, a residential roofing contractor.
+
+ROLE: Support sales reps with concise, actionable guidance on jobs, customers, and tasks.
+
+RULES:
+- Be direct and brief — no filler phrases or preamble.
+- Use bullet points for lists; plain prose for single answers.
+- Assume the rep knows the industry; skip basic explanations.
+- Every recommendation must be something the rep can act on today.
+
+CONTEXT:
+- Jobs move through stages: Lead → Estimate Sent → Contract Signed → In Production → Complete.
+- Lost jobs get a win-back outreach within 48 hours.
+- Follow-up tasks are time-sensitive; treat overdue tasks as urgent.
+- Primary markets: storm damage, aging roofs, insurance claims.
+- Average job value: $8,000–$25,000.
+- Reps are measured on close rate, speed-to-estimate, and review count."""
+
+
+async def ask_claude(prompt: str, max_tokens: int = 512, model: str = "claude-haiku-4-5-20251001") -> str:
     response = await claude.messages.create(
-        model="claude-sonnet-4-6",
+        model=model,
         max_tokens=max_tokens,
-        system=[
-            {
-                "type": "text",
-                "text": "You are a concise assistant for a roofing sales CRM. Give practical, direct responses.",
-                "cache_control": {"type": "ephemeral"},
-            }
-        ],
+        system=[{"type": "text", "text": SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
         messages=[{"role": "user", "content": prompt}],
     )
     for block in response.content:
@@ -106,15 +120,12 @@ async def on_job_stage_change(event: WebhookEvent):
     logger.info("Job %s stage: %s → %s", d.job_number, from_stage, to_stage)
 
     prompt = (
-        f"A roofing job just moved stages.\n\n"
-        f"Job: {d.job_name}\n"
-        f"Customer: {d.customer_name} ({d.customer_email})\n"
-        f"Address: {d.job_address}\n"
-        f"Rep: {d.customer_rep}\n"
+        f"Job: {d.job_name} | Rep: {d.customer_rep}\n"
+        f"Customer: {d.customer_name} | Address: {d.job_address}\n"
         f"Stage: {from_stage} → {to_stage}\n\n"
-        f"List 3 concise next-action recommendations for the sales rep."
+        f"3 next actions (one line each)."
     )
-    advice = await ask_claude(prompt, max_tokens=256)
+    advice = await ask_claude(prompt, max_tokens=192)
     logger.info("Claude stage advice for %s:\n%s", d.job_number, advice)
 
 
@@ -123,14 +134,11 @@ async def on_job_lost(event: WebhookEvent):
     logger.info("Job lost: %s (%s)", d.job_name, d.job_number)
 
     prompt = (
-        f"A roofing sales job was just marked lost.\n\n"
-        f"Job: {d.job_name}\n"
-        f"Customer: {d.customer_name} ({d.customer_email})\n"
-        f"Address: {d.job_address}\n"
-        f"Rep: {d.customer_rep}\n\n"
-        f"Write a short, empathetic win-back email the rep can send to keep the door open."
+        f"Job: {d.job_name} | Rep: {d.customer_rep}\n"
+        f"Customer: {d.customer_name} ({d.customer_email}) | Address: {d.job_address}\n\n"
+        f"Write a short win-back email (3–4 sentences, empathetic, keeps the door open)."
     )
-    email_draft = await ask_claude(prompt, max_tokens=512)
+    email_draft = await ask_claude(prompt, max_tokens=320, model="claude-sonnet-4-6")
     logger.info("Claude win-back draft for %s:\n%s", d.job_number, email_draft)
 
 
@@ -144,13 +152,10 @@ async def on_task_created(event: WebhookEvent):
     logger.info("Task created: %s (due=%s, job=%s)", d.task_title, d.due_date, d.job_id)
 
     prompt = (
-        f"A task was created for a roofing job.\n\n"
-        f"Task: {d.task_title}\n"
-        f"Customer: {d.customer_name}\n"
-        f"Due: {d.due_date or 'no due date'}\n\n"
-        f"Give one sentence of practical guidance for completing this task efficiently."
+        f"Task: {d.task_title} | Customer: {d.customer_name} | Due: {d.due_date or 'none'}\n"
+        f"One-sentence tip."
     )
-    tip = await ask_claude(prompt, max_tokens=128)
+    tip = await ask_claude(prompt, max_tokens=64)
     logger.info("Claude task tip: %s", tip)
 
 
