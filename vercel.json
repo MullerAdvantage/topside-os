@@ -7,6 +7,10 @@
   ],
   "routes": [
     {
+      "src": "/dashboards/(.*)",
+      "dest": "/public/dashboards/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "webhook.py"
     }
