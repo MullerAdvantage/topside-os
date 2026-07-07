@@ -1,0 +1,19 @@
+Document Extraction,
+New Job Creation,
+Document Extraction,
+
+Recommended Skill Files:
+- new-job-folder/SKILL.md
+- marketing-auditor/SKILL.md
+- vendor-audit/SKILL.md
+- lead-attribution-auditor/SKILL.md
+- campaign-builder/SKILL.md
+- seo-content-builder/SKILL.md
+- google-business-profile-manager/SKILL.md
+- website-landing-page-builder/SKILL.md
+- quickbooks-job-setup/SKILL.md
+- leap-crm-operator/SKILL.md
+- po-number-generator/SKILL.md
+- estimator-commission-tracker/SKILL.md
+- company-health-dashboard/SKILL.md
+- executive-briefing-generator/SKILL.md

@@ -1,0 +1,64 @@
+Purpose & context
+Jessica is the marketing team at Topside Roofing,Siding & Gutters. located in Bellingham WA. She is a 35 year old single mother, going to school for BA in Business Marketing as well as working full time.
+
+Bellingham, WA location — serving Whatcom, Skagit, and San Juan Counties (confirmed as the actual service area via Leap CRM data)
+The goal is to establish a system in which will not only market the company in ways that will increase the company's visibility, web and social media presence, as well as increase the generation of leads ultimatley causing for increased revenue while reducing the money going out for the reoccuring expenses as well as the overhead. 
+
+Key team members: Phil York (owner/decision-maker) & Shawn York (Owner/Office Administration), Braedan York (successor- Phil and Shawns son), Ashley (Office Administrator who handled Marketing until Jessica was hired, and field estimators Carson, Dustin, Duane, and Braedan- only when he is needed to take an appointment.
+Jessica's primary focus spans two major workstreams:
+
+Marketing compliance and vendor accountability — auditing Topside's relationship with Marketing 360 (Madwire, LLC), taking over the marketing tasks once the contract with Marketing360 ciomes to an end which is going to be either August 20th or September 20th of 2026, documenting contract violations, and building evidence for potential dispute or renegotiation
+Competitive intelligence and growth strategy — analyzing competitors in Topside's service areas and building actionable marketing and sales assets
+
+Current state
+Marketing 360 (Madwire) Audit:
+The operative contract began March 20, 2026. Nine documented violations (V001–V009) have been established from uploaded evidence, covering: zero content deliverables against contracted monthly minimums; GA4 conversion tracking never configured; an undisclosed ad-budget management fee with unaccounted funds; Madwire revoking Topside's own admin access to their Google Ads account (Customer ID 184-261-9558) to conceal billing data; refusal to provide itemized invoices; a verified click performance discrepancy between M360 claims and GSC data; inconsistent SEO reporting; a March ad spend overage; and search position stagnation. A tenth open item (V010) flags that the actual current monthly billed rate remains unconfirmed pending bank/QuickBooks verification.
+All MOCS skill configuration files were rebuilt from scratch to reflect only verified March 2026 data — prior 2024 references and incorrect location data that appeared in pre-loaded skill files have been removed.
+### Competitive Intelligence & Regional Market Domination
+1. **Target Territories (Local Market Focus):** Your strategic analysis, lead generation ideas, and competitive positioning must strictly focus on **Whatcom County, Skagit, Island, and the San Juan Islands**. 
+2. **Geographic Exclusions:** **Strictly exclude** Federal Way, South King County, or any southern regions from your strategies, as they are completely outside our service limits.
+3. **Established Competitor Vault:** Use the completed comprehensive profiles of our eight core local competitors as your baseline benchmark to identify market vulnerabilities and out-maneuver them:
+   - SRS Roofing
+   - Axiom Roofing
+   - Mt. Baker Roofing
+   - Roofscapes NW
+   - Bee Roofing and Exteriors
+   - Allied Roofing Installation
+   - Mendoza Gutters
+   - Horizon Roofing
+4. **Core Growth Tactics Deployment:** Continually reference, refine, and build tools around our three established core growth mechanics:
+   - **Post-Job Review SMS System:** Automated text workflows designed to maximize local review counts and social proof.
+   - **"Complete Exterior" Bundle Package:** High-margin positioning strategies combining roofing, gutters, and exterior assets to increase average job value.
+   - **Video Estimate Process:** Standardized field workflows allowing estimators to deliver high-converting, professional video walkthroughs to prospects.
+5. **Strategic Objective:** Analyze how these eight competitors operate in our specific four-county footprint to engineer tactical plays, ad campaigns, and operational tools that allow us to systematically capture their market share and dominate the local industry.
+
+
+Sourcing is non-negotiable. Jessica has explicitly corrected Claude multiple times for using unverified pre-loaded or assumed data. All claims must be grounded in uploaded evidence or explicitly flagged as unverified.
+The March 20, 2026 contract is the only operative agreement. Any reference to prior periods requires Jessica's explicit confirmation before use.
+Pre-loaded skill/config files contained errors (wrong contract year, wrong location) — these were corrected and should not be trusted as ground truth without Jessica's verification.
+### Structural Differentiation & Market Dominance Framework
+1. **Core Structural Differentiator:** Our primary competitive advantage is being the only major operator within **Whatcom, Skagit, Island, and San Juan Counties** bundling roofing, siding, and gutters at scale. This comprehensive "Complete Exterior" positioning must be the foundation of all marketing assets, ad campaigns, and social media content to systematically capture regional market share.
+2. **Campaign Targeting Mandate:** All advertising campaigns, social media pipelines, Local Services Ads (LSAs), and lead generation assets must be strictly tailored and geo-targeted to dominate the specific markets within **Whatcom, Skagit, Island, and the San Juan Islands**. Any southern territories (such as Federal Way or South King County) are strictly outside our scope of work and must be completely excluded from all strategies.
+3. **Engineered Winning Tactics:** To out-maneuver local competitors across our four-county footprint, our marketing and operational tools must continuously leverage and highlight these six verified winning mechanics:
+   - **Named Personnel:** Highlighting real, certified local team members to build immediate trust.
+   - **Honest Diagnostics:** Transparent, no-BS inspection frameworks that expose competitor price-gouging.
+   - **Video Estimates:** Seamless field walkthroughs delivered directly to the client's phone.
+   - **Insurance Claim Support:** Dedicated, step-by-step guidance to maximize the homeowner's coverage.
+   - **High Review Volume:** Aggressive deployment of our SMS system to overwhelm competitors online.
+   - **Weekend Availability:** Unmatched scheduling flexibility that captures urgent, high-intent leads when other local companies are closed.
+
+Approach & patterns
+
+Jessica is direct and corrections-oriented — she prioritizes accuracy over speed and will push back on errors or assumptions
+She requires actionable outputs over explanatory text; summaries and deliverables should lead with substance
+She works within a structured skill/command system (auditor skill, business-command-launcher) and expects Claude to operate within those workflows when invoked
+Data analysis relies on uploaded files — Jessica does not expect Claude to access external accounts or live browser sessions
+Deliverables are expected in concrete formats: Word documents, HTML dashboards, tabbed files, SMS templates, ad copy, scripts — not just narrative summaries
+
+Tools & resources
+
+Data sources used: Google Search Console exports, Google Ads CSVs, GA4, CallRail, Leap CRM exports (Master List, Job Schedules, Appointments), Marketing 360 billing email threads, signed Madwire contract PDF, Google Places (via places_search tool)
+Skill files: /mnt/skills/user/auditor/SKILL.md, /mnt/skills/user/business-command-launcher/SKILL.md, auditor dashboard at /mnt/skills/user/auditor/assets/marketing360_dashboard.html
+Output location: /mnt/user-data/outputs/ (static HTML files surfaced via present_files)
+CRM: Leap (used for pipeline, job schedules, appointments, and service area verification)
+Vendor under audit: Marketing 360 / Madwire, LLC; key contacts Robin Mills (Senior Marketing Success Manager) and Brennan Rachman.

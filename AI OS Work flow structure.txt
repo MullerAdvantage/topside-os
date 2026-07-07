@@ -1,0 +1,108 @@
+Tools and Resources
+Core AI OS Roles:
+1. Auditor — verifies marketing spend, leads, attribution, contracts, billing, vendor claims, and ROI.
+2. Marketer — creates campaigns, SEO content, ads, social posts, landing pages, GBP updates, and lead-generation strategy.
+3. Business Strategist — analyzes company health, project flow, estimator performance, job profitability, cash flow, scheduling, and growth opportunities.
+
+Add these tool categories:
+Primary Data Sources:
+- Google Ads
+- Google Local Services Ads
+- Google Analytics 4
+- Google Search Console
+- Google Business Profile
+- CallRail
+- LEAP CRM
+- QuickBooks
+- Excel job/PO spreadsheets
+- Estimator commission spreadsheets
+- Signed proposals/contracts
+- Vendor invoices and billing emails
+- Website form submissions
+- Customer reviews
+- Social media accounts
+- Roofing material/vendor invoices
+- Job schedules and production calendars
+
+APIs / Integrations to Include:
+- Google Ads API
+- Google Search Console API
+- Google Analytics Data API
+- Google Business Profile API
+- Google Places API
+- CallRail API / webhooks
+- LEAP API / exports
+- QuickBooks Online API
+- Gmail connector
+- Google Drive connector
+- Google Calendar connector
+- Google Sheets connector
+- Vercel deployment
+- GitHub repository
+- Cloudflare tunnel / access layer
+
+Add this infrastructure section:
+
+System Infrastructure:
+- Vercel app hosting
+- GitHub source control
+- Cloudflare DNS / tunnel / access protection
+- Environment variables for API keys and tokens
+- Secure credential vault
+- Scheduled jobs for daily/weekly audits
+- Static HTML dashboard outputs
+- Export folder for reports
+- Audit log folder
+- Evidence folder
+- Error log folder
+- Backup folder
+
+Vercel environment variables are the correct place to store API keys and configuration values used during builds or runtime, and changes apply through new deployments.
+
+Add these skill files
+
+Recommended Skill Files:
+- new-job-folder/SKILL.md
+- marketing-auditor/SKILL.md
+- vendor-audit/SKILL.md
+- lead-attribution-auditor/SKILL.md
+- campaign-builder/SKILL.md
+- seo-content-builder/SKILL.md
+- google-business-profile-manager/SKILL.md
+- website-landing-page-builder/SKILL.md
+- quickbooks-job-setup/SKILL.md
+- leap-crm-operator/SKILL.md
+- po-number-generator/SKILL.md
+- estimator-commission-tracker/SKILL.md
+- company-health-dashboard/SKILL.md
+- executive-briefing-generator/SKILL.md
+
+Add this final “mission control” line:
+
+Master Command:
+"Topside AI OS" is the central command system. When triggered, it routes the task to the correct mode: Auditor, Marketer, Business Strategist, or New Job Folder Workflow.
+
+
+##Your section should ultimately read like this##
+'''Tools & Resources'''
+
+System Purpose:
+Topside AI OS is a 3-in-1 command assistant for Topside Roofing, Siding & Gutters. It functions as an auditor, marketer, and business strategist.
+
+Core Modes:
+Auditor Mode
+Marketing Mode
+Business Strategy Mode
+New Job Folder Mode
+
+Data Sources Used:
+Google Search Console, Google Ads, Google Local Services Ads, GA4, Google Business Profile, CallRail, LEAP CRM, QuickBooks, Excel PO spreadsheets, estimator commission spreadsheets, signed proposals, vendor contracts, billing emails, website form leads, customer reviews, social media data, job schedules, appointment calendars, and project financial records.
+
+Tools / APIs:
+Google Ads API, Search Console API, GA4 Data API, Google Business Profile API, Google Places API, CallRail API, LEAP API or exports, QuickBooks API, Gmail, Google Drive, Google Calendar, Google Sheets, GitHub, Vercel, Cloudflare.
+
+Output Locations:
+Audit dashboards, static HTML reports, PDF summaries, CSV exports, executive briefs, new job checklists, marketing reports, vendor audit evidence folders, and company health reports.
+
+Primary Goal:
+Centralize disconnected company data so Topside can verify marketing performance, create new jobs correctly, track profitability, improve lead generation, expose vendor issues, and make better business decisions from one controlled operating system.

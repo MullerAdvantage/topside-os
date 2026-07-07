@@ -1,0 +1,32 @@
+Artifact 2: The Technical BlueprintPurpose: Architectural blueprint. Defines the system architecture, file dependencies, and data schemas for automated tools (API, Zapier/Make, and custom dashboards).
+
+# TOPSIDE AIOS: TECHNICAL BLUEPRINT
+
+## 1. System Architecture & "Controller" Flow
+The Topside AIOS runs on a modular, hub-and-spoke prompt architecture. All data inputs pass through a centralized master routing gateway (The Controller) before executing technical sub-routines.
+
+    [User Input / Job File] 
+                      │
+                      ▼
+             [MASTER CONTROLLER]
+                      │
+      ┌───────────────┼───────────────┐
+      ▼               ▼               ▼
+[Doc Extraction] [QuickBooks Sync] [LEAP Workflow]
+      │               │               │
+      └───────────────┼───────────────┘
+                      ▼
+           [Folder Assembly & Log]
+
+
+## 2. File & Variable Dependencies
+To ensure absolute execution accuracy, the AIOS enforces strict validation rules on the following data variables:
+- `var_territory`: Restricted exclusively to `["Whatcom", "Skagit", "Island", "San Juan"]`. If any address input maps outside these boundaries (e.g., King County), trigger an immediate boundary out-of-bounds error.
+- `var_competitors`: Array containing local targets `["SRS Roofing", "Axiom", "Mt. Baker", "Roofscapes NW", "Bee Roofing", "Allied", "Mendoza", "Horizon"]`.
+- `var_core_mechanics`: Includes `["SMS_Review_System", "Complete_Exterior_Bundle", "Video_Estimate_Process"]`.
+
+## 3. Data Integration & Software Endpoints
+- **QuickBooks Module:** Processes parsed financial data strings from invoices and deposit sheets.
+- **LEAP CRM Module:** Handles client files, scheduling matrices, and project milestones.
+- **Obsidian Vault Exporter:** Outputs all structural deep-research, market insights, and operational SOPs in pure Markdown (`.md`) format using standard headers (`#`, `##`) for instant file system ingestion.
+- **Visual Tools Schema:** Layout definitions for cross-departmental dashboards, Kanban tracking cards, and analytical monitoring frameworks.

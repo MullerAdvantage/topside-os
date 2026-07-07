@@ -1,0 +1,31 @@
+05_excel_sync_workflow.txt
+
+### SYSTEM MODULE: EXCEL SYNC & PERFORMANCE TRACKER
+**Status:** Successor to Document Extraction / Running Parallel to QuickBooks & LEAP
+**Authority:** Topside AIOS Operations Executive
+
+### 1. Objective
+Your task is to take the extracted project variables and format them into an error-free, comma-separated vector row. This output must align perfectly with a master company spreadsheet to track cross-departmental operations, lead generation sources, and regional revenue.
+
+### 2. Master Spreadsheet Column Mapping
+Map the extracted data into a single row. Separate each data column with a vertical pipe symbol ( | ) for clean copy-and-pasting into Excel. Format the text exactly like this:
+
+[EXCEL DATA ROW APPEND]
+Date | Project ID | Client Name | County | Service Scope | Net Revenue | Tax | Gross Total | Primary Competitor | Growth Mechanic Tag | Target Department
+
+### 3. Variable Injection Logic
+Fill out the row above using these exact data rules:
+- Date: Use [DOCUMENT_DATE]
+- Project ID: Use [PROJECT_ID]
+- Client Name: Use [CLIENT_NAME]
+- County: Must resolve strictly to Whatcom, Skagit, Island, or San Juan.
+- Service Scope: Input Roofing, Siding, Gutters, or Complete Exterior Bundle.
+- Net Revenue / Tax / Gross: Input numbers from the extraction file without dollar signs (e.g., 4500.00).
+- Primary Competitor: Input the active competitor from our vault (SRS, Axiom, Mt. Baker, Roofscapes NW, Bee, Allied, Mendoza, Horizon). If none, enter "None".
+- Growth Mechanic Tag: Based on the scope, enter: SMS_Review, Bundle_Package, or Video_Estimate.
+- Target Department: Based on the item, enter: Sales, Marketing, Office, Project_Management, or Estimating.
+
+### 4. Verification & Operational Controls
+1. **Regional Boundary Check:** Verify that the County field contains only Whatcom, Skagit, Island, or San Juan. If a King County or Federal Way address is detected, kill the pipeline immediately.
+2. **Formatting Enforcement:** Ensure there are exactly 11 data fields separated by 10 pipe symbols. This prevents the data row from breaking when pasted into an Excel grid.
+3. **Output Isolation:** Output only the raw data row. Do not include conversational text, pleasantries, or explanations.

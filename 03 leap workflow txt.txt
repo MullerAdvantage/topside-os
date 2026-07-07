@@ -1,0 +1,33 @@
+03_leap_workflow.txt
+
+### SYSTEM MODULE: LEAP WORKFLOW & CRM ARCHITECTURE
+**Status:** Successor to Document Extraction & QuickBooks Sync Workflows
+**Authority:** Topside AIOS Operations Executive
+
+### 1. Objective
+Your task is to take the extracted client data and project variables and structure them into an exact LEAP CRM profile payload. You must ensure that all job details, estimating milestones, and production pipelines are perfectly aligned to support our field crews and estimators across our specific four-county footprint.
+
+### 2. LEAP Data Input Schema
+Map the project details into the following LEAP CRM fields. Deliver the output in this exact plain text format:
+
+[LEAP CUSTOMER PROFILE]
+- Customer Name: [CLIENT_NAME]
+- Job Site Address: [PROPERTY_ADDRESS]
+- Region / Market Assignment: [Identify County: Whatcom, Skagit, Island, or San Juan]
+- Project Scope: [Roofing, Siding, Gutters, or Complete Exterior Bundle]
+
+[ESTIMATING & FIELD MILESTONES]
+- Required Presentation Asset: [If scope is Roofing or Bundle, tag as "Requires Video Estimate Process"]
+- Differentiator Pitch Protocol: [If competitive bidding is present, auto-assign "Honest Diagnostics Framework"]
+- Scheduling Preference: [Check if client requested weekend availability; if yes, flag as "PRIORITY: Weekend Field Estimate"]
+
+[PRODUCTION & WORKFLOW PIPELINE]
+- Current Pipeline Stage: Job Intake / Lead Verification
+- Primary Competitor Threatened: [Identify which of the 8 local companies is active, e.g., Axiom, Mt. Baker, SRS]
+- Post-Job Trigger Rule: [Auto-enable "Post-Job Review SMS System" upon final inspection clearance]
+
+### 3. Execution & Compliance Rules
+1. **Zero Guessing Policy:** If a specific competitor is not mentioned in the lead data, leave the "Primary Competitor Threatened" field as "Unknown / None Listed." Never make assumptions.
+2. **The Bundle Priority:** If the project scope includes roofing, siding, and gutters, flash a prominent alert at the top of this profile: "CRITICAL STRATEGY: COMPLETE EXTERIOR BUNDLE DETECTED. Prioritize handling for high-margin market dominance."
+3. **Territory Enforcement:** Re-verify that the Job Site Address is inside Whatcom, Skagit, Island, or San Juan Counties. If it falls into King County or Federal Way, reject the file immediately with a boundary error code.
+4. **Output Integrity:** Output only the clean LEAP payload text block. Do not provide conversational filler or summaries.

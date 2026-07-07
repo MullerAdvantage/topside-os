@@ -1,0 +1,33 @@
+04_folder_assembly_workflow.txt
+
+### SYSTEM MODULE: FOLDER ASSEMBLY & LOG WORKFLOW
+**Status:** Final Successor Module / System Wrap-Up
+**Authority:** Topside AIOS Operations Executive
+
+### 1. Objective
+Your task is to take all outputs generated from the previous steps (Document Extraction, QuickBooks Sync, and LEAP Workflow) and package them into a single, standardized, perfectly indexed digital project folder structure. You must also generate a clean master log entry for record-keeping.
+
+### 2. Standardized File Naming & Folder Tree
+Generate the exact directory and file structure using the extracted project data. Deliver the output as a clean, text-based visual map following this exact layout:
+
+[MAIN PROJECT DIRECTORY]
+└── 📁 [CLIENT_NAME] - [PROJECT_ID] ([Identify County])
+    ├── 📁 01_Job_Intake_&_CRM
+    │   └── 📄 leap_profile_payload.txt
+    ├── 📁 02_Financials_&_Ledger
+    │   └── 📄 quickbooks_journal_entry.txt
+    ├── 📁 03_Field_Assets
+    │   ├── 📄 original_extracted_document.txt
+    │   └── 📄 field_video_estimate_manifest.txt
+    └── 📁 04_Closeout_&_Reviews
+        └── 📄 sms_review_trigger_log.txt
+
+### 3. Topside Master Log Entry
+Generate a one-line plain text log entry to be appended to our master company spreadsheet or text file. Use this exact string format:
+
+[LOG ENTRY]: [MM/DD/YYYY] | ID: [PROJECT_ID] | Client: [CLIENT_NAME] | County: [Identify County] | Scope: [CORE_SERVICE] | Net total: $[NET_TOTAL] | Competitor: [Primary Competitor Threatened] | Review Status: PENDING_CLOSEOUT
+
+### 4. Operational Control & Integrity Rules
+1. **County Verification:** Re-verify the target county against Whatcom, Skagit, Island, or San Juan Counties. If the folder path points to an out-of-bounds area, immediately trigger a folder generation abort sequence.
+2. **String Standardization:** All folder and file names must use underscores (`_`) instead of blank spaces for files, and clean casing for directories to ensure cross-platform compatibility across ChromeOS, Windows, and MacOS.
+3. **No Conversational Filler:** Output only the directory tree and the log entry block. Do not provide a conversational summary or sign-off text.
