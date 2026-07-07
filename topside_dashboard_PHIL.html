@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topside Roofing — Marketing &amp; Sales Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;--surface:#fff;--border:rgba(0,0,0,.09);--border-strong:rgba(0,0,0,.14);
+  --text-primary:#0b0b0b;--text-secondary:#52514e;--text-muted:#898781;
+  --accent:#1F4E79;--accent-light:#E6F1FB;--accent-text:#185FA5;
+  --success:#375623;--success-bg:#E2EFDA;
+  --warning:#7B4F12;--warning-bg:#FFF2CC;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text-primary);min-height:100vh}
+.page{max-width:1100px;margin:0 auto;padding:2.5rem 2rem}
+
+.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:2px solid var(--accent);flex-wrap:wrap;gap:12px}
+.co-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:6px}
+.header-title{font-size:26px;font-weight:600;letter-spacing:-.5px;margin-bottom:4px}
+.header-meta{font-size:13px;color:var(--text-muted)}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.badge-live{font-size:11px;font-weight:600;padding:4px 12px;border-radius:99px;background:var(--success-bg);color:var(--success);display:flex;align-items:center;gap:5px}
+.badge-live::before{content:'';width:7px;height:7px;border-radius:50%;background:#375623;display:inline-block}
+.btn-print{font-size:12px;font-weight:500;padding:7px 16px;border-radius:6px;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s}
+.btn-print:hover{background:var(--bg)}
+.btn-print svg{width:13px;height:13px}
+
+/* TOP TILES */
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.tile{background:var(--surface);border:.5px solid var(--border);border-radius:10px;padding:1.25rem 1.1rem;position:relative;overflow:hidden}
+.tile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0;background:var(--accent)}
+.tile.orange::before{background:#C55A11}
+.tile.green::before{background:#375623}
+.tile-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.tile-num{font-size:44px;font-weight:600;line-height:1;letter-spacing:-2px}
+.tile-sub{font-size:12px;margin-top:8px;color:var(--text-secondary)}
+.tile-sub.up{color:var(--success)}
+.tile-sub.warn{color:var(--warning)}
+
+/* CHARTS ROW */
+.charts-row{display:grid;grid-template-columns:55% calc(45% - 14px);gap:14px;margin-bottom:14px}
+.chart-card{background:var(--surface);border:.5px solid var(--border);border-radius:10px;padding:1.25rem}
+.chart-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary)}
+.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* SECOND ROW — rep + trade */
+.second-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+
+/* BOTTOM STATS */
+.bottom-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.stat-card{background:var(--surface);border:.5px solid var(--border);border-radius:10px;padding:1.1rem 1.25rem;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0;background:var(--accent);opacity:.45}
+.stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:8px}
+.stat-val{font-size:26px;font-weight:600;letter-spacing:-.5px}
+.stat-sub{font-size:12px;color:var(--text-secondary);margin-top:4px}
+
+/* DATA NOTE */
+.data-note{font-size:11px;color:var(--text-muted);margin-top:.75rem;font-style:italic;text-align:right}
+
+.footer{margin-top:2rem;padding-top:1rem;border-top:.5px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--text-muted)}
+
+@media print{
+  body{background:white}
+  .btn-print{display:none!important}
+  .page{padding:1.5rem}
+  .tiles{grid-template-columns:repeat(4,1fr)!important}
+  .charts-row,.second-row{grid-template-columns:1fr 1fr!important}
+  .bottom-strip{grid-template-columns:repeat(3,1fr)!important}
+}
+
+  .nav-bar{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+  .nav-btn{font-size:12px;font-weight:500;padding:6px 14px;border-radius:6px;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+  .nav-btn:hover{background:var(--bg)}
+  .nav-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div>
+      <div class="co-name">Topside Construction Inc.</div>
+      <div class="header-title">Marketing &amp; Sales Dashboard</div>
+      <div class="header-meta">dba Topside Roofing, Siding &amp; Gutters &nbsp;·&nbsp; Bellingham, WA &nbsp;·&nbsp; Whatcom, Skagit, Island &amp; San Juan Islands &nbsp;·&nbsp; <span id="report-date"></span></div>
+    </div>
+    <div class="header-right">
+      <span class="badge-live">Live</span>
+      <button class="btn-print" onclick="window.print()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print / Save PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- TOP 4 TILES -->
+  <div class="tiles">
+    <div class="tile">
+      <div class="tile-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        Total jobs on file
+      </div>
+      <div class="tile-num">542</div>
+      <div class="tile-sub">All time · Leap CRM</div>
+    </div>
+    <div class="tile orange">
+      <div class="tile-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Active in pipeline
+      </div>
+      <div class="tile-num">144</div>
+      <div class="tile-sub warn">53 in booked stages</div>
+    </div>
+    <div class="tile green">
+      <div class="tile-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Completed
+      </div>
+      <div class="tile-num">77</div>
+      <div class="tile-sub up">Jobs closed out</div>
+    </div>
+    <div class="tile orange">
+      <div class="tile-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Appts booked
+      </div>
+      <div class="tile-num">47</div>
+      <div class="tile-sub">Upcoming appointments</div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg>
+        Trade mix — all 542 jobs on file
+      </div>
+      <div class="legend" id="pie-legend"></div>
+      <div style="position:relative;height:210px"><canvas id="pieChart" role="img" aria-label="Trade mix doughnut chart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+        Confirmed revenue by trade
+      </div>
+      <div style="position:relative;height:240px"><canvas id="barChart" role="img" aria-label="Revenue by trade bar chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ESTIMATOR + PIPELINE -->
+  <div class="second-row">
+    <div class="chart-card">
+      <div class="chart-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Jobs &amp; revenue by estimator
+      </div>
+      <div style="position:relative;height:220px"><canvas id="repChart" role="img" aria-label="Jobs by estimator bar chart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Pipeline by stage — active jobs
+      </div>
+      <div style="position:relative;height:220px"><canvas id="stageChart" role="img" aria-label="Pipeline stage bar chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM STATS -->
+  <div class="bottom-strip">
+    <div class="stat-card">
+      <div class="stat-label">Confirmed pipeline revenue</div>
+      <div class="stat-val">$871,948</div>
+      <div class="stat-sub">36 priced jobs in active pipeline</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg. job value</div>
+      <div class="stat-val">$24,221</div>
+      <div class="stat-sub">Based on 36 priced active jobs</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Dominant trade</div>
+      <div class="stat-val">Roofing</div>
+      <div class="stat-sub">75.3% of all jobs · $657,578 revenue</div>
+    </div>
+  </div>
+
+  <div class="data-note">Source: Leap CRM export · July 7, 2026 · Whatcom, Skagit, Island &amp; San Juan Islands</div>
+
+  <div class="footer">
+    <span>Topside Construction Inc. &nbsp;·&nbsp; Prepared by Jessica &nbsp;·&nbsp; Confidential</span>
+    <span id="footer-date"></span>
+  </div>
+</div>
+
+<script>
+const COLORS = ['#2a78d6','#D9531E','#1baf7a','#4a3aa7','#eda100','#e34948'];
+const TRADE_COLORS = { ROOFING:'#D9531E', SIDING:'#2a78d6', GUTTERS:'#1baf7a', OTHER:'#898781', WINDOWS:'#4a3aa7', PAINTING:'#eda100' };
+
+// Trade mix — all 542 jobs
+const tradePieLbls = ["Roofing", "Siding", "Other", "Gutters", "Windows", "Painting"];
+const tradePieData = [408, 75, 44, 10, 4, 1];
+const tradePieColors = ["#D9531E", "#2a78d6", "#898781", "#1baf7a", "#4a3aa7", "#eda100"];
+const total = tradePieData.reduce((a,b)=>a+b,0);
+document.getElementById('pie-legend').innerHTML = tradePieLbls.map((l,i)=>
+  `<span class="legend-item"><span class="legend-dot" style="background:${tradePieColors[i]}"></span>${l} ${Math.round(tradePieData[i]/total*100)}%</span>`
+).join('');
+
+new Chart(document.getElementById('pieChart'),{
+  type:'doughnut',
+  data:{labels:tradePieLbls,datasets:[{data:tradePieData,backgroundColor:tradePieColors,borderWidth:2,borderColor:'#fff'}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed} jobs`}}}}
+});
+
+// Revenue by trade
+new Chart(document.getElementById('barChart'),{
+  type:'bar',
+  data:{
+    labels:["Roofing", "Siding", "Other"],
+    datasets:[{data:[657578, 208835, 5535],backgroundColor:["#D9531E", "#2a78d6", "#1baf7a"],borderRadius:4,borderSkipped:false}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' $'+ctx.parsed.x.toLocaleString()}}},
+    scales:{
+      x:{grid:{color:'#e8e7e3'},ticks:{color:'#898781',font:{size:11},callback:v=>'$'+(v/1000).toFixed(0)+'k'}},
+      y:{grid:{display:false},ticks:{color:'#52514e',font:{size:12}}}
+    }}
+});
+
+// Jobs & revenue by estimator
+new Chart(document.getElementById('repChart'),{
+  type:'bar',
+  data:{
+    labels:["Carson E.", "Duane V.", "Dustin S.", "Phil Y.", "Braedan Y.", "Jessica M.", "Ashley A.", "Itzel O."],
+    datasets:[
+      {label:'Jobs',data:[52, 44, 35, 1, 4, 1, 2, 2],backgroundColor:'#2a78d6',borderRadius:3,yAxisID:'y'},
+      {label:'Revenue ($k)',data:[282, 249, 244, 24, 17, 0, 0, 0],backgroundColor:'#D9531E',borderRadius:3,yAxisID:'y1'}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:10}}},
+    scales:{
+      x:{grid:{display:false},ticks:{color:'#52514e',font:{size:10}}},
+      y:{grid:{color:'#e8e7e3'},ticks:{color:'#898781',font:{size:11}},title:{display:true,text:'Jobs',font:{size:10}}},
+      y1:{position:'right',grid:{display:false},ticks:{color:'#D9531E',font:{size:11},callback:v=>'$'+v+'k'},title:{display:true,text:'Revenue',font:{size:10}}}
+    }}
+});
+
+// Pipeline by stage
+new Chart(document.getElementById('stageChart'),{
+  type:'bar',
+  data:{
+    labels:["Appt Booked", "Bid", "Signed Est.", "Dep -> Est.", "Active Jobs", "New Const.", "Dep Rcvd", "Commercial", "Job Sched.", "Final Walk.", "Mat. List", "Warranty", "Mat. Ordered"],
+    datasets:[{data:[47, 13, 12, 11, 9, 5, 5, 3, 3, 2, 1, 1, 1],backgroundColor:'#1F4E79',borderRadius:3}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x} jobs`}}},
+    scales:{
+      x:{grid:{color:'#e8e7e3'},ticks:{color:'#898781',font:{size:11},stepSize:5}},
+      y:{grid:{display:false},ticks:{color:'#52514e',font:{size:10}}}
+    }}
+});
+
+const now = new Date();
+const fmt = now.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+document.getElementById('report-date').textContent = 'Updated '+fmt;
+document.getElementById('footer-date').textContent = fmt;
+</script>
+</body>
+</html>
