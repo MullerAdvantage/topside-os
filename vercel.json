@@ -11,6 +11,14 @@
       "dest": "/public/dashboards/$1"
     },
     {
+      "src": "/api/leap-data",
+      "dest": "/api/leap-data.js"
+    },
+    {
+      "src": "/api/leap-upload",
+      "dest": "/api/leap-upload.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "webhook.py"
     }
