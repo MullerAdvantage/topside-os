@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Topside Ops — Active Projects</title>
+<style>
+  :root{
+    --paper:#F3EEE2;--paper-line:#DCD3BC;--ink:#2B2A28;--ink-soft:#6B6558;
+    --safety:#D9531E;--safety-dark:#A93E14;--slate:#3E4C59;--slate-soft:#8996A3;
+    --green:#4C6B3F;--card:#FFFDF8;--amber:#B8791A;
+    --f-display:'Arial Narrow',Oswald,'Barlow Condensed',sans-serif;
+    --f-body:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --f-mono:'Courier New',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:linear-gradient(var(--paper-line) 1px,transparent 1px),linear-gradient(90deg,var(--paper-line) 1px,transparent 1px);
+    background-size:28px 28px;
+    color:var(--ink);font-family:var(--f-body);padding:32px 40px 80px;
+  }
+  header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--ink);padding-bottom:16px;margin-bottom:28px;}
+  h1{font-family:var(--f-display);font-weight:700;font-size:40px;letter-spacing:0.5px;text-transform:uppercase;}
+  .sub{color:var(--ink-soft);font-size:14px;margin-top:4px;}
+  .stamp{border:2px solid var(--safety);color:var(--safety-dark);font-family:var(--f-mono);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:1px;padding:6px 12px;transform:rotate(-2deg);white-space:nowrap;}
+
+  /* ── FILTER BAR ── */
+  .filter-bar{
+    background:var(--card);border:1px solid var(--paper-line);border-left:4px solid var(--slate);
+    padding:14px 18px;margin-bottom:24px;display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;
+  }
+  .filter-group{display:flex;flex-direction:column;gap:4px;min-width:160px;}
+  .filter-group label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);}
+  .filter-group select,
+  .filter-group input[type=text],
+  .filter-group input[type=date]{
+    font-family:var(--f-body);font-size:12px;color:var(--ink);
+    background:var(--paper);border:1px solid var(--paper-line);padding:5px 8px;
+    min-width:160px;cursor:pointer;
+  }
+  .filter-group select:focus,
+  .filter-group input:focus{outline:2px solid var(--slate);outline-offset:1px;}
+  .filter-actions{display:flex;gap:8px;align-items:flex-end;margin-left:auto;}
+  .btn-filter{
+    font-family:var(--f-mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+    padding:6px 14px;border:1.5px solid var(--slate);background:var(--slate);color:#fff;cursor:pointer;
+  }
+  .btn-filter:hover{background:var(--slate-soft);}
+  .btn-reset{background:var(--paper);color:var(--ink-soft);border-color:var(--paper-line);}
+  .btn-reset:hover{border-color:var(--safety);color:var(--safety-dark);}
+  .filter-result-count{
+    font-family:var(--f-mono);font-size:11px;color:var(--ink-soft);
+    padding:5px 10px;border:1px dashed var(--paper-line);white-space:nowrap;align-self:flex-end;
+  }
+  .filter-result-count span{font-weight:700;color:var(--safety-dark);}
+
+  /* ── KPIS ── */
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:32px;}
+  .kpi{background:var(--card);border:1px solid var(--paper-line);border-left:4px solid var(--slate);padding:14px 16px;}
+  .kpi.orange{border-left-color:var(--safety);}
+  .kpi.green{border-left-color:var(--green);}
+  .kpi .num{font-family:var(--f-display);font-size:34px;font-weight:700;line-height:1;}
+  .kpi .lbl{font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink-soft);margin-top:4px;}
+
+  .layout{display:grid;grid-template-columns:2.2fr 1fr;gap:24px;}
+  .section-title{font-family:var(--f-display);font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+  .section-title::after{content:'';flex:1;height:2px;background:var(--ink);opacity:0.15;}
+
+  /* ── BOARD ── */
+  .board{display:flex;gap:14px;overflow-x:auto;padding-bottom:12px;}
+  .col{min-width:230px;flex:1;}
+  .col-head{font-family:var(--f-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#fff;background:var(--slate);padding:6px 10px;display:flex;justify-content:space-between;}
+  .col-head .n{background:rgba(255,255,255,0.2);padding:0 6px;border-radius:3px;}
+  .col-body{background:var(--card);border:1px solid var(--paper-line);border-top:none;min-height:60px;max-height:520px;overflow-y:auto;}
+  .col-empty{display:none;}
+  .ticket{border-bottom:1px dashed var(--paper-line);padding:10px;position:relative;}
+  .ticket:last-child{border-bottom:none;}
+  .ticket .name{font-weight:600;font-size:13px;}
+  .ticket .id{font-family:var(--f-mono);font-size:10px;color:var(--ink-soft);margin-top:2px;}
+  .ticket .addr{font-size:10px;color:var(--ink-soft);margin-top:2px;}
+  .ticket .meta{display:flex;justify-content:space-between;align-items:center;margin-top:6px;flex-wrap:wrap;gap:4px;}
+  .ticket .signed{font-family:var(--f-mono);font-size:9px;color:var(--green);margin-top:2px;}
+  .ticket.hidden{display:none;}
+
+  .trade-tag{font-size:9px;text-transform:uppercase;letter-spacing:0.4px;font-weight:600;padding:2px 6px;border-radius:2px;}
+  .trade-ROOFING{background:#E9D8C4;color:#6B4423;}
+  .trade-SIDING{background:#D6E2E8;color:#2F5468;}
+  .trade-OTHER{background:#E5E1D5;color:var(--ink-soft);}
+  .trade-GUTTERS{background:#DDE5D0;color:var(--green);}
+  .trade-WINDOWS{background:#E8DDF0;color:#5B3E8A;}
+  .trade-PAINTING{background:#F5E8D8;color:#7A3E12;}
+  .rep{font-size:10px;color:var(--ink-soft);}
+
+  /* deposit badges */
+  .dep-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:2px;}
+  .dep-yes{background:#DDE5D0;color:var(--green);}
+  .dep-no{background:#F5DDD5;color:var(--safety-dark);}
+
+  .no-results{padding:20px;font-size:13px;color:var(--ink-soft);font-style:italic;text-align:center;}
+
+  /* ── SIDEBAR ── */
+  .sidebar-card{background:var(--card);border:1px solid var(--paper-line);margin-bottom:20px;}
+  .sched-row{padding:10px 12px;border-bottom:1px solid var(--paper-line);font-size:12px;}
+  .sched-row:last-child{border-bottom:none;}
+  .sched-row .t{font-weight:600;}
+  .sched-row .who{color:var(--ink-soft);font-size:11px;}
+  .sched-row .when{font-family:var(--f-mono);font-size:10px;color:var(--safety-dark);margin-top:3px;}
+  .crew-row{padding:9px 12px;border-bottom:1px solid var(--paper-line);font-size:12px;}
+  .crew-row:last-child{border-bottom:none;}
+  .crew-row .top{display:flex;justify-content:space-between;}
+  .crew-row .cust{font-weight:600;}
+  .crew-row .span{font-family:var(--f-mono);font-size:10px;color:var(--ink-soft);}
+  .crew-row .addr{color:var(--ink-soft);font-size:10.5px;margin-top:2px;}
+
+  .trade-bar-wrap{background:var(--card);border:1px solid var(--paper-line);padding:14px;}
+  .trade-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .trade-bar-row:last-child{margin-bottom:0;}
+  .trade-bar-label{width:70px;font-size:11px;font-weight:600;text-transform:uppercase;}
+  .trade-bar-track{flex:1;height:10px;background:var(--paper-line);position:relative;}
+  .trade-bar-fill{height:100%;background:var(--safety);}
+  .trade-bar-val{width:34px;text-align:right;font-family:var(--f-mono);font-size:11px;}
+
+  .footnote{margin-top:36px;font-size:11px;color:var(--ink-soft);border-top:1px solid var(--paper-line);padding-top:12px;}
+
+  /* ══════════════════════════════════════════
+     SALES TEAM SECTION
+  ══════════════════════════════════════════ */
+  .sales-section{margin-top:36px;}
+  .sales-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+  .rep-card{background:var(--card);border:1px solid var(--paper-line);border-top:3px solid var(--slate);padding:14px;}
+  .rep-card.warn{border-top-color:var(--amber);}
+  .rep-card.alert{border-top-color:var(--safety);}
+  .rep-name{font-family:var(--f-display);font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+  .health-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .dot-green{background:#4C6B3F;} .dot-amber{background:var(--amber);} .dot-red{background:var(--safety);}
+  .rep-stat-row{display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px dashed var(--paper-line);}
+  .rep-stat-row:last-child{border-bottom:none;}
+  .rep-stat-lbl{color:var(--ink-soft);}
+  .rep-stat-val{font-family:var(--f-mono);font-weight:600;color:var(--ink);}
+  .rep-stat-val.danger{color:var(--safety-dark);}
+  .rep-stat-val.warn{color:var(--amber);}
+  .rep-stat-val.good{color:var(--green);}
+
+  /* follow-up tracker */
+  .followup-table{width:100%;border-collapse:collapse;font-size:12px;}
+  .followup-table th{background:var(--slate);color:#fff;font-family:var(--f-mono);font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 10px;text-align:left;}
+  .followup-table td{padding:7px 10px;border-bottom:1px solid var(--paper-line);vertical-align:top;}
+  .followup-table tr:last-child td{border-bottom:none;}
+  .followup-table tr:hover td{background:#FAF8F2;}
+  .age-badge{display:inline-block;font-family:var(--f-mono);font-size:10px;font-weight:700;padding:2px 7px;border-radius:2px;}
+  .age-ok{background:#DDE5D0;color:var(--green);}
+  .age-warn{background:#FFF0C8;color:var(--amber);}
+  .age-hot{background:#F5DDD5;color:var(--safety-dark);}
+
+  /* tools panel */
+  .tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:4px;}
+  .tool-card{background:var(--card);border:1px solid var(--paper-line);border-left:3px solid var(--slate);padding:12px 14px;cursor:pointer;transition:border-color .15s,background .15s;}
+  .tool-card:hover{border-left-color:var(--safety);background:#FDFAF4;}
+  .tool-title{font-family:var(--f-display);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+  .tool-desc{font-size:11px;color:var(--ink-soft);line-height:1.5;}
+  .tool-tag{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 6px;border-radius:2px;margin-top:6px;background:#E5E1D5;color:var(--ink-soft);}
+  .tool-tag.ai{background:#E6EDF5;color:#1F4E79;}
+
+  /* modal overlay */
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:2rem;}
+  .modal-bg.open{display:flex;}
+  .modal{background:var(--card);border:1.5px solid var(--paper-line);max-width:680px;width:100%;max-height:88vh;overflow-y:auto;padding:24px;}
+  .modal h3{font-family:var(--f-display);font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+  .modal-sub{font-size:12px;color:var(--ink-soft);margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--paper-line);}
+  .modal-close{float:right;font-size:20px;cursor:pointer;color:var(--ink-soft);background:none;border:none;line-height:1;}
+  .modal-close:hover{color:var(--ink);}
+  .form-group{margin-bottom:14px;}
+  .form-group label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-bottom:5px;}
+  .form-group select,.form-group input,.form-group textarea{
+    width:100%;font-family:var(--f-body);font-size:13px;padding:8px 10px;
+    background:var(--paper);border:1px solid var(--paper-line);color:var(--ink);}
+  .form-group textarea{min-height:80px;resize:vertical;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .modal-result{background:var(--paper);border:1px solid var(--paper-line);border-left:3px solid var(--slate);padding:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;display:none;margin-top:14px;max-height:320px;overflow-y:auto;}
+  .modal-result.show{display:block;}
+  .btn-run{font-family:var(--f-mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:9px 20px;background:var(--slate);color:#fff;border:none;cursor:pointer;margin-top:12px;}
+  .btn-run:hover{background:var(--slate-soft);}
+  .btn-copy{font-family:var(--f-mono);font-size:10px;padding:5px 12px;background:var(--paper);border:1px solid var(--paper-line);cursor:pointer;margin-top:8px;color:var(--ink-soft);}
+  .btn-copy:hover{border-color:var(--slate);color:var(--ink);}
+  .spinner{display:none;font-size:12px;color:var(--ink-soft);margin-top:8px;font-style:italic;}
+  .spinner.show{display:block;}
+  .api-key-row{background:#EEF4FA;border:1px solid #C4D8EE;padding:10px 12px;font-size:12px;margin-bottom:14px;}
+  .api-key-row label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#1F4E79;display:block;margin-bottom:4px;}
+  .api-key-row input{font-family:var(--f-mono);font-size:12px;padding:5px 8px;background:#fff;border:1px solid #B5D4F4;width:100%;color:var(--ink);}
+  .api-key-note{font-size:10px;color:#52514e;margin-top:4px;}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Topside Ops — Active Projects</h1>
+    <div class="sub">Bellingham, WA · Whatcom, Skagit &amp; San Juan Counties · Source: Leap CRM export, data through 07/01/2026</div>
+  </div>
+  <div class="stamp">Refresh by re-uploading<br>Leap exports</div>
+</header>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <div class="filter-group">
+    <label>Estimator / Rep</label>
+    <select id="f-estimator" onchange="applyFilters()">
+      <option value="">All estimators</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Pipeline stage</label>
+    <select id="f-stage" onchange="applyFilters()">
+      <option value="">All stages</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Trade</label>
+    <select id="f-trade" onchange="applyFilters()">
+      <option value="">All trades</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Deposit status</label>
+    <select id="f-deposit" onchange="applyFilters()">
+      <option value="">Any</option>
+      <option value="yes">Deposit received</option>
+      <option value="no">No deposit yet</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>City / Location</label>
+    <input type="text" id="f-location" placeholder="e.g. Bellingham" oninput="applyFilters()">
+  </div>
+  <div class="filter-group">
+    <label>Customer / Job search</label>
+    <input type="text" id="f-search" placeholder="Name or job ID" oninput="applyFilters()">
+  </div>
+  <div class="filter-group">
+    <label>Estimate signed — from</label>
+    <input type="date" id="f-date-from" onchange="applyFilters()">
+  </div>
+  <div class="filter-group">
+    <label>Estimate signed — to</label>
+    <input type="date" id="f-date-to" onchange="applyFilters()">
+  </div>
+  <div class="filter-actions">
+    <div class="filter-result-count" id="filter-count"><span id="count-num">—</span> jobs shown</div>
+    <button class="btn-filter btn-reset" onclick="resetFilters()">Reset</button>
+  </div>
+</div>
+
+<div class="kpis" id="kpis"></div>
+
+<div class="layout">
+  <div>
+    <div class="section-title">Pipeline by stage</div>
+    <div class="board" id="board"></div>
+    <div class="section-title" style="margin-top:28px;">Trade mix — all jobs on file</div>
+    <div class="trade-bar-wrap" id="tradebars"></div>
+  </div>
+  <div>
+    <div class="section-title">Upcoming appointments</div>
+    <div class="sidebar-card" id="upcoming"></div>
+    <div class="section-title">Crew on active jobsites</div>
+    <div class="sidebar-card" id="crew"></div>
+  </div>
+</div>
+
+
+  <!-- ══════════════════════════════════════════
+       SALES TEAM SECTION
+  ══════════════════════════════════════════ -->
+  <div class="sales-section">
+
+    <div class="section-title">Sales team — rep performance</div>
+    <div class="sales-grid" id="rep-cards"></div>
+
+    <div class="section-title">Follow-up tracker — unsigned estimates by age</div>
+    <div style="background:var(--card);border:1px solid var(--paper-line);overflow-x:auto;margin-bottom:24px;">
+      <table class="followup-table" id="followup-table">
+        <thead><tr>
+          <th>Customer</th><th>Job ID</th><th>Trade</th><th>Rep</th><th>Stage</th><th>Est. signed</th><th>Age</th>
+        </tr></thead>
+        <tbody id="followup-body"></tbody>
+      </table>
+    </div>
+
+    <div class="section-title">Sales tools — streamlining toolkit</div>
+    <div class="tools-grid">
+      <div class="tool-card" onclick="openTool('scope')">
+        <div class="tool-title">Scope description generator</div>
+        <div class="tool-desc">Generate a professional customer-facing scope of work for any trade. Saves 20–40 min per estimate.</div>
+        <span class="tool-tag ai">AI-powered</span>
+      </div>
+      <div class="tool-card" onclick="openTool('calc')">
+        <div class="tool-title">Material calculator</div>
+        <div class="tool-desc">Enter squares, pitch, and job complexity. Get full material quantities — shingles, underlayment, starter, ridge, flashing.</div>
+        <span class="tool-tag">Instant</span>
+      </div>
+      <div class="tool-card" onclick="openTool('followup')">
+        <div class="tool-title">Follow-up SMS templates</div>
+        <div class="tool-desc">Ready-to-send text templates for every follow-up scenario — first touch, no answer, price objection, insurance delay.</div>
+        <span class="tool-tag ai">AI-powered</span>
+      </div>
+      <div class="tool-card" onclick="openTool('checklist')">
+        <div class="tool-title">Pre-appointment checklist</div>
+        <div class="tool-desc">Run through every step before leaving for an appointment — satellite pull, permit check, materials to bring, confirmation sent.</div>
+        <span class="tool-tag">Checklist</span>
+      </div>
+      <div class="tool-card" onclick="openTool('noshow')">
+        <div class="tool-title">No-show prevention kit</div>
+        <div class="tool-desc">Day-before confirmation SMS template + morning-of reminder. Industry data: reduces no-shows by 60–70%.</div>
+        <span class="tool-tag">Templates</span>
+      </div>
+      <div class="tool-card" onclick="openTool('review')">
+        <div class="tool-title">Post-job review request</div>
+        <div class="tool-desc">Generate a personalized Google review request SMS or email for any completed job. Strike while the job is fresh.</div>
+        <span class="tool-tag ai">AI-powered</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALS -->
+  <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeTool()">
+  <div class="modal" id="modal-box">
+    <button class="modal-close" onclick="closeTool()">&#x2715;</button>
+    <div id="modal-content"></div>
+  </div>
+  </div>
+
+<div class="footnote">
+  This view reflects the Leap Master List, Job Schedules, and Appointments exports provided on 07/01/2026. It does not update automatically —
+  re-export those three reports from Leap and re-generate this file to refresh. "Pipeline by stage" excludes closed-out stages
+  (Completed, Invoiced, Follow Up) to keep the board focused on work in motion.
+  <br><br>
+  <strong>Filter tip:</strong> Use the "Estimate signed" date range to find projects by when the estimate was signed. Job IDs encode the signed date — e.g. <code>2606-XXXXXXX</code> = signed June 2026.
+</div>
+
+<script>
+var DATA = {"stageCounts": {"Follow Up": 301, "Completed": 76, "Appointment Booked": 34, "Lead": 34, "Invoiced": 18, "Signed Estimate/Project": 12, "Bid": 11, "Deposit Rcvd -> Estimator": 11, "Active Jobs": 8, "New Construction": 6, "Deposit Received": 4, "Commercial": 3, "Materials Ordered": 2, "Final Walkthrough": 1, "Material List Setup": 1, "Warranty Work": 1, "Job Scheduled": 1}, "tradeCounts": {"ROOFING": 400, "SIDING": 76, "OTHER": 46, "GUTTERS": 19, "WINDOWS": 8, "PAINTING": 2}, "activeJobs": [{"Customer Name": "Craig Conley", "Job Id": "2607-8792468-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": "", "Job Address": ""}, {"Customer Name": "Cassondra Prater", "Job Id": "2607-689829-03", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": "", "Job Address": ""}, {"Customer Name": "Amanda Hendrix", "Job Id": "2606-8789709-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Kimberly Secord", "Job Id": "2606-8637258-03", "Trades": "SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": "1389 Welling Road, Bellingham, WA 98226"}, {"Customer Name": "Janelle Munns", "Job Id": "2606-8787487-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "Compass Real Estate", "Job Id": "2606-8784327-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": "", "Job Address": "1900 Samish Crest Way, Bellingham, WA 98229"}, {"Customer Name": "John Bielen", "Job Id": "2606-8784258-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": "4560 Sucia Drive, Ferndale, WA 98248"}, {"Customer Name": "Jamie Vanarsdall", "Job Id": "2606-7766426-02", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Rex Broward", "Job Id": "2606-8784119-01", "Trades": "ROOFING", "Stage": "New Construction", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": "", "Job Address": ""}, {"Customer Name": "Joshua Wolf", "Job Id": "2606-8782368-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": "6152 Garrett Lane, Ferndale, WA 98248"}, {"Customer Name": "Avery Wellman", "Job Id": "2606-8782174-01", "Trades": "SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "Lindsey Karas", "Job Id": "2606-8781907-01", "Trades": "SIDING", "Stage": "Bid", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": "", "Job Address": "1636 Amy Court, Bellingham, WA 98226"}, {"Customer Name": "Karen Ericksen", "Job Id": "2606-8781750-01", "Trades": "OTHER", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Christopher Frank", "Job Id": "2606-8781150-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Aaron Van", "Job Id": "2606-8780981-01", "Trades": "OTHER", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Bob Merth", "Job Id": "2606-5967071-02", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "Jill Robey", "Job Id": "2606-8777160-01", "Trades": "SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "Chase Martin", "Job Id": "2606-8773923-01", "Trades": "OTHER", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "Wes Huggins", "Job Id": "2606-8773370-01", "Trades": "OTHER", "Stage": "Bid", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": "", "Job Address": ""}, {"Customer Name": "Gary Waters", "Job Id": "2606-3030236-03", "Trades": "ROOFING", "Stage": "Bid", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": "", "Job Address": ""}, {"Customer Name": "William Houseman", "Job Id": "2606-8770478-01", "Trades": "ROOFING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "Leanne Wilhelmi", "Job Id": "2606-8770376-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "Jonathan Blair", "Job Id": "2606-8769668-01", "Trades": "OTHER", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "Faber Construction - Jeff", "Job Id": "2606-8135942-02", "Trades": "ROOFING", "Stage": "New Construction", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Bob Kelln", "Job Id": "2606-8756248-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Torrey Speer", "Job Id": "2606-8741773-01", "Trades": "OTHER, ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": "1398 Eastwood Way, Lynden, WA 98264"}, {"Customer Name": "Carrie Holtrop", "Job Id": "2606-8749281-01", "Trades": "ROOFING, GUTTERS", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "City of Bonney Lake", "Job Id": "2606-8749218-01", "Trades": "ROOFING", "Stage": "Commercial", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "Terry Anderson", "Job Id": "2606-8742866-01", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Braedan York", "Job Price": 17180.0, "Job Address": ""}, {"Customer Name": "Chrysalis Inn and Spa", "Job Id": "2606-7199527-02", "Trades": "OTHER", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": "", "Job Address": ""}, {"Customer Name": "Francisco Reyes", "Job Id": "2606-8738189-01", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Carson Engholm", "Job Price": 15920.0, "Job Address": ""}, {"Customer Name": "Scott Wrobel", "Job Id": "2606-2007783-02", "Trades": "GUTTERS, SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Hiro Yamamoto", "Job Id": "2606-8733584-01", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Carson Engholm", "Job Price": 67947.0, "Job Address": ""}, {"Customer Name": "Chris Lett", "Job Id": "2606-8729418-01", "Trades": "ROOFING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Amanda Kolby", "Job Id": "2606-8724390-01", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Carson Engholm", "Job Price": 26910.0, "Job Address": ""}, {"Customer Name": "David Woodmansee", "Job Id": "2606-8722028-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "Trina Heidelbach", "Job Id": "2606-8721804-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Tom Hilton", "Job Id": "2606-348774-02", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Phil York", "Job Price": 23645.0, "Job Address": ""}, {"Customer Name": "P&K Development LLC", "Job Id": "2503-6653065-01", "Trades": "ROOFING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": 32530.0, "Job Address": ""}, {"Customer Name": "Marty Kuljius", "Job Id": "2606-8709976-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "RestoreWell - Ken", "Job Id": "2606-8369528-02", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "Northbrook", "Job Id": "2605-1841280-07", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": 11349.0, "Job Address": ""}, {"Customer Name": "Glacier Water District", "Job Id": "2605-8657193-01", "Trades": "SIDING", "Stage": "Bid", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "Laura Kaptinski", "Job Id": "2605-320553-03", "Trades": "ROOFING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": 23675.0, "Job Address": "2460 Lake Whatcom Boulevard, Bellingham, WA 98229"}, {"Customer Name": "Eric Moffit", "Job Id": "2605-8657193-01", "Trades": "SIDING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": 9890.0, "Job Address": ""}, {"Customer Name": "Test Ing", "Job Id": "2605-501586-06", "Trades": "SIDING, WINDOWS", "Stage": "Final Walkthrough", "Job Rep / Estimator": "Ashley Anderson", "Job Price": "", "Job Address": ""}, {"Customer Name": "Martin Adriance-Exner", "Job Id": "2605-8655778-01", "Trades": "ROOFING", "Stage": "Active Jobs", "Job Rep / Estimator": "Carson Engholm", "Job Price": 11280.0, "Job Address": "2804 Iron Street, Bellingham, WA 98225"}, {"Customer Name": "Jeff Coolen", "Job Id": "2605-2175039-04", "Trades": "OTHER", "Stage": "Active Jobs", "Job Rep / Estimator": "Braedan York", "Job Price": 295.0, "Job Address": ""}, {"Customer Name": "David Imburgia", "Job Id": "2605-8651128-01", "Trades": "OTHER", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": 945.0, "Job Address": ""}, {"Customer Name": "Julie Gates", "Job Id": "2605-8646619-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "King County Housing Authority", "Job Id": "2605-4605556-03", "Trades": "ROOFING", "Stage": "Commercial", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "King County Housing Authority", "Job Id": "2605-4605556-02", "Trades": "ROOFING", "Stage": "Commercial", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Alexei Ford Design Build - John", "Job Id": "2605-6409803-07", "Trades": "ROOFING", "Stage": "New Construction", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": "", "Job Address": ""}, {"Customer Name": "Julia Gates", "Job Id": "2605-8633240-01", "Trades": "ROOFING", "Stage": "Bid", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": "", "Job Address": ""}, {"Customer Name": "Teresa Laird", "Job Id": "2605-8631694-01", "Trades": "ROOFING", "Stage": "Active Jobs", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": 5895.0, "Job Address": ""}, {"Customer Name": "Ryan Lawson", "Job Id": "2605-8631272-01", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Dustin Suiter", "Job Price": 25360.0, "Job Address": ""}, {"Customer Name": "Anacortes Housing Authority - Phil", "Job Id": "2605-8596345-02", "Trades": "SIDING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Carson Engholm", "Job Price": 40495.0, "Job Address": ""}, {"Customer Name": "Josh Browning", "Job Id": "2605-8617395-01", "Trades": "ROOFING, SIDING", "Stage": "Bid", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "John Korsmo", "Job Id": "2605-8615774-01", "Trades": "ROOFING", "Stage": "Bid", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "Anacortes Housing Authority - Phil", "Job Id": "2604-8596345-01", "Trades": "ROOFING, GUTTERS", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Carson Engholm", "Job Price": 26405.0, "Job Address": ""}, {"Customer Name": "Derek Geleynse", "Job Id": "2604-8585947-01", "Trades": "SIDING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Carson Engholm", "Job Price": 4390.0, "Job Address": ""}, {"Customer Name": "Barclay Berry", "Job Id": "2604-8585927-01", "Trades": "ROOFING, SIDING", "Stage": "New Construction", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Frank & Heather Capristo", "Job Id": "2604-8566394-01", "Trades": "ROOFING, GUTTERS", "Stage": "Active Jobs", "Job Rep / Estimator": "Carson Engholm", "Job Price": 17485.0, "Job Address": ""}, {"Customer Name": "Benjamin DeGeode", "Job Id": "2604-8565532-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Helga & Roger Taylor", "Job Id": "2604-7570443-03", "Trades": "ROOFING", "Stage": "Bid", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": "", "Job Address": ""}, {"Customer Name": "Kevin Eschliman", "Job Id": "2604-8559668-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Carlton Tannehill", "Job Id": "2604-1923736-02", "Trades": "ROOFING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Dustin Suiter", "Job Price": 35116.0, "Job Address": ""}, {"Customer Name": "GAF - Liza", "Job Id": "2604-7890154-06", "Trades": "ROOFING", "Stage": "Material List Setup", "Job Rep / Estimator": "Itzel Ocaranza, Duane Vander Molen", "Job Price": 0.0, "Job Address": ""}, {"Customer Name": "Robert Rockser", "Job Id": "2604-8526847-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Paulo Duarte", "Job Id": "2604-8518901-01", "Trades": "ROOFING, SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Matt Dressen", "Job Id": "2604-8518226-01", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Dustin Suiter", "Job Price": 21346.0, "Job Address": ""}, {"Customer Name": "Kyle Coxon", "Job Id": "2604-8508728-01", "Trades": "ROOFING", "Stage": "New Construction", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Susan Green", "Job Id": "2604-8505549-01", "Trades": "SIDING", "Stage": "Active Jobs", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Jill Kintner", "Job Id": "2604-562295-05", "Trades": "ROOFING", "Stage": "Warranty Work", "Job Rep / Estimator": "Itzel Ocaranza", "Job Price": "", "Job Address": ""}, {"Customer Name": "Nick Jambor", "Job Id": "2603-8479763-01", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Dustin Suiter", "Job Price": 19890.0, "Job Address": ""}, {"Customer Name": "Kelly Evert", "Job Id": "2603-8474519-01", "Trades": "ROOFING", "Stage": "Active Jobs", "Job Rep / Estimator": "Carson Engholm", "Job Price": 3980.0, "Job Address": ""}, {"Customer Name": "Andrew Whisonant", "Job Id": "2603-8443051-01", "Trades": "ROOFING", "Stage": "Bid", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "Kelly Cassaday", "Job Id": "2603-8286075-02", "Trades": "SIDING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Unassigned", "Job Price": 38050.0, "Job Address": ""}, {"Customer Name": "Rich Williams", "Job Id": "2603-7696534-02", "Trades": "OTHER", "Stage": "Job Scheduled", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": "", "Job Address": ""}, {"Customer Name": "Merida Scully", "Job Id": "2603-292323-04", "Trades": "OTHER", "Stage": "Deposit Received", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": 4295.0, "Job Address": ""}, {"Customer Name": "Dickey's Remodel and Repair", "Job Id": "2603-8409675-01", "Trades": "ROOFING", "Stage": "New Construction", "Job Rep / Estimator": "Carson Engholm", "Job Price": "", "Job Address": ""}, {"Customer Name": "James Printz", "Job Id": "2603-8400201-01", "Trades": "ROOFING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Unassigned", "Job Price": 17200.0, "Job Address": ""}, {"Customer Name": "Terry Matthews", "Job Id": "2603-8389990-01", "Trades": "ROOFING", "Stage": "Materials Ordered", "Job Rep / Estimator": "Dustin Suiter", "Job Price": "", "Job Address": ""}, {"Customer Name": "Bob Rohwer", "Job Id": "2603-6016395-02", "Trades": "ROOFING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": 14439.0, "Job Address": ""}, {"Customer Name": "Timberguide Construction", "Job Id": "2603-3203846-10", "Trades": "ROOFING", "Stage": "Active Jobs", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": 4290.0, "Job Address": "2107 Young Street, Bellingham, WA 98225"}, {"Customer Name": "Bellingham Unitarian Fellowship", "Job Id": "2602-8285511-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Unassigned", "Job Price": "", "Job Address": ""}, {"Customer Name": "Lynae Rickman", "Job Id": "2602-8256345-02", "Trades": "SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": "", "Job Address": ""}, {"Customer Name": "Heather Pogor", "Job Id": "2602-8249302-01", "Trades": "ROOFING", "Stage": "Deposit Received", "Job Rep / Estimator": "Dustin Suiter", "Job Price": 98753.0, "Job Address": ""}, {"Customer Name": "Red Wood Gardens HOA", "Job Id": "2602-8233117-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": "", "Job Address": ""}, {"Customer Name": "Mack Jones", "Job Id": "2602-8223268-01", "Trades": "ROOFING", "Stage": "Bid", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": "", "Job Address": ""}, {"Customer Name": "Karen Hulford", "Job Id": "2602-8218591-01", "Trades": "ROOFING", "Stage": "Active Jobs", "Job Rep / Estimator": "Dustin Suiter", "Job Price": 43848.0, "Job Address": "10800 Thompson Creek Road, Deming, WA 98244"}, {"Customer Name": "Tyler Hughes-Gorman", "Job Id": "2601-8204593-01", "Trades": "SIDING", "Stage": "Deposit Received", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": 94135.0, "Job Address": "1997 Harmony Road, Bellingham, WA 98226"}, {"Customer Name": "Jeff Garner", "Job Id": "2601-8186902-01", "Trades": "ROOFING", "Stage": "Deposit Received", "Job Rep / Estimator": "Carson Engholm", "Job Price": 24330.0, "Job Address": ""}, {"Customer Name": "Ferndale Event Center", "Job Id": "2601-8128324-01", "Trades": "ROOFING", "Stage": "Bid", "Job Rep / Estimator": "Unassigned", "Job Price": "", "Job Address": ""}, {"Customer Name": "Patrice Walsh", "Job Id": "2601-626779-02", "Trades": "ROOFING", "Stage": "Materials Ordered", "Job Rep / Estimator": "Duane Vander Molen", "Job Price": 10850.0, "Job Address": ""}], "upcoming": [{"Title": "Office Day", "Customer Name": "", "Appointment For": "Carson Engholm", "Start Date Time": "Wed Jul 1, 12:00 AM", "Location": ""}, {"Title": "Office Day", "Customer Name": "", "Appointment For": "Carson Engholm", "Start Date Time": "Wed Jul 1, 8:00 AM", "Location": ""}, {"Title": "1 on 1 with Mike", "Customer Name": "", "Appointment For": "Carson Engholm", "Start Date Time": "Wed Jul 1, 9:00 AM", "Location": ""}, {"Title": "Karas / city: Bellingham / SIDING", "Customer Name": "Lindsey Karas", "Appointment For": "Duane Vander Molen", "Start Date Time": "Wed Jul 1, 10:00 AM", "Location": "1636 Amy Court, Bellingham, Washington, 98226 "}, {"Title": "Speer / city: Lynden / OTHER", "Customer Name": "Torrey Speer", "Appointment For": "Dustin Suiter", "Start Date Time": "Wed Jul 1, 11:00 AM", "Location": "1398 Eastwood Way, Lynden, Washington, 98264 "}, {"Title": "Secord / city: Bellingham / SIDING", "Customer Name": "Kimberly Secord", "Appointment For": "Carson Engholm", "Start Date Time": "Wed Jul 1, 11:30 AM", "Location": "1389 Welling Road, Bellingham, Washington, 98226 "}, {"Title": "Compass Real Estate / city: Bellingham / ROOFING", "Customer Name": "Chara Stuart", "Appointment For": "Duane Vander Molen", "Start Date Time": "Wed Jul 1, 12:00 PM", "Location": "1900 Samish Crest Way, Bellingham, Washington, 98229 "}, {"Title": "Hughes-Gorman / city: Bellingham / SIDING / Job # 77-4149", "Customer Name": "Tyler Hughes-Gorman", "Appointment For": "Duane Vander Molen", "Start Date Time": "Wed Jul 1, 1:30 PM", "Location": "1997 Harmony Road, Bellingham, Washington, 98226 "}, {"Title": "Kaptinski / city: Bellingham / ROOFING", "Customer Name": "Laura Kaptinski", "Appointment For": "Duane Vander Molen", "Start Date Time": "Wed Jul 1, 2:00 PM", "Location": "2460 Lake Whatcom Boulevard, Bellingham, Washington, 98229 "}, {"Title": "Wolf / city: Ferndale / ROOFING", "Customer Name": "Joshua Wolf", "Appointment For": "Dustin Suiter", "Start Date Time": "Wed Jul 1, 2:00 PM", "Location": "6152 Garrett Lane, Ferndale, Washington, 98248 "}, {"Title": "Bielen / city: Ferndale / ROOFING", "Customer Name": "John Bielen", "Appointment For": "Dustin Suiter", "Start Date Time": "Wed Jul 1, 3:00 PM", "Location": "4560 Sucia Drive, Ferndale, Washington, 98248 "}], "crew": [{"Customer Name": "Karen Hulford", "Job Id": "2602-8218591-01", "Trade Type": "ROOFING", "Work Crew": "Ben(S)", "Start Date Time": "Jun 19", "End Date Time": "Jul 6", "Job Address": "10800 Thompson Creek Road, Deming, Washington, 98244", "Job Rep/Estimator": "Dustin Suiter"}, {"Customer Name": "Gina Steinert", "Job Id": "2511-7889543-01", "Trade Type": "OTHER", "Work Crew": "Siders/Topside (S1)(S)", "Start Date Time": "Jun 22", "End Date Time": "Jul 3", "Job Address": "1330 Chuckanut Drive, Bellingham, Washington, 98229", "Job Rep/Estimator": "Duane Vander Molen"}, {"Customer Name": "Kelly Matheny", "Job Id": "2507-7417113-01", "Trade Type": "ROOFING", "Work Crew": "Northwest Roofing Services LLC(S)", "Start Date Time": "Jun 30", "End Date Time": "Jul 2", "Job Address": "4 Hawks Hill Place, Bellingham, Washington, 98229", "Job Rep/Estimator": "Mike Lacey"}, {"Customer Name": "Martin Adriance-Exner", "Job Id": "2605-8655778-01", "Trade Type": "ROOFING", "Work Crew": "Sonrise Roofing LLC(S)", "Start Date Time": "Jun 30", "End Date Time": "Jul 2", "Job Address": "2804 Iron Street, Bellingham, Washington, 98225", "Job Rep/Estimator": "Carson Engholm"}, {"Customer Name": "", "Job Id": "2603-3203846-10", "Trade Type": "", "Work Crew": "Ben(S)", "Start Date Time": "Jul 1", "End Date Time": "Jul 1", "Job Address": "2107 Young Street, Bellingham, Washington, 98225", "Job Rep/Estimator": "Duane Vander Molen"}], "monthly": {"2302": 1, "2308": 1, "2503": 1, "2512": 2, "2601": 81, "2602": 81, "2603": 106, "2604": 87, "2605": 71, "2606": 91, "2607": 2}, "totalJobs": 524, "totalActive": 95};
+
+var stageOrder = ["Lead","Appointment Booked","Bid","Signed Estimate/Project","Deposit Rcvd -> Estimator",
+  "Deposit Received","Materials Ordered","Material List Setup","New Construction","Job Scheduled",
+  "Active Jobs","Commercial","Warranty Work","Final Walkthrough"];
+
+var DEPOSIT_STAGES = ["Deposit Rcvd -> Estimator","Deposit Received","Materials Ordered",
+  "Material List Setup","Job Scheduled","Active Jobs","Final Walkthrough","Warranty Work"];
+
+function esc(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+// ── derive signed date from Job ID prefix (YYMM) ──
+function signedDate(jobId) {
+  var m = (jobId||'').match(/^(\d{2})(\d{2})-/);
+  if (!m) return null;
+  var yr = 2000 + parseInt(m[1],10);
+  var mo = parseInt(m[2],10) - 1;
+  return new Date(yr, mo, 1);
+}
+
+// ── populate filter dropdowns ──
+function populateFilters() {
+  var estimators = {}, stages = {}, trades = {};
+  DATA.activeJobs.forEach(function(j) {
+    (j['Job Rep / Estimator']||'Unassigned').split(',').forEach(function(e){ estimators[e.trim()] = 1; });
+    if (j.Stage) stages[j.Stage] = 1;
+    (j.Trades||'OTHER').split(',').forEach(function(t){ trades[t.trim()] = 1; });
+  });
+  function fillSelect(id, keys) {
+    var sel = document.getElementById(id);
+    Object.keys(keys).sort().forEach(function(k){
+      var o = document.createElement('option'); o.value = k; o.textContent = k; sel.appendChild(o);
+    });
+  }
+  fillSelect('f-estimator', estimators);
+  fillSelect('f-stage', stages);
+  fillSelect('f-trade', trades);
+}
+
+// ── apply all filters ──
+function applyFilters() {
+  var fEst    = document.getElementById('f-estimator').value;
+  var fStage  = document.getElementById('f-stage').value;
+  var fTrade  = document.getElementById('f-trade').value;
+  var fDep    = document.getElementById('f-deposit').value;
+  var fLoc    = document.getElementById('f-location').value.trim().toLowerCase();
+  var fSearch = document.getElementById('f-search').value.trim().toLowerCase();
+  var fFrom   = document.getElementById('f-date-from').value;
+  var fTo     = document.getElementById('f-date-to').value;
+  var dateFrom = fFrom ? new Date(fFrom) : null;
+  var dateTo   = fTo   ? new Date(fTo)   : null;
+
+  var shown = 0;
+  var allTickets = document.querySelectorAll('.ticket');
+  allTickets.forEach(function(el) {
+    var idx = parseInt(el.getAttribute('data-idx'), 10);
+    var j = DATA.activeJobs[idx];
+    var pass = true;
+
+    if (fEst && !(j['Job Rep / Estimator']||'').split(',').some(function(e){ return e.trim() === fEst; })) pass = false;
+    if (fStage && j.Stage !== fStage) pass = false;
+    if (fTrade && !(j.Trades||'').split(',').some(function(t){ return t.trim() === fTrade; })) pass = false;
+    if (fDep === 'yes' && !DEPOSIT_STAGES.includes(j.Stage)) pass = false;
+    if (fDep === 'no'  &&  DEPOSIT_STAGES.includes(j.Stage)) pass = false;
+    if (fLoc) {
+      var addr = (j['Job Address']||'').toLowerCase();
+      var name = (j['Customer Name']||'').toLowerCase();
+      if (!addr.includes(fLoc) && !name.includes(fLoc)) pass = false;
+    }
+    if (fSearch) {
+      var hay = ((j['Customer Name']||'') + ' ' + (j['Job Id']||'')).toLowerCase();
+      if (!hay.includes(fSearch)) pass = false;
+    }
+    if (dateFrom || dateTo) {
+      var sd = signedDate(j['Job Id']);
+      if (!sd) { pass = false; }
+      else {
+        if (dateFrom && sd < dateFrom) pass = false;
+        if (dateTo   && sd > dateTo)   pass = false;
+      }
+    }
+
+    el.classList.toggle('hidden', !pass);
+    if (pass) shown++;
+  });
+
+  // update column counts and hide empty cols
+  document.querySelectorAll('.col').forEach(function(col) {
+    var visible = col.querySelectorAll('.ticket:not(.hidden)').length;
+    var nEl = col.querySelector('.col-head .n');
+    if (nEl) nEl.textContent = visible;
+    col.style.display = visible === 0 ? 'none' : '';
+  });
+
+  // no-results message
+  var nr = document.getElementById('no-results');
+  if (shown === 0) { nr.style.display = 'block'; } else { nr.style.display = 'none'; }
+  document.getElementById('count-num').textContent = shown;
+}
+
+function resetFilters() {
+  ['f-estimator','f-stage','f-trade','f-deposit'].forEach(function(id){ document.getElementById(id).value = ''; });
+  ['f-location','f-search','f-date-from','f-date-to'].forEach(function(id){ document.getElementById(id).value = ''; });
+  applyFilters();
+}
+
+// ── KPIs ──
+var kpis = [
+  {n: DATA.totalJobs,                   l:'Total jobs on file', cls:''},
+  {n: DATA.totalActive,                  l:'Active in pipeline', cls:'orange'},
+  {n: DATA.stageCounts['Completed']||0, l:'Completed', cls:'green'},
+  {n: DATA.stageCounts['Lead']||0,      l:'New leads (unworked)', cls:''},
+  {n: DATA.upcoming.length,             l:'Upcoming appointments', cls:'orange'}
+];
+document.getElementById('kpis').innerHTML = kpis.map(function(k){
+  return '<div class="kpi '+k.cls+'"><div class="num">'+k.n+'</div><div class="lbl">'+k.l+'</div></div>';
+}).join('');
+
+// ── Board ──
+var boardHtml = stageOrder.map(function(stage){
+  var items = DATA.activeJobs.filter(function(j){ return j.Stage === stage; });
+  if(items.length === 0) return '';
+  var tickets = items.map(function(j, i){
+    var globalIdx = DATA.activeJobs.indexOf(j);
+    var trade = (j.Trades||'OTHER').split(',')[0].trim();
+    var hasDep = DEPOSIT_STAGES.includes(j.Stage);
+    var depBadge = '<span class="dep-badge '+(hasDep?'dep-yes':'dep-no')+'">'+(hasDep?'Dep ✓':'No dep')+'</span>';
+    var addrHtml = j['Job Address'] ? '<div class="addr">'+esc(j['Job Address'])+'</div>' : '';
+    var sd = signedDate(j['Job Id']);
+    var signedHtml = sd ? '<div class="signed">Signed: '+sd.toLocaleString('en-US',{month:'short',year:'numeric'})+'</div>' : '';
+    return '<div class="ticket" data-idx="'+globalIdx+'">' +
+      '<div class="name">'+esc(j['Customer Name'])+'</div>' +
+      '<div class="id">'+esc(j['Job Id'])+'</div>' +
+      addrHtml +
+      signedHtml +
+      '<div class="meta">' +
+        '<span class="trade-tag trade-'+esc(trade)+'">'+esc(trade)+'</span>' +
+        depBadge +
+        '<span class="rep">'+esc(j['Job Rep / Estimator'])+'</span>' +
+      '</div></div>';
+  }).join('');
+  return '<div class="col">' +
+    '<div class="col-head"><span>'+esc(stage)+'</span><span class="n">'+items.length+'</span></div>' +
+    '<div class="col-body">'+tickets+'</div></div>';
+}).join('');
+
+document.getElementById('board').innerHTML = boardHtml +
+  '<div id="no-results" class="no-results" style="display:none;min-width:220px;">No projects match the selected filters.</div>';
+
+// ── Trade bars ──
+var tradeEntries = Object.entries(DATA.tradeCounts).sort(function(a,b){ return b[1]-a[1]; });
+var maxTrade = Math.max.apply(null, tradeEntries.map(function(e){ return e[1]; }));
+document.getElementById('tradebars').innerHTML = tradeEntries.map(function(e){
+  return '<div class="trade-bar-row">' +
+    '<div class="trade-bar-label">'+esc(e[0])+'</div>' +
+    '<div class="trade-bar-track"><div class="trade-bar-fill" style="width:'+((e[1]/maxTrade)*100).toFixed(0)+'%"></div></div>' +
+    '<div class="trade-bar-val">'+e[1]+'</div></div>';
+}).join('');
+
+// ── Upcoming ──
+document.getElementById('upcoming').innerHTML = DATA.upcoming.length === 0
+  ? '<div class="sched-row">No upcoming appointments found.</div>'
+  : DATA.upcoming.map(function(a){
+    return '<div class="sched-row">' +
+      '<div class="t">'+esc(a.Title)+'</div>' +
+      '<div class="who">'+esc(a['Appointment For'])+(a['Customer Name']?' &middot; '+esc(a['Customer Name']):'')+'</div>' +
+      '<div class="when">'+esc(a['Start Date Time'])+'</div></div>';
+  }).join('');
+
+// ── Crew ──
+document.getElementById('crew').innerHTML = DATA.crew.length === 0
+  ? '<div class="crew-row">No active jobsite schedules found.</div>'
+  : DATA.crew.map(function(c){
+    return '<div class="crew-row">' +
+      '<div class="top"><span class="cust">'+esc(c['Customer Name'])+'</span><span class="span">'+esc(c['Start Date Time'])+'&ndash;'+esc(c['End Date Time'])+'</span></div>' +
+      '<div class="addr">'+esc(c['Work Crew'])+' &middot; '+esc(c['Job Address'])+'</div></div>';
+  }).join('');
+
+// ── init ──
+populateFilters();
+applyFilters();
+
+
+// ══════════════════════════════════════════
+// SALES TEAM — REP PERFORMANCE CARDS
+// ══════════════════════════════════════════
+var DEPOSIT_STAGES_S = ["Deposit Rcvd -> Estimator","Deposit Received","Materials Ordered",
+  "Material List Setup","Job Scheduled","Active Jobs","Final Walkthrough","Warranty Work"];
+var UNSIGNED_STAGES = ["Signed Estimate/Project","Bid"];
+
+function buildRepCards() {
+  var repMap = {};
+  DATA.activeJobs.forEach(function(j) {
+    j['Job Rep / Estimator'].split(',').forEach(function(r) {
+      r = r.trim();
+      if (!r || r === 'Unassigned') return;
+      if (!repMap[r]) repMap[r] = { jobs:0, revenue:0, deposits:0, unsigned:[], bids:0 };
+      repMap[r].jobs++;
+      if (typeof j['Job Price'] === 'number' && j['Job Price'] > 0) repMap[r].revenue += j['Job Price'];
+      if (DEPOSIT_STAGES_S.includes(j.Stage)) repMap[r].deposits++;
+      if (UNSIGNED_STAGES.includes(j.Stage)) {
+        var sd = signedDate(j['Job Id']);
+        var age = sd ? Math.floor((new Date() - sd) / 86400000) : null;
+        repMap[r].unsigned.push({ name: j['Customer Name'], jobId: j['Job Id'], age: age, stage: j.Stage });
+      }
+      if (j.Stage === 'Bid') repMap[r].bids++;
+    });
+  });
+
+  var reps = Object.entries(repMap).sort(function(a,b){ return b[1].revenue - a[1].revenue; });
+  var html = reps.map(function(entry) {
+    var name = entry[0], d = entry[1];
+    var maxAge = d.unsigned.length ? Math.max.apply(null, d.unsigned.map(function(u){ return u.age||0; })) : 0;
+    var health = maxAge > 14 ? 'alert' : maxAge > 7 ? 'warn' : '';
+    var dotCls = maxAge > 14 ? 'dot-red' : maxAge > 7 ? 'dot-amber' : 'dot-green';
+    var oldestVal = maxAge > 0 ? maxAge + 'd' : '—';
+    var oldestCls = maxAge > 14 ? 'danger' : maxAge > 7 ? 'warn' : '';
+    var shortName = name.split(' ').map(function(p,i){ return i===0?p:p[0]+'.'; }).join(' ');
+    return '<div class="rep-card '+health+'">' +
+      '<div class="rep-name">'+esc(shortName)+'<span class="health-dot '+dotCls+'"></span></div>' +
+      '<div class="rep-stat-row"><span class="rep-stat-lbl">Active jobs</span><span class="rep-stat-val">'+d.jobs+'</span></div>' +
+      '<div class="rep-stat-row"><span class="rep-stat-lbl">Deposit stage</span><span class="rep-stat-val '+(d.deposits>0?'good':'')+'">'+d.deposits+'</span></div>' +
+      '<div class="rep-stat-row"><span class="rep-stat-lbl">Confirmed rev.</span><span class="rep-stat-val">$'+d.revenue.toLocaleString()+'</span></div>' +
+      '<div class="rep-stat-row"><span class="rep-stat-lbl">Unsigned estimates</span><span class="rep-stat-val '+(d.unsigned.length>3?'warn':'')+'">'+d.unsigned.length+'</span></div>' +
+      '<div class="rep-stat-row"><span class="rep-stat-lbl">Oldest unsigned</span><span class="rep-stat-val '+oldestCls+'">'+oldestVal+'</span></div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('rep-cards').innerHTML = html;
+}
+
+// ══════════════════════════════════════════
+// FOLLOW-UP TRACKER
+// ══════════════════════════════════════════
+function buildFollowupTable() {
+  var rows = [];
+  DATA.activeJobs.forEach(function(j) {
+    if (!UNSIGNED_STAGES.includes(j.Stage)) return;
+    var sd = signedDate(j['Job Id']);
+    var age = sd ? Math.floor((new Date() - sd) / 86400000) : null;
+    rows.push({ j:j, sd:sd, age:age||0 });
+  });
+  rows.sort(function(a,b){ return b.age - a.age; });
+
+  var html = rows.map(function(r) {
+    var j = r.j;
+    var ageCls = r.age > 14 ? 'age-hot' : r.age > 7 ? 'age-warn' : 'age-ok';
+    var ageLabel = r.age > 0 ? r.age+'d' : '<1d';
+    var sdStr = r.sd ? r.sd.toLocaleString('en-US',{month:'short',year:'numeric'}) : '—';
+    return '<tr>' +
+      '<td><strong>'+esc(j['Customer Name'])+'</strong></td>' +
+      '<td style="font-family:var(--f-mono);font-size:10px">'+esc(j['Job Id'])+'</td>' +
+      '<td>'+esc((j.Trades||'').split(',')[0].trim())+'</td>' +
+      '<td>'+esc(j['Job Rep / Estimator'])+'</td>' +
+      '<td>'+esc(j.Stage)+'</td>' +
+      '<td style="font-family:var(--f-mono);font-size:10px">'+sdStr+'</td>' +
+      '<td><span class="age-badge '+ageCls+'">'+ageLabel+'</span></td>' +
+    '</tr>';
+  }).join('');
+  document.getElementById('followup-body').innerHTML = html || '<tr><td colspan="7" style="padding:14px;color:var(--ink-soft);font-style:italic">No unsigned estimates found.</td></tr>';
+}
+
+// ══════════════════════════════════════════
+// TOOLS MODAL
+// ══════════════════════════════════════════
+function openTool(type) {
+  var content = '';
+  if (type === 'scope') {
+    content = `<h3>Scope description generator</h3>
+<div class="modal-sub">Generates a professional customer-facing scope of work for any trade. Paste directly into Leap or your estimate email.</div>
+<div class="api-key-row">
+  <label>Anthropic API key</label>
+  <input type="password" id="t-apikey" placeholder="sk-ant-..." value="${getSavedKey()}">
+  <div class="api-key-note">Used only in your browser. <label style="cursor:pointer"><input type="checkbox" id="t-savekey" ${getSavedKey()?'checked':''}> Remember key</label></div>
+</div>
+<div class="form-row">
+  <div class="form-group"><label>Trade type</label>
+    <select id="t-trade"><option>Roofing — full replacement</option><option>Roofing — repair</option><option>Siding — full exterior</option><option>Siding — partial</option><option>Gutters — full perimeter</option><option>Gutters — partial + repair</option><option>Roof + Siding + Gutters bundle</option></select>
+  </div>
+  <div class="form-group"><label>Material / product line</label>
+    <input type="text" id="t-material" placeholder="e.g. GAF Timberline HDZ, HardiePlank, 0.027 aluminum gutters">
+  </div>
+</div>
+<div class="form-row">
+  <div class="form-group"><label>Job size / scope notes</label>
+    <input type="text" id="t-size" placeholder="e.g. 28 squares, 8/12 pitch, 3 layers, 2 chimneys">
+  </div>
+  <div class="form-group"><label>Any special conditions</label>
+    <input type="text" id="t-notes" placeholder="e.g. HOA approval needed, steep pitch, insurance claim">
+  </div>
+</div>
+<button class="btn-run" onclick="runScope()">Generate scope description</button>
+<div class="spinner" id="t-spin">Generating with Claude AI...</div>
+<div class="modal-result" id="t-result"></div>
+<button class="btn-copy" id="t-copy" style="display:none" onclick="copyResult('t-result')">Copy to clipboard</button>`;
+  } else if (type === 'calc') {
+    content = `<h3>Material quantity calculator</h3>
+<div class="modal-sub">Enter roof measurements — get full material list instantly. No more manual math.</div>
+<div class="form-row">
+  <div class="form-group"><label>Roof squares (measured)</label><input type="number" id="c-sq" placeholder="e.g. 28" oninput="runCalc()"></div>
+  <div class="form-group"><label>Pitch (rise/12)</label>
+    <select id="c-pitch" onchange="runCalc()">
+      <option value="1.00">Flat / low (1-3/12) — ×1.00</option>
+      <option value="1.04">4/12 — ×1.04</option>
+      <option value="1.08" selected>5-6/12 — ×1.08</option>
+      <option value="1.17">7-8/12 — ×1.17</option>
+      <option value="1.25">9-10/12 — ×1.25</option>
+      <option value="1.36">11-12/12 — ×1.36</option>
+      <option value="1.46">13+/12 steep — ×1.46</option>
+    </select>
+  </div>
+</div>
+<div class="form-row">
+  <div class="form-group"><label>Roof complexity</label>
+    <select id="c-waste" onchange="runCalc()">
+      <option value="0.10">Simple — gable, few cuts (10% waste)</option>
+      <option value="0.15" selected>Standard — some hips/valleys (15% waste)</option>
+      <option value="0.20">Complex — multiple hips, dormers (20% waste)</option>
+    </select>
+  </div>
+  <div class="form-group"><label>Penetrations (chimneys, skylights)</label><input type="number" id="c-pen" placeholder="e.g. 2" value="1" oninput="runCalc()"></div>
+</div>
+<div class="modal-result show" id="c-result" style="font-family:var(--f-mono);font-size:12px;">Enter squares above to calculate.</div>`;
+  } else if (type === 'followup') {
+    content = `<h3>Follow-up SMS templates</h3>
+<div class="modal-sub">Ready-to-send or AI-customized follow-up texts for every scenario.</div>
+<div class="api-key-row">
+  <label>Anthropic API key (for AI-customized version)</label>
+  <input type="password" id="f-apikey" placeholder="sk-ant-..." value="${getSavedKey()}">
+  <div class="api-key-note"><label style="cursor:pointer"><input type="checkbox" id="f-savekey" ${getSavedKey()?'checked':''}> Remember key</label></div>
+</div>
+<div class="form-row">
+  <div class="form-group"><label>Scenario</label>
+    <select id="f-scenario">
+      <option>First follow-up (1-2 days after estimate sent)</option>
+      <option>Second follow-up — no answer (5-7 days)</option>
+      <option>Price objection response</option>
+      <option>Insurance claim delay</option>
+      <option>Competitor bid — value reinforcement</option>
+      <option>Final outreach before marking cold (10+ days)</option>
+      <option>Day-before appointment confirmation</option>
+      <option>Morning-of appointment reminder</option>
+    </select>
+  </div>
+  <div class="form-group"><label>Customer first name</label><input type="text" id="f-cname" placeholder="e.g. Tom"></div>
+</div>
+<div class="form-group"><label>Rep name (optional)</label><input type="text" id="f-rname" placeholder="e.g. Carson"></div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
+  <button class="btn-run" style="background:#3E4C59" onclick="getTemplate()">Use standard template</button>
+  <button class="btn-run" onclick="runFollowup()">Generate AI-customized</button>
+</div>
+<div class="spinner" id="f-spin">Generating with Claude AI...</div>
+<div class="modal-result" id="f-result"></div>
+<button class="btn-copy" id="f-copy" style="display:none" onclick="copyResult('f-result')">Copy to clipboard</button>`;
+  } else if (type === 'checklist') {
+    content = `<h3>Pre-appointment checklist</h3>
+<div class="modal-sub">Run through this before leaving for every estimate appointment.</div>
+<div id="chk-list"></div>`;
+    setTimeout(function(){
+      var items = [
+        ['PRE-DEPARTURE','Pull satellite imagery (Google Earth / Hover / EagleView)','Check permit history (Whatcom/Skagit/Island/San Juan county portal)','Confirm appointment via SMS — sent?','Load all sample boards and material samples for this trade','Charge tablet / phone','Camera or phone photos ready','Estimating worksheet / measuring wheel in truck','Business cards'],
+        ['FIELD INSPECTION','Walk full exterior before meeting customer','Photograph all four elevations','Document all damage, wear, penetrations','Measure or confirm satellite measurements','Check decking condition (ask if they know of soft spots)','Note roof access points for production crew','Get HOA or permit requirements from homeowner','Confirm scope with customer before leaving'],
+        ['POST-APPOINTMENT','Set Leap follow-up task — date and notes','Note any objections raised during appointment','Log competing bids mentioned','Set estimate completion deadline (24-48 hr max)','Send thank-you text within 1 hour of leaving']
+      ];
+      var html = items.map(function(group){
+        var label = group[0];
+        var checks = group.slice(1).map(function(item,i){
+          return '<label style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px dashed var(--paper-line);cursor:pointer;font-size:12px;">' +
+            '<input type="checkbox" style="margin-top:2px;flex-shrink:0"> <span>'+esc(item)+'</span></label>';
+        }).join('');
+        return '<div style="margin-bottom:16px"><div style="font-family:var(--f-mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--slate);margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--slate);">'+label+'</div>'+checks+'</div>';
+      }).join('');
+      document.getElementById('chk-list').innerHTML = html;
+    }, 50);
+  } else if (type === 'noshow') {
+    content = `<h3>No-show prevention kit</h3>
+<div class="modal-sub">Industry data: day-before + morning-of confirmations reduce no-shows by 60–70%.</div>
+<div class="form-group"><label>Customer first name</label><input type="text" id="ns-name" placeholder="e.g. Sarah" oninput="buildNoShow()"></div>
+<div class="form-row">
+  <div class="form-group"><label>Appointment day</label><input type="text" id="ns-day" placeholder="e.g. Thursday" oninput="buildNoShow()"></div>
+  <div class="form-group"><label>Appointment time</label><input type="text" id="ns-time" placeholder="e.g. 2:00 PM" oninput="buildNoShow()"></div>
+</div>
+<div class="form-group"><label>Rep name</label><input type="text" id="ns-rep" placeholder="e.g. Dustin" oninput="buildNoShow()"></div>
+<div class="modal-result show" id="ns-result" style="white-space:pre-line;font-size:13px;">Fill in the fields above to generate templates.</div>
+<button class="btn-copy" onclick="copyResult('ns-result')">Copy to clipboard</button>`;
+    setTimeout(buildNoShow, 50);
+  } else if (type === 'review') {
+    content = `<h3>Post-job review request generator</h3>
+<div class="modal-sub">Send within 24 hrs of job completion — strike while the job is fresh and customer satisfaction is highest.</div>
+<div class="api-key-row">
+  <label>Anthropic API key</label>
+  <input type="password" id="r-apikey" placeholder="sk-ant-..." value="${getSavedKey()}">
+  <div class="api-key-note"><label style="cursor:pointer"><input type="checkbox" id="r-savekey" ${getSavedKey()?'checked':''}> Remember key</label></div>
+</div>
+<div class="form-row">
+  <div class="form-group"><label>Customer name</label><input type="text" id="r-cname" placeholder="e.g. Karen Hulford"></div>
+  <div class="form-group"><label>Trade completed</label>
+    <select id="r-trade"><option>Roofing replacement</option><option>Siding</option><option>Gutters</option><option>Roof + Siding + Gutters</option><option>Repair</option></select>
+  </div>
+</div>
+<div class="form-group"><label>Any specific detail to mention (optional)</label>
+  <input type="text" id="r-detail" placeholder="e.g. finished a day early, cleaned up thoroughly, matched the neighbor's color">
+</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
+  <button class="btn-run" style="background:#3E4C59" onclick="getReviewTemplate()">Standard template</button>
+  <button class="btn-run" onclick="runReview()">Generate AI-personalized</button>
+</div>
+<div class="spinner" id="r-spin">Generating with Claude AI...</div>
+<div class="modal-result" id="r-result"></div>
+<button class="btn-copy" id="r-copy" style="display:none" onclick="copyResult('r-result')">Copy to clipboard</button>`;
+  }
+  document.getElementById('modal-content').innerHTML = content;
+  document.getElementById('modal-bg').classList.add('open');
+  if (type === 'calc') setTimeout(runCalc, 50);
+}
+
+function closeTool() { document.getElementById('modal-bg').classList.remove('open'); }
+
+function getSavedKey() { try { return localStorage.getItem('topside_apikey')||''; } catch(e){ return ''; } }
+function maybeSaveKey(inputId, chkId) {
+  var k = document.getElementById(inputId).value.trim();
+  var save = document.getElementById(chkId) && document.getElementById(chkId).checked;
+  if (save && k) { try { localStorage.setItem('topside_apikey', k); } catch(e){} }
+  return k;
+}
+
+async function callClaude(prompt, spinId, resultId, copyId) {
+  var key = document.querySelector('#'+spinId).closest('.modal').querySelector('input[type=password]');
+  var apiKey = key ? key.value.trim() : '';
+  if (!apiKey) { var el=document.getElementById(resultId); el.textContent='Please enter your Anthropic API key.'; el.classList.add('show'); return; }
+  document.getElementById(spinId).classList.add('show');
+  document.getElementById(resultId).classList.remove('show');
+  try {
+    var resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    var data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    var text = data.content.map(function(c){return c.text||'';}).join('').trim();
+    document.getElementById(resultId).textContent = text;
+    document.getElementById(resultId).classList.add('show');
+    if (copyId) document.getElementById(copyId).style.display='inline-block';
+  } catch(e) {
+    document.getElementById(resultId).textContent = 'Error: '+e.message;
+    document.getElementById(resultId).classList.add('show');
+  }
+  document.getElementById(spinId).classList.remove('show');
+}
+
+function runScope() {
+  maybeSaveKey('t-apikey','t-savekey');
+  var trade = document.getElementById('t-trade').value;
+  var material = document.getElementById('t-material').value;
+  var size = document.getElementById('t-size').value;
+  var notes = document.getElementById('t-notes').value;
+  var prompt = 'Write a professional customer-facing scope of work for a residential exterior contractor (Topside Roofing, Siding & Gutters — Bellingham, WA). Trade: '+trade+'. Material/product: '+(material||'standard')+'. Job details: '+(size||'not specified')+'. Special conditions: '+(notes||'none')+'. Write in plain, friendly language a homeowner will understand. Include what will be done, what will be removed/replaced, what is included, and what warranty applies. 3-5 short paragraphs. No bullet points. Professional but not stuffy.';
+  callClaude(prompt,'t-spin','t-result','t-copy');
+}
+
+function runCalc() {
+  var sq = parseFloat(document.getElementById('c-sq').value)||0;
+  var pitch = parseFloat(document.getElementById('c-pitch').value)||1.08;
+  var waste = parseFloat(document.getElementById('c-waste').value)||0.15;
+  var pen = parseInt(document.getElementById('c-pen').value)||0;
+  if (!sq) { document.getElementById('c-result').textContent='Enter squares above to calculate.'; return; }
+  var adjSq = sq * pitch;
+  var withWaste = adjSq * (1 + waste);
+  var bundles = Math.ceil(withWaste * 3); // 3 bundles per square
+  var starter = Math.ceil(adjSq * 1.1 / 105 * 10) / 10; // ~105 LF per roll
+  var underlayment = Math.ceil(withWaste / 1); // 1 sq per roll approx
+  var ridgeCap = Math.ceil(adjSq * 0.05 * 3); // ridge cap bundles
+  var icewaterSq = Math.ceil(adjSq * 0.15); // eaves + valleys
+  var result =
+    'INPUT
+' +
+    '  Measured squares:   ' + sq.toFixed(1) + ' sq
+' +
+    '  Pitch multiplier:   ×' + pitch + ' → ' + adjSq.toFixed(1) + ' adj. sq
+' +
+    '  Waste factor:       ' + (waste*100).toFixed(0) + '%
+' +
+    '  Total with waste:   ' + withWaste.toFixed(1) + ' sq
+
+' +
+    'MATERIALS
+' +
+    '  Shingles:           ' + bundles + ' bundles (' + Math.ceil(withWaste) + ' squares)
+' +
+    '  Underlayment:       ' + underlayment + ' rolls (30# or synthetic)
+' +
+    '  Starter strip:      ' + starter + ' rolls
+' +
+    '  Ridge cap:          ' + ridgeCap + ' bundles
+' +
+    '  Ice & water shield: ' + icewaterSq + ' squares
+' +
+    '  Pipe boots:         ' + Math.max(2, pen+1) + ' (estimate — confirm on site)
+' +
+    '  Step flashing:      ' + (pen > 0 ? pen * 10 + ' LF (approx)' : 'N/A') + '
+
+' +
+    'NOTE: Decking, nails, drip edge, and dump fee not included above.';
+  document.getElementById('c-result').textContent = result;
+}
+
+var TEMPLATES = {
+  'First follow-up (1-2 days after estimate sent)': 'Hi {name}! This is {rep} from Topside Roofing. Just wanted to make sure you received the estimate I sent over. Happy to answer any questions or walk you through the options. What works best for you?',
+  'Second follow-up — no answer (5-7 days)': 'Hi {name}, {rep} here from Topside. I know you're busy — just wanted to touch base on the estimate. We're booking out about 6-8 weeks right now so wanted to make sure you had everything you needed to make a decision. No pressure at all — just here if you have questions!',
+  'Price objection response': 'Hi {name}! Totally understand — roofing is a big investment. I'd love to talk through the options we put together and see if there's a scope that works better for your budget. We can also look at phasing the project if that helps. When's a good time for a quick call?',
+  'Insurance claim delay': 'Hi {name}, {rep} from Topside checking in. I know the insurance process can take a while — just wanted you to know we're holding your spot in the schedule. Once your claim is approved, let me know and we'll get you on the calendar right away.',
+  'Competitor bid — value reinforcement': 'Hi {name}! Just wanted to follow up and let you know we stand behind our estimate 100%. We're the only company in the area doing roofing, siding, AND gutters — so if anything else needs attention down the road, you've got one team and one warranty. Happy to chat if you want to compare. — {rep}',
+  'Final outreach before marking cold (10+ days)': 'Hi {name}, {rep} here from Topside. I don't want to keep bugging you — just one last check-in on the estimate. If the timing isn't right or you went another direction, totally understood. If you ever need us down the road, we'll be here. Take care!',
+  'Day-before appointment confirmation': 'Hi {name}! Just confirming your appointment with {rep} from Topside Roofing tomorrow. Looking forward to it! If anything comes up, just reply here or call us anytime. See you then!',
+  'Morning-of appointment reminder': 'Good morning {name}! {rep} from Topside here — looking forward to seeing you today. I'll be there at the scheduled time. See you soon!'
+};
+
+function getTemplate() {
+  var scenario = document.getElementById('f-scenario').value;
+  var cname = document.getElementById('f-cname').value.trim() || '[Customer]';
+  var rname = document.getElementById('f-rname').value.trim() || 'your rep';
+  var tmpl = TEMPLATES[scenario] || 'Template not found.';
+  var text = tmpl.replace(/{name}/g, cname).replace(/{rep}/g, rname);
+  var el = document.getElementById('f-result');
+  el.textContent = text; el.classList.add('show');
+  document.getElementById('f-copy').style.display='inline-block';
+}
+
+function runFollowup() {
+  maybeSaveKey('f-apikey','f-savekey');
+  var scenario = document.getElementById('f-scenario').value;
+  var cname = document.getElementById('f-cname').value.trim()||'the customer';
+  var rname = document.getElementById('f-rname').value.trim()||'your rep';
+  var prompt = 'Write a short, friendly, professional SMS follow-up text message for a roofing and exterior contractor (Topside Roofing, Siding & Gutters — Bellingham WA). Scenario: '+scenario+'. Customer name: '+cname+'. Rep name: '+rname+'. Keep it under 160 characters if possible. Conversational, not pushy, not corporate. Just write the SMS text — no label, no explanation.';
+  callClaude(prompt,'f-spin','f-result','f-copy');
+}
+
+function buildNoShow() {
+  var name = (document.getElementById('ns-name')||{}).value||'';
+  var day  = (document.getElementById('ns-day')||{}).value||'tomorrow';
+  var time = (document.getElementById('ns-time')||{}).value||'your scheduled time';
+  var rep  = (document.getElementById('ns-rep')||{}).value||'your estimator';
+  var text =
+    'DAY-BEFORE CONFIRMATION
+' +
+    '━━━━━━━━━━━━━━━━━━━━━━
+' +
+    'Hi '+(name||'[Name]')+'! Just confirming your free estimate appointment with '+rep+' from Topside Roofing '+day+' at '+time+'. See you then! Reply STOP to cancel or call us to reschedule.
+
+' +
+    'MORNING-OF REMINDER
+' +
+    '━━━━━━━━━━━━━━━━━━━━━━
+' +
+    'Good morning '+(name||'[Name]')+'! '+rep+' from Topside here — heading your way for our '+(time||'appointment')+ ' today. See you soon! 👍
+
+' +
+    'PRO TIP: Send day-before at 4-5 PM, morning-of at 7:30-8 AM.
+' +
+    'Industry data: this combo reduces no-shows by 60-70%.';
+  var el = document.getElementById('ns-result');
+  if (el) { el.textContent = text; el.classList.add('show'); }
+}
+
+function getReviewTemplate() {
+  var cname = document.getElementById('r-cname').value.trim()||'there';
+  var trade = document.getElementById('r-trade').value;
+  var text = 'Hi '+cname+'! It was a pleasure working on your '+trade.toLowerCase()+' project. If you're happy with how everything turned out, we'd really appreciate a quick Google review — it means the world to a local company like ours. Here's our link: [GOOGLE REVIEW LINK]. Thank you so much! — The Topside Team 🏠';
+  var el = document.getElementById('r-result');
+  el.textContent = text; el.classList.add('show');
+  document.getElementById('r-copy').style.display='inline-block';
+}
+
+function runReview() {
+  maybeSaveKey('r-apikey','r-savekey');
+  var cname = document.getElementById('r-cname').value.trim()||'the homeowner';
+  var trade = document.getElementById('r-trade').value;
+  var detail = document.getElementById('r-detail').value.trim();
+  var prompt = 'Write a short, warm, personalized SMS or text message asking a homeowner to leave a Google review for Topside Roofing, Siding & Gutters (Bellingham, WA). Customer: '+cname+'. Trade completed: '+trade+'. Special detail: '+(detail||'none')+'. Include a placeholder [GOOGLE REVIEW LINK]. Keep it under 200 characters. Genuine and grateful, not corporate. Just write the message text — no labels.';
+  callClaude(prompt,'r-spin','r-result','r-copy');
+}
+
+function copyResult(id) {
+  var text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(function(){ alert('Copied to clipboard!'); }).catch(function(){ prompt('Copy this text:', text); });
+}
+
+buildRepCards();
+buildFollowupTable();
+
+</script>
+</body>
+</html>
