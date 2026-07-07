@@ -46,3 +46,5 @@ __pycache__/
 Documents/Marketing/.venv/
 Documents/Marketing/__pycache__/
 Documents/Marketing/.pytest_cache/
+
+node_modules/
