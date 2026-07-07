@@ -1,349 +1,385 @@
-# Topside Intelligence Platform (TIP)
+# MA-IN Framework
+### Marketing Agency & Integrated Network
+#### Powered by Muller's Ad-vantage (MA)
 
-> **Powered by Topside OS**
-
----
-
-## Overview
-
-The **Topside Intelligence Platform (TIP)** is a company-specific Artificial Intelligence Operating System (AIOS) being developed for **Topside Roofing & Siding**.
-
-Its purpose is to unify marketing, sales, estimating, operations, project management, financial visibility, business intelligence, and executive reporting into a single intelligent operating platform.
-
-Rather than functioning as a traditional CRM or dashboard, TIP is designed to become the company's centralized decision-support and automation platform, enabling AI-assisted workflows across every major department.
+> **An AI-powered business operating framework designed to unify marketing, operations, intelligence, project management, and executive decision-making into a single integrated platform.**
 
 ---
 
-# Project Objectives
+# Vision
 
-The primary objectives of TIP are to:
+MA-IN (Marketing Agency & Integrated Network) is the flagship platform of **Muller's Ad-vantage (MA)**.
 
-- Centralize company knowledge
-- Automate repetitive business processes
-- Monitor company health in real time
-- Improve operational efficiency
-- Increase marketing performance
-- Provide executive-level business intelligence
-- Support data-driven decision making
-- Scale with the long-term growth of Topside Roofing & Siding
+Rather than functioning as another CRM or reporting dashboard, MA-IN serves as a centralized operational intelligence platform that continuously monitors, analyzes, and improves every major department within a business.
+
+The long-term objective is to create a living business operating system capable of assisting owners, managers, marketers, project managers, estimators, office staff, and field crews through AI-driven workflows, automation, and business intelligence.
 
 ---
 
-# Core Components
+# Mission
+
+Transform disconnected business software into a single intelligent operating environment capable of:
+
+- Monitoring company health
+- Auditing marketing performance
+- Tracking financial efficiency
+- Managing projects
+- Coordinating departments
+- Monitoring competitors
+- Improving operational efficiency
+- Assisting executive decision making
+
+---
+
+# Core Philosophy
+
+Business departments should not operate independently.
+
+Every department produces data.
+
+Every department affects another.
+
+MA-IN connects those departments into a single intelligence network capable of understanding how every business decision impacts the organization as a whole.
+
+---
+
+# Primary Modules
 
 ## Executive Intelligence
 
-- Executive Dashboard
-- Company Health Dashboard
-- Financial Reporting
-- KPI Monitoring
-- Business Intelligence
-- Executive Briefings
+Executive dashboards providing:
+
+- Company Health Score
+- Department Health
+- Financial Snapshot
+- Marketing Performance
+- Operational Alerts
+- Risk Analysis
+- Growth Opportunities
+- AI Recommendations
 
 ---
 
 ## Marketing Intelligence
 
-- Google Ads Monitoring
-- Google Analytics 4
-- Google Search Console
-- Local SEO
-- Content Generation
-- Social Media Management
-- Campaign Performance
-- Competitor Analysis
+Digital marketing command center including:
 
----
-
-## Operations
-
-- LEAP CRM Integration
-- Estimator Scheduling
-- Project Tracking
-- Production Monitoring
-- Material Management
-- Fleet Coordination
-- Job Lifecycle Tracking
-
----
-
-## Artificial Intelligence
-
-### Clive
-Chief Operations Officer (AI)
-
-Responsibilities include:
-
-- Operations
-- Estimating
-- Scheduling
-- Production
-- Financial reporting
-- Company health
-- Executive reporting
-
----
-
-### Franchesca
-Chief Marketing Officer (AI)
-
-Responsibilities include:
-
-- Digital Marketing
-- SEO
 - Google Ads
-- Analytics
-- Branding
-- Content
+- Local Services Ads
+- SEO Monitoring
+- Google Business Profile
 - Social Media
-- Marketing Reporting
+- Content Strategy
+- Campaign Performance
+- Lead Tracking
+- Marketing ROI
+- Competitor Monitoring
+
+---
+
+## Competitor Intelligence
+
+Continuous monitoring of competitors including:
+
+- Organic Rankings
+- Local SEO
+- Google Ads Activity
+- Social Media Presence
+- Website Changes
+- Services Offered
+- Estimated Marketing Activity
+- Reputation Monitoring
+- Review Velocity
+- Pricing Research
+- Content Strategy
+
+The objective is not simply to collect competitor information, but to generate actionable marketing strategies.
+
+---
+
+## Operational Intelligence
+
+Tracks company operations including:
+
+- Project Status
+- Scheduling
+- Crew Assignments
+- Production Metrics
+- Equipment
+- Fleet
+- Safety
+- Communications
+- Daily Operations
+
+---
+
+## Financial Intelligence
+
+Provides executive visibility into:
+
+- Revenue
+- Expenses
+- Job Profitability
+- Marketing ROI
+- Department Costs
+- Cash Flow
+- Estimates
+- Commissions
+- Financial Forecasting
+
+---
+
+## Project Intelligence
+
+Project lifecycle management including:
+
+- Estimating
+- Job Tracking
+- Customer Communications
+- Scheduling
+- Materials
+- Production
+- Completion
+- Warranty
+- Customer Satisfaction
+
+---
+
+# Artificial Intelligence
+
+MA-IN utilizes specialized AI agents designed for specific business functions.
+
+Examples include:
+
+- Executive Advisor
+- Marketing Strategist
+- SEO Analyst
+- Google Ads Analyst
+- Competitor Intelligence Agent
+- Financial Auditor
+- Project Coordinator
+- Operations Manager
+- Customer Experience Assistant
+- Documentation Specialist
+- Reporting Agent
+
+---
+
+# Intelligent Skills
+
+The platform is designed around reusable AI Skills.
+
+Examples include:
+
+- Marketing Audit
+- SEO Audit
+- Competitor Research
+- Google Ads Analysis
+- Social Media Planning
+- Campaign Builder
+- Contract Review
+- Financial Audit
+- Proposal Builder
+- Estimator Assistant
+- Ferry & Travel Routing
+- Scheduling Intelligence
+
+---
+
+# Integrations
+
+Current and planned integrations include:
+
+### Google
+
+- Google Ads
+- Google Analytics 4
+- Search Console
+- Google Business Profile
+- Google Maps
+- Routes API
+- Places API
+- Calendar
+
+### Marketing
+
+- Meta
+- LinkedIn
+- YouTube
+- TikTok
+
+### Business
+
+- LEAP CRM
+- QuickBooks
+- Microsoft 365
+- Gmail
+- Outlook
+
+### Development
+
+- GitHub
+- Cloudflare
+- Vercel
+- OpenClaw
+- Claude Code
+- Firecrawl
+- Docker
+
+---
+
+# Technology Stack
+
+Frontend
+
+- React
+- Next.js
+- Tailwind CSS
+
+Backend
+
+- FastAPI
+- Python
+
+Database
+
+- PostgreSQL
+
+Authentication
+
+- Clerk / Auth.js
+
+Hosting
+
+- Cloudflare
+- Vercel
+
+Artificial Intelligence
+
+- Claude
+- GPT
+- OpenClaw
+- MCP Servers
 
 ---
 
 # Repository Structure
 
 ```
-topside-os/
+MA-IN/
+
+├── README.md
 │
-├── app/
-├── agents/
-├── api/
-├── automation/
+├── docs/
+│   ├── Executive-Blueprint/
+│   ├── Business-Plan/
+│   ├── Architecture/
+│   ├── Development/
+│   └── Presentations/
+│
+├── frontend/
+│
+├── backend/
+│
 ├── dashboards/
-├── documentation/
-├── integrations/
-├── knowledge/
-├── pmo/
+│
+├── agents/
+│
 ├── skills/
 │
-├── README.md
-├── package.json
-├── next.config.js
-├── vercel.json
-└── .env.example
+├── tools/
+│
+├── workflows/
+│
+├── api/
+│
+├── integrations/
+│
+├── templates/
+│
+├── assets/
+│
+└── archive/
 ```
 
 ---
 
-# Project Architecture
+# Development Philosophy
 
-The platform is organized into six major operational programs.
+Every feature developed for MA-IN follows four guiding principles.
 
-## Program 1 — Infrastructure
+## Verified
 
-Responsible for:
+Information obtained directly from authoritative sources or validated APIs.
 
-- GitHub
-- Vercel
-- Cloudflare
-- OpenClaw
-- Deployment
-- Security
-- Environment Management
+## Designed
 
----
+Architecture, workflows, dashboards, and planned system capabilities.
 
-## Program 2 — Company Knowledge
+## Planned
 
-The centralized knowledge base for:
+Future implementation targets that have not yet been developed.
 
-- Roofing
-- Sales
-- Marketing
-- Operations
-- Finance
-- SOPs
-- Training
-- Manufacturer Documentation
+## Needs Validation
+
+Items requiring additional testing before production deployment.
 
 ---
 
-## Program 3 — Artificial Intelligence
+# Current Development Status
 
-Development of:
+Current Phase:
 
-- Clive
-- Franchesca
-- Skills
-- Memory
-- Decision Logic
-- Prompt Engineering
-- Reporting
+**Phase 1 — Foundation & Architecture**
 
----
-
-## Program 4 — Business Systems
-
-Integrations include:
-
-- Google Ads
-- Google Analytics 4
-- Google Search Console
-- Google Business Profile
-- Gmail
-- Google Calendar
-- Google Drive
-- LEAP CRM
-- GitHub
-- Cloudflare
-- Firecrawl
-- Claude
-- OpenClaw
-- ChatGPT
-
----
-
-## Program 5 — Automation
-
-Examples include:
-
-- Blog Generation
-- Social Scheduling
-- SEO Audits
-- Competitor Monitoring
-- Job Packet Creation
-- Material Lists
-- Payment Reminders
-- Commission Calculations
-- Executive Reports
-
----
-
-## Program 6 — Executive Intelligence
-
-The business intelligence layer responsible for answering questions such as:
-
-- Which jobs are losing money?
-- Which campaigns should be paused?
-- Which counties need additional SEO coverage?
-- Which estimator is overloaded?
-- Where is profit leaking?
-- What operational bottlenecks currently exist?
-
----
-
-# Development Roadmap
-
-The platform is being developed using a phased implementation model.
-
-1. Repository Foundation
-2. Infrastructure
-3. Knowledge Base
-4. Agent Development
-5. Business Integrations
-6. Automation
-7. Dashboard Development
-8. Intelligence Layer
-9. Testing
-10. Production
-
----
-
-# Current Status
-
-Current Development Phase:
-
-**Repository Foundation**
-
-Current Objectives:
-
-- Repository organization
-- Documentation
-- Build Books
-- Knowledge Base
-- Agent Development
-- Dashboard Architecture
-- Business Integrations
-
----
-
-# Technology Stack
-
-## Core
-
-- Next.js
-- React
-- TypeScript
-- Node.js
-
-## AI
-
-- Claude
-- ChatGPT
-- OpenClaw
-
-## Infrastructure
-
-- GitHub
-- Vercel
-- Cloudflare
-
-## Integrations
-
-- Google Workspace
-- Google Ads
-- Google Analytics
-- Google Search Console
-- LEAP CRM
-
----
-
-# Documentation
-
-Documentation is organized into the following collections.
-
-## Executive Blueprint Collection
+In Progress:
 
 - Executive Blueprint
-- Technical Blueprint
-- Development Master Plan
-- AI Operations Manual
-- Owner Operations Manual
+- System Architecture
+- Marketing Intelligence
+- Competitor Intelligence
+- Dashboard Design
+- Repository Organization
+- AI Skill Framework
+- Integration Planning
+
+Upcoming Phases:
+
+- Backend Development
+- Frontend Interface
+- AI Agent Orchestration
+- Live Integrations
+- Beta Testing
+- Production Deployment
 
 ---
 
-## Claude Build Book Collection
+# Long-Term Goal
 
-- Foundation
-- Infrastructure
-- Agent Development
-- Skills Development
-- Dashboard Development
-- Integration Guide
-- Automation Library
-- Knowledge Book
-- Testing & QA
-- Production Operations
+Create an intelligent operating system capable of helping businesses make faster, more informed, and data-driven decisions by combining artificial intelligence, automation, operational intelligence, and human expertise into a unified platform.
 
 ---
 
-## PMO Documentation
+# License
 
-- Roadmap
-- Milestones
-- Task Registry
-- Decision Log
-- Risk Register
-- Release Notes
+Private Proprietary Software
 
----
+Copyright © Muller's Ad-vantage (MA)
 
-# Vision
+All Rights Reserved.
 
-The long-term objective of the Topside Intelligence Platform is to create a unified AI-powered operating system that enables Topside Roofing & Siding to manage marketing, operations, financial performance, project execution, and executive decision-making from a single intelligent platform.
+This repository contains proprietary architecture, workflows, business methodologies, and software developed for the MA-IN Framework.
+
+Unauthorized reproduction, redistribution, or commercial use without written authorization is prohibited.
 
 ---
 
-# Repository Status
+## Version
 
-**Status:** Active Development
+Current Version:
 
-This repository serves as the primary development repository for the Topside Intelligence Platform (TIP).
+**MA-IN Framework v1.0 Foundation**
 
-Project architecture, implementation strategy, and documentation continue to evolve as new capabilities are added.
+Status:
 
----
-
-© 2026 Muller Advantage
-Topside Intelligence Platform (TIP)
-Powered by Topside OS
+🚧 Active Development
