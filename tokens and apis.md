@@ -1,0 +1,1 @@
+"export GITHUB_TOKEN="your_token_here" export CLOUDFLARE_API_TOKEN="your_token_here" export CLOUDFLARE_ACCOUNT_ID="your_id_here""-- this is what i am in need of no
