@@ -1,4 +1,6 @@
 {
+  "version": 2,
+
   "builds": [
     {
       "src": "webhook.py",
@@ -13,22 +15,19 @@
       "use": "@vercel/node"
     }
   ],
+
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
     {
       "src": "/dashboards/(.*)",
       "dest": "/public/dashboards/$1"
     },
     {
-      "src": "/api/leap-data",
-      "dest": "/api/leap-data.js"
-    },
-    {
-      "src": "/api/leap-upload",
-      "dest": "/api/leap-upload.js"
-    },
-    {
       "src": "/(.*)",
-      "dest": "webhook.py"
+      "dest": "/public/$1"
     }
   ]
 }
