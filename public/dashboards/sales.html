@@ -92,6 +92,8 @@ h1{font-family:var(--f-display);font-weight:700;font-size:38px;letter-spacing:.5
 .tool-desc{font-size:11px;color:var(--ink-soft);line-height:1.55;}
 .tool-tag{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 6px;border-radius:2px;margin-top:8px;background:#E5E1D5;color:var(--ink-soft);}
 .tool-tag.ai{background:#E6EDF5;color:#1F4E79;}
+.tool-cta{display:block;width:100%;margin-top:12px;font-family:var(--f-mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:8px 0;background:var(--ink);color:var(--card);border:none;cursor:pointer;transition:background .15s;}
+.tool-cta:hover{background:var(--safety-dark);}
 
 /* MODAL */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:200;align-items:flex-start;justify-content:center;padding:2rem;overflow-y:auto;}
@@ -477,36 +479,42 @@ h1{font-family:var(--f-display);font-weight:700;font-size:38px;letter-spacing:.5
     <div class="tool-title">Scope description generator</div>
     <div class="tool-desc">Generate a professional customer-facing scope of work. Saves 20–40 min per estimate. Paste directly into Leap.</div>
     <span class="tool-tag ai">AI · Claude</span>
+    <button class="tool-cta" onclick="event.stopPropagation();openTool('scope')">Generate Scope →</button>
   </div>
   <div class="tool-card" onclick="openTool('calc')">
     <div class="tool-icon">🔢</div>
     <div class="tool-title">Material calculator</div>
     <div class="tool-desc">Enter squares + pitch + complexity. Get instant full material quantities — no manual math needed.</div>
     <span class="tool-tag">Instant</span>
+    <button class="tool-cta" onclick="event.stopPropagation();openTool('calc')">Calculate Materials →</button>
   </div>
   <div class="tool-card" onclick="openTool('followup')">
     <div class="tool-icon">💬</div>
     <div class="tool-title">Follow-up SMS templates</div>
     <div class="tool-desc">Ready-to-send texts for every scenario — first touch, no answer, price objection, insurance delay, final outreach.</div>
     <span class="tool-tag ai">AI · Claude</span>
+    <button class="tool-cta" onclick="event.stopPropagation();openTool('followup')">Get Templates →</button>
   </div>
   <div class="tool-card" onclick="openTool('checklist')">
     <div class="tool-icon">✅</div>
     <div class="tool-title">Pre-appointment checklist</div>
     <div class="tool-desc">Run through every step before leaving — satellite pull, permit check, samples, confirmation sent.</div>
     <span class="tool-tag">Checklist</span>
+    <button class="tool-cta" onclick="event.stopPropagation();openTool('checklist')">Open Checklist →</button>
   </div>
   <div class="tool-card" onclick="openTool('noshow')">
     <div class="tool-icon">🔔</div>
     <div class="tool-title">No-show prevention kit</div>
     <div class="tool-desc">Day-before + morning-of confirmation templates. Reduces no-shows 60–70% per industry data.</div>
     <span class="tool-tag">Templates</span>
+    <button class="tool-cta" onclick="event.stopPropagation();openTool('noshow')">Get Confirmation Kit →</button>
   </div>
   <div class="tool-card" onclick="openTool('review')">
     <div class="tool-icon">⭐</div>
     <div class="tool-title">Post-job review request</div>
     <div class="tool-desc">Generate a personalized Google review request for any completed job. Strike while the satisfaction is fresh.</div>
     <span class="tool-tag ai">AI · Claude</span>
+    <button class="tool-cta" onclick="event.stopPropagation();openTool('review')">Generate Request →</button>
   </div>
 </div>
 
