@@ -66,14 +66,40 @@ async function main() {
 
   console.log('Matched files:', matchedFiles);
   console.log(`Posting to ${API_URL} ...`);
+  console.log('Payload sizes (chars):', Object.fromEntries(Object.entries(payload).map(([k,v]) => [k, v.length])));
 
-  const resp = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
+  let resp;
+  try {
+    resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  } catch (err) {
+    console.error('Network error calling the API:', err.message);
+    process.exit(1);
+  }
 
-  const json = await resp.json();
+  const contentType = resp.headers.get('content-type') || '';
+  const rawText = await resp.text();
+  console.log('Response status:', resp.status, resp.statusText);
+  console.log('Response content-type:', contentType);
+
+  if (!contentType.includes('application/json')) {
+    console.error('Response was not JSON. Raw body (first 2000 chars):');
+    console.error(rawText.slice(0, 2000));
+    process.exit(1);
+  }
+
+  let json;
+  try {
+    json = JSON.parse(rawText);
+  } catch (err) {
+    console.error('Failed to parse JSON response:', err.message);
+    console.error('Raw body (first 2000 chars):', rawText.slice(0, 2000));
+    process.exit(1);
+  }
+
   if (!resp.ok) {
     console.error('Upload failed:', json);
     process.exit(1);

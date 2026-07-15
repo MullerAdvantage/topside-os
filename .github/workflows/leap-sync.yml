@@ -20,4 +20,20 @@ jobs:
         run: npm install xlsx --no-save
 
       - name: Sync to Vercel
-        run: node scripts/sync-leap-data.mjs
+        id: sync
+        run: node scripts/sync-leap-data.mjs 2>&1 | tee sync-output.log
+        continue-on-error: true
+
+      - name: Report failure details as an issue
+        if: steps.sync.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "Leap sync failed $(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --body-file sync-output.log \
+            --repo ${{ github.repository }}
+
+      - name: Fail the job if sync failed
+        if: steps.sync.outcome == 'failure'
+        run: exit 1
