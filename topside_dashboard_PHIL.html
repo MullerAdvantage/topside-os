@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topside — Executive Dashboard (Phil)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;--surface:#fff;--border:rgba(0,0,0,.09);--border-strong:rgba(0,0,0,.14);
+  --text-primary:#0b0b0b;--text-secondary:#52514e;--text-muted:#898781;
+  --accent:#1F4E79;--accent-light:#E6F1FB;--accent-text:#185FA5;
+  --success:#375623;--success-bg:#E2EFDA;
+  --warning:#7B4F12;--warning-bg:#FFF2CC;
+  --danger:#A32D2D;--danger-bg:#FCE4D6;
+  --gold:#C9A227;--pending:#6B6558;--pending-bg:#EDEAE2;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --mono:'Courier New',ui-monospace,monospace
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text-primary);min-height:100vh}
+.page{max-width:1280px;margin:0 auto;padding:2rem 1.5rem 4rem}
+
+.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.75rem;padding-bottom:1.25rem;border-bottom:2px solid var(--accent);flex-wrap:wrap;gap:12px}
+.co-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:6px}
+.header-title{font-size:26px;font-weight:600;letter-spacing:-.5px;margin-bottom:4px}
+.header-meta{font-size:13px;color:var(--text-muted)}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.badge-live{font-size:11px;font-weight:600;padding:4px 12px;border-radius:99px;background:var(--success-bg);color:var(--success);display:flex;align-items:center;gap:5px}
+.badge-live::before{content:'';width:7px;height:7px;border-radius:50%;background:#375623;display:inline-block}
+.btn-print{font-size:12px;font-weight:500;padding:7px 16px;border-radius:6px;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:6px}
+.btn-print:hover{background:var(--bg)}
+
+.nav-bar{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+.nav-btn{font-size:12px;font-weight:500;padding:6px 14px;border-radius:6px;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.nav-btn:hover{background:var(--bg)}
+.nav-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.section-title{font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-primary);margin:28px 0 14px;display:flex;align-items:center;gap:10px}
+.section-title::after{content:'';flex:1;height:2px;background:var(--accent);opacity:.15}
+.section-title:first-of-type{margin-top:0}
+
+/* HEALTH SCORECARD */
+.health-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.health-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden}
+.health-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.health-card.risk::before{background:var(--danger)}
+.health-card.watch::before{background:var(--warning)}
+.health-card.good::before{background:var(--success)}
+.health-card.pending::before{background:var(--pending)}
+.health-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px}
+.health-status{font-size:20px;font-weight:700;margin-bottom:6px}
+.health-status.risk{color:var(--danger)}
+.health-status.watch{color:var(--warning)}
+.health-status.good{color:var(--success)}
+.health-status.pending{color:var(--pending)}
+.health-sub{font-size:12px;color:var(--text-secondary);line-height:1.5}
+.health-sub .fig{font-weight:700;color:var(--text-primary)}
+
+/* TILES */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:6px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.tile-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px}
+.tile-val{font-size:32px;font-weight:700;letter-spacing:-.5px}
+.tile-sub{font-size:12px;color:var(--text-muted);margin-top:4px}
+.tile.accent .tile-val{color:var(--accent-text)}
+.tile.success .tile-val{color:var(--success)}
+.tile.warn .tile-val{color:var(--warning)}
+
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:6px}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px}
+.chart-card h3{font-size:14px;font-weight:600;margin-bottom:14px;color:var(--text-primary)}
+.chart-wrap{position:relative;height:250px}
+
+/* MARKETING SPEND */
+.spend-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
+.spend-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px}
+.spend-table{width:100%;border-collapse:collapse;font-size:13px}
+.spend-table th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);padding:8px 6px;border-bottom:2px solid var(--border-strong)}
+.spend-table td{padding:9px 6px;border-bottom:1px solid var(--border)}
+.spend-table tr:last-child td{font-weight:700;border-bottom:none;border-top:2px solid var(--border-strong)}
+.status-banner{border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.6;margin-top:14px}
+.status-banner.warn{background:var(--danger-bg);color:var(--danger);border:1px solid rgba(163,45,45,.25)}
+
+/* SALES ROLLUP TABLE */
+.rollup-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.rollup-table{width:100%;border-collapse:collapse;font-size:13px}
+.rollup-table th{background:var(--accent);color:#fff;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:10px 14px;text-align:left}
+.rollup-table td{padding:10px 14px;border-bottom:1px solid var(--border)}
+.rollup-table tr:last-child td{border-bottom:none}
+.rollup-table tr:hover td{background:#FAFAF8}
+.pending-tag{font-size:11px;font-style:italic;color:var(--pending);background:var(--pending-bg);padding:2px 8px;border-radius:4px}
+
+.footnote{margin-top:28px;font-size:11px;color:var(--text-muted);line-height:1.7;border-top:1px solid var(--border);padding-top:14px}
+.footnote strong{color:var(--text-secondary)}
+
+@media print{
+  .btn-print,.nav-bar{display:none}
+  body{background:#fff}
+  .tile,.chart-card,.health-card,.spend-card,.rollup-wrap{box-shadow:none;break-inside:avoid}
+}
+@media (max-width:900px){
+  .tiles,.health-row{grid-template-columns:repeat(2,1fr)}
+  .charts-row,.spend-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div>
+      <div class="co-name">Topside Construction Inc. · Topside Roofing, Siding &amp; Gutters</div>
+      <div class="header-title">Executive Dashboard</div>
+      <div class="header-meta">Whatcom · Skagit · Island · San Juan Counties, WA — Data as of July 7, 2026 (Leap CRM export)</div>
+    </div>
+    <div class="header-right">
+      <div class="badge-live">Live Leap Data</div>
+      <button class="btn-print" onclick="window.print()">🖨 Print / PDF</button>
+    </div>
+  </div>
+
+  <div class="nav-bar">
+    <a href="Operations_Dashboard.html" class="nav-btn">Operations</a>
+    <a href="topside_dashboard_PHIL.html" class="nav-btn active">Executive (Phil)</a>
+    <a href="Sales_Team_Dash.html" class="nav-btn">Sales Team</a>
+    <a href="marketing360_dashboard.html" class="nav-btn">Marketing 360 Health</a>
+    <a href="marketing_health.html" class="nav-btn">Marketing Health (Co-Wide)</a>
+  </div>
+
+  <!-- ══ COMPANY HEALTH SCORECARD ══ -->
+  <div class="section-title">Company health scorecard</div>
+  <div class="health-row">
+    <div class="health-card risk">
+      <div class="health-label">Pipeline Velocity</div>
+      <div class="health-status risk">Risk</div>
+      <div class="health-sub"><span class="fig">55.9%</span> of all 542 jobs on file (303) are stalled in Follow Up. Threshold: &lt;30% Good, 30–50% Watch, &gt;50% Risk.</div>
+    </div>
+    <div class="health-card watch">
+      <div class="health-label">Marketing Spend Status</div>
+      <div class="health-status watch">Watch</div>
+      <div class="health-sub">M360 termination in effect <span class="fig">July 19</span>. See Marketing Spend section below for full detail.</div>
+    </div>
+    <div class="health-card pending">
+      <div class="health-label">Job Cost Margin</div>
+      <div class="health-status pending">Pending QB</div>
+      <div class="health-sub">No cost-to-date data available yet. Score activates once QuickBooks Job Profitability export is uploaded and joined by Job Id.</div>
+    </div>
+    <div class="health-card pending">
+      <div class="health-label">Marketing Efficiency</div>
+      <div class="health-status pending">Pending Source Data</div>
+      <div class="health-sub">Leap job records carry no lead-source field. Requires the Marketing Health (Co-Wide) dashboard's lead log before this can be scored.</div>
+    </div>
+  </div>
+  <div class="footnote" style="margin-top:14px;border-top:none;padding-top:0;">
+    <strong>Scoring status: 2 of 4 pillars computed from real data, 2 pending upstream feeds.</strong> No blended single score is shown until all four pillars have real inputs — a composite number built on two guesses would be worse than no number. Thresholds above are a starting point; confirm or adjust before this becomes the standing methodology.
+  </div>
+
+  <!-- ══ OPERATIONS ══ -->
+  <div class="section-title">Operations</div>
+  <div class="tiles">
+    <div class="tile accent">
+      <div class="tile-label">Total Jobs on File</div>
+      <div class="tile-val">542</div>
+      <div class="tile-sub">All stages, Leap Master List</div>
+    </div>
+    <div class="tile warn">
+      <div class="tile-label">Active in Pipeline</div>
+      <div class="tile-val">53</div>
+      <div class="tile-sub">Signed through warranty work (narrow definition)</div>
+    </div>
+    <div class="tile success">
+      <div class="tile-label">Completed / Invoiced</div>
+      <div class="tile-val">95</div>
+      <div class="tile-sub">77 completed + 18 invoiced</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">Crew Active Today</div>
+      <div class="tile-val">3</div>
+      <div class="tile-sub">Jose Crew #1, Sonrise Roofing, Jose Crew #1 + Ben</div>
+    </div>
+  </div>
+
+  <div class="charts-row" style="margin-top:14px;">
+    <div class="chart-card">
+      <h3>Trade Mix — All 542 Jobs</h3>
+      <div class="chart-wrap"><canvas id="tradePie"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Jobs by Stage</h3>
+      <div class="chart-wrap"><canvas id="stageBar"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ══ MARKETING SPEND ══ -->
+  <div class="section-title">Marketing spend (Marketing 360 / Madwire)</div>
+  <div class="spend-grid">
+    <div class="spend-card">
+      <table class="spend-table">
+        <thead><tr><th>Line item</th><th>Monthly</th></tr></thead>
+        <tbody>
+          <tr><td>Content Marketing Pro</td><td>$600</td></tr>
+          <tr><td>Content Marketing Credits</td><td>$1,200</td></tr>
+          <tr><td>Ad Credits</td><td>$5,000</td></tr>
+          <tr><td>Monthly contract total</td><td>$7,195</td></tr>
+        </tbody>
+      </table>
+      <table class="spend-table" style="margin-top:16px;">
+        <thead><tr><th>To date</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr><td>Payments made (4 payments)</td><td>$28,780</td></tr>
+          <tr><td>Onboarding fee (waived, becomes due on early termination)</td><td>$2,350</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="spend-card">
+      <div class="health-label" style="margin-bottom:10px;">Contract Status</div>
+      <div style="font-size:13px;line-height:1.7;color:var(--text-secondary);">
+        Contract began March 20, 2026 (6-month term). Early termination invoked, effective <strong>July 19, 2026</strong> — zero engagement from July 20 forward.
+      </div>
+      <div class="status-banner warn">
+        <strong>4 days to termination date.</strong> No new campaign approvals should be issued to M360 through July 19 — new deliverables this close to wind-down complicate the damages record. See MOCS audit for violation detail (V1–V42).
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SALES / ESTIMATOR ROLLUP ══ -->
+  <div class="section-title">Sales / estimator rollup</div>
+  <div class="rollup-wrap">
+    <table class="rollup-table">
+      <thead>
+        <tr><th>Estimator</th><th>Active Jobs</th><th>Expected Income</th><th>Cost to Date</th><th>Margin to Date</th></tr>
+      </thead>
+      <tbody id="rollup-body"></tbody>
+    </table>
+  </div>
+
+  <div class="footnote">
+    <strong>Source:</strong> Leap CRM Master List export, July 7, 2026 (542 job records). "Active in Pipeline" (narrow) = jobs in Signed Estimate/Project, Deposit Rcvd → Estimator, Deposit Received, Materials Ordered, Material List Setup, New Construction, Job Scheduled, Active Jobs, Commercial, Warranty Work, or Final Walkthrough stages. Leads (31), Appointment Booked (47), and Bid (12) are tracked but excluded from this narrow pipeline count — a broader "all non-terminal stages" count (144) is used on the Operations Dashboard and will read differently here by design.<br>
+    <strong>Expected Income</strong> = Leap "Job Price" field — pipeline/contract value, not confirmed or invoiced revenue.<br>
+    <strong>Cost to Date / Margin to Date</strong> — pending QuickBooks Job Profitability export. Marked "Pending QB" until that data is uploaded and joined by Job Id.<br>
+    <strong>Rep attribution:</strong> this rollup assigns each job to its <em>primary</em> listed rep only, so the table sums exactly to the pipeline tile above (53 jobs, $871,948) — including a $55,250 "Unassigned" line for jobs Leap has no rep attached to. This differs deliberately from the Sales Team Dashboard, which credits a job to every rep listed (useful for individual accountability, but does not sum to a single company total).<br>
+    <strong>Data currency:</strong> this dashboard is built from the July 7 export — the most complete job-level dataset currently available in this session. It is not yet wired to the live Vercel/KV pipeline built July 15; that conversion is the next step once this structure is confirmed.
+  </div>
+
+</div>
+
+<script>
+const navy = '#1F4E79', gold = '#C9A227', slate='#52514e', green='#375623', rust='#A32D2D', tan='#7B4F12', steel='#898781';
+const palette = [rust, navy, steel, green, tan, '#4C7C9E'];
+
+new Chart(document.getElementById('tradePie'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Roofing','Siding','Other','Gutters','Windows','Painting'],
+    datasets: [{ data: [408,75,44,10,4,1], backgroundColor: palette, borderWidth: 2, borderColor:'#fff' }]
+  },
+  options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12, font:{size:11} } } } }
+});
+
+new Chart(document.getElementById('stageBar'), {
+  type: 'bar',
+  data: {
+    labels: ['Follow Up','Completed','Appt. Booked','Lead','Invoiced','Bid','Deposit→Est.','Signed Est.','Active Jobs','New Constr.','Deposit Rcvd','Commercial','Job Sched.','Fin. Walk.','Mat. List','Warranty','Mat. Ordered'],
+    datasets: [{ label:'Jobs', data:[303,77,47,31,18,13,11,12,9,5,5,3,3,2,1,1,1], backgroundColor: navy, borderRadius:4 }]
+  },
+  options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } },
+    scales:{ x:{ ticks:{ font:{size:9}, maxRotation:60, minRotation:45 } } } }
+});
+
+// ── SALES/ESTIMATOR ROLLUP (same DATA_COSTS join pattern as Sales Team Dash) ──
+// Empty until QuickBooks export is uploaded — do not fabricate cost figures here.
+var DATA_COSTS = {};
+
+var REP_ROLLUP = [
+  { rep:'Carson Engholm',       jobs:19, income:282117 },
+  { rep:'Duane Vander Molen',   jobs:16, income:249148 },
+  { rep:'Dustin Suiter',        jobs:10, income:244313 },
+  { rep:'Unassigned',           jobs:2,  income:55250 },
+  { rep:'Phil York',            jobs:1,  income:23645 },
+  { rep:'Braedan York',         jobs:2,  income:17475 },
+  { rep:'Itzel Ocaranza',       jobs:2,  income:0 },
+  { rep:'Ashley Anderson',      jobs:1,  income:0 }
+];
+
+document.getElementById('rollup-body').innerHTML = REP_ROLLUP.map(function(r){
+  return '<tr><td>'+r.rep+'</td><td>'+r.jobs+'</td><td>$'+r.income.toLocaleString()+'</td>'+
+    '<td><span class="pending-tag">Pending QB</span></td><td><span class="pending-tag">—</span></td></tr>';
+}).join('');
+</script>
+</body>
+</html>
