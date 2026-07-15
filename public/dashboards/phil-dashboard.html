@@ -106,23 +106,23 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);min-
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
         Total jobs on file
       </div>
-      <div class="tile-num">556</div>
-      <div class="tile-sub">All time · Leap CRM</div>
+      <div class="tile-num" id="tile-total">556</div>
+      <div class="tile-sub" id="tile-total-sub">All time · Leap CRM</div>
     </div>
     <div class="tile orange">
       <div class="tile-label">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Active in pipeline
       </div>
-      <div class="tile-num">117</div>
-      <div class="tile-sub warn">58 in booked stages</div>
+      <div class="tile-num" id="tile-active">117</div>
+      <div class="tile-sub warn" id="tile-active-sub">58 in booked stages</div>
     </div>
     <div class="tile green">
       <div class="tile-label">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         Completed
       </div>
-      <div class="tile-num">83</div>
+      <div class="tile-num" id="tile-completed">83</div>
       <div class="tile-sub up">Jobs closed out</div>
     </div>
     <div class="tile orange">
@@ -130,7 +130,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);min-
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         Appts booked
       </div>
-      <div class="tile-num">49</div>
+      <div class="tile-num" id="tile-appts">49</div>
       <div class="tile-sub">Upcoming appointments</div>
     </div>
   </div>
@@ -140,7 +140,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);min-
     <div class="chart-card">
       <div class="chart-title">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg>
-        Trade mix — all 556 jobs on file
+        Trade mix — all <span id="trade-mix-total">556</span> jobs on file
       </div>
       <div class="legend" id="pie-legend"></div>
       <div style="position:relative;height:210px"><canvas id="pieChart" role="img" aria-label="Trade mix doughnut chart"></canvas></div>
@@ -176,22 +176,22 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);min-
   <div class="bottom-strip">
     <div class="stat-card">
       <div class="stat-label">Confirmed pipeline revenue</div>
-      <div class="stat-val">$920,108</div>
-      <div class="stat-sub">41 priced jobs in active pipeline</div>
+      <div class="stat-val" id="stat-pipeline-rev">$920,108</div>
+      <div class="stat-sub" id="stat-pipeline-sub">41 priced jobs in active pipeline</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Avg. job value</div>
-      <div class="stat-val">$22,442</div>
-      <div class="stat-sub">Based on 41 priced active jobs</div>
+      <div class="stat-val" id="stat-avg-job">$22,442</div>
+      <div class="stat-sub" id="stat-avg-sub">Based on 41 priced active jobs</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Dominant trade</div>
-      <div class="stat-val">Roofing</div>
-      <div class="stat-sub">74.8% of all jobs · $809,544 revenue</div>
+      <div class="stat-val" id="stat-dom-trade">Roofing</div>
+      <div class="stat-sub" id="stat-dom-sub">74.8% of all jobs · $809,544 revenue</div>
     </div>
   </div>
 
-  <div class="data-note">Source: Leap CRM export · July 13, 2026 · Whatcom, Skagit, Island &amp; San Juan Islands</div>
+  <div class="data-note" id="data-note">Source: Leap CRM export · July 13, 2026 · Whatcom, Skagit, Island &amp; San Juan Islands</div>
 
   <div class="footer">
     <span>Topside Construction Inc. &nbsp;·&nbsp; Prepared by Jessica &nbsp;·&nbsp; Confidential</span>
@@ -200,77 +200,158 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);min-
 </div>
 
 <script>
-const COLORS = ['#2a78d6','#D9531E','#1baf7a','#4a3aa7','#eda100','#e34948'];
-const TRADE_COLORS = { ROOFING:'#D9531E', SIDING:'#2a78d6', GUTTERS:'#1baf7a', OTHER:'#898781', WINDOWS:'#4a3aa7', PAINTING:'#eda100' };
+const TRADE_LABELS = { ROOFING:'Roofing', SIDING:'Siding', GUTTERS:'Gutters', OTHER:'Other', WINDOWS:'Windows', PAINTING:'Painting', DOORS:'Doors' };
+const TRADE_COLOR_MAP = { ROOFING:'#D9531E', SIDING:'#2a78d6', OTHER:'#898781', GUTTERS:'#1baf7a', WINDOWS:'#4a3aa7', DOORS:'#6b5b95', PAINTING:'#eda100' };
+const FALLBACK_COLORS = ['#e34948','#3d9970','#a05195','#f95d6a','#665191'];
 
-// Trade mix — all 542 jobs
-const tradePieLbls = ["Roofing", "Siding", "Other", "Gutters", "Windows", "Doors", "Painting"];
-const tradePieData = [416, 76, 47, 10, 5, 1, 1];
-const tradePieColors = ["#D9531E", "#2a78d6", "#898781", "#1baf7a", "#4a3aa7", "#6b5b95", "#eda100"];
-const total = tradePieData.reduce((a,b)=>a+b,0);
-document.getElementById('pie-legend').innerHTML = tradePieLbls.map((l,i)=>
-  `<span class="legend-item"><span class="legend-dot" style="background:${tradePieColors[i]}"></span>${l} ${Math.round(tradePieData[i]/total*100)}%</span>`
-).join('');
+function fmtMoney(n) { return '$' + Math.round(n).toLocaleString(); }
 
-new Chart(document.getElementById('pieChart'),{
-  type:'doughnut',
-  data:{labels:tradePieLbls,datasets:[{data:tradePieData,backgroundColor:tradePieColors,borderWidth:2,borderColor:'#fff'}]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed} jobs`}}}}
-});
+function renderDashboard(bundle) {
+  const stageCounts = bundle.stageCounts || {};
+  const tradeCounts = bundle.tradeCounts || {};
+  const activeJobs = bundle.activeJobs || [];
+  const revenue = bundle.revenue || {};
+  const totalJobs = bundle.totalJobs || 0;
 
-// Revenue by trade
-new Chart(document.getElementById('barChart'),{
-  type:'bar',
-  data:{
-    labels:["Roofing", "Siding", "Other", "Gutters", "Windows"],
-    datasets:[{data:[809544, 83105, 44620, 6415, 5172],backgroundColor:["#D9531E", "#2a78d6", "#1baf7a", "#4a3aa7", "#eda100"],borderRadius:4,borderSkipped:false}]
-  },
-  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' $'+ctx.parsed.x.toLocaleString()}}},
-    scales:{
-      x:{grid:{color:'#e8e7e3'},ticks:{color:'#898781',font:{size:11},callback:v=>'$'+(v/1000).toFixed(0)+'k'}},
-      y:{grid:{display:false},ticks:{color:'#52514e',font:{size:12}}}
-    }}
-});
+  const completed = stageCounts['Completed'] || 0;
+  const invoiced = stageCounts['Invoiced'] || 0;
+  const followUp = stageCounts['Follow Up'] || 0;
+  const apptBooked = stageCounts['Appointment Booked'] || 0;
+  const totalActive = activeJobs.length;
 
-// Jobs & revenue by estimator
-new Chart(document.getElementById('repChart'),{
-  type:'bar',
-  data:{
-    labels:["Carson E.", "Dustin S.", "Duane V.", "Braedan Y.", "Phil Y.", "Itzel O.", "Unassigned"],
-    datasets:[
-      {label:'Jobs',data:[36, 36, 32, 5, 1, 2, 3],backgroundColor:'#2a78d6',borderRadius:3,yAxisID:'y'},
-      {label:'Revenue ($k)',data:[309, 286, 267, 17, 24, 0, 17],backgroundColor:'#D9531E',borderRadius:3,yAxisID:'y1'}
-    ]
-  },
-  options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:10}}},
-    scales:{
-      x:{grid:{display:false},ticks:{color:'#52514e',font:{size:10}}},
-      y:{grid:{color:'#e8e7e3'},ticks:{color:'#898781',font:{size:11}},title:{display:true,text:'Jobs',font:{size:10}}},
-      y1:{position:'right',grid:{display:false},ticks:{color:'#D9531E',font:{size:11},callback:v=>'$'+v+'k'},title:{display:true,text:'Revenue',font:{size:10}}}
-    }}
-});
+  // ---- top tiles ----
+  document.getElementById('tile-total').textContent = totalJobs;
+  document.getElementById('tile-active').textContent = totalActive;
+  document.getElementById('tile-active-sub').textContent = apptBooked + ' in Appointment Booked stage';
+  document.getElementById('tile-completed').textContent = completed;
+  document.getElementById('tile-appts').textContent = apptBooked;
+  document.getElementById('trade-mix-total').textContent = totalJobs;
 
-// Pipeline by stage
-new Chart(document.getElementById('stageChart'),{
-  type:'bar',
-  data:{
-    labels:["Appt Booked", "Dep -> Est.", "Signed Est.", "Active Jobs", "Bid", "New Const.", "Commercial", "Dep Rcvd", "Job Sched.", "Mat. List", "Warranty", "Mat. Delivered", "Final Walk.", "Mat. Ordered"],
-    datasets:[{data:[49, 16, 11, 9, 9, 6, 5, 5, 2, 1, 1, 1, 1, 1],backgroundColor:'#1F4E79',borderRadius:3}]
-  },
-  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x} jobs`}}},
-    scales:{
-      x:{grid:{color:'#e8e7e3'},ticks:{color:'#898781',font:{size:11},stepSize:5}},
-      y:{grid:{display:false},ticks:{color:'#52514e',font:{size:10}}}
-    }}
-});
+  // ---- trade mix pie (all jobs on file) ----
+  const tradeEntries = Object.entries(tradeCounts).sort((a,b) => b[1]-a[1]);
+  const tradePieLbls = tradeEntries.map(e => TRADE_LABELS[e[0]] || e[0]);
+  const tradePieData = tradeEntries.map(e => e[1]);
+  const tradePieColors = tradeEntries.map((e,i) => TRADE_COLOR_MAP[e[0]] || FALLBACK_COLORS[i % FALLBACK_COLORS.length]);
+  const pieTotal = tradePieData.reduce((a,b)=>a+b,0) || 1;
+
+  document.getElementById('pie-legend').innerHTML = tradePieLbls.map((l,i)=>
+    `<span class="legend-item"><span class="legend-dot" style="background:${tradePieColors[i]}"></span>${l} ${Math.round(tradePieData[i]/pieTotal*100)}%</span>`
+  ).join('');
+
+  new Chart(document.getElementById('pieChart'),{
+    type:'doughnut',
+    data:{labels:tradePieLbls,datasets:[{data:tradePieData,backgroundColor:tradePieColors,borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed} jobs`}}}}
+  });
+
+  // ---- confirmed revenue by trade (Completed + Invoiced only) ----
+  const revTradeEntries = Object.entries(revenue.byTradeConfirmed || {}).sort((a,b) => b[1]-a[1]);
+  new Chart(document.getElementById('barChart'),{
+    type:'bar',
+    data:{
+      labels: revTradeEntries.map(e => TRADE_LABELS[e[0]] || e[0]),
+      datasets:[{data: revTradeEntries.map(e => Math.round(e[1])), backgroundColor: revTradeEntries.map((e,i) => TRADE_COLOR_MAP[e[0]] || FALLBACK_COLORS[i % FALLBACK_COLORS.length]), borderRadius:4, borderSkipped:false}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' $'+ctx.parsed.x.toLocaleString()}}},
+      scales:{
+        x:{grid:{color:'#e8e7e3'},ticks:{color:'#898781',font:{size:11},callback:v=>'$'+(v/1000).toFixed(0)+'k'}},
+        y:{grid:{display:false},ticks:{color:'#52514e',font:{size:12}}}
+      }}
+  });
+
+  // ---- jobs & revenue by estimator (active pipeline jobs, confirmed revenue) ----
+  const jobsByRep = {};
+  activeJobs.forEach(j => {
+    const rep = (j['Job Rep / Estimator'] || 'Unassigned').split(',')[0].trim() || 'Unassigned';
+    jobsByRep[rep] = (jobsByRep[rep] || 0) + 1;
+  });
+  const repConfirmedRev = revenue.byRepConfirmed || {};
+  const repNames = Object.keys(jobsByRep).sort((a,b) => jobsByRep[b]-jobsByRep[a]).slice(0, 9);
+  const shortName = n => n.split(' ').map((p,i)=> i===0?p:p[0]+'.').join(' ');
+
+  new Chart(document.getElementById('repChart'),{
+    type:'bar',
+    data:{
+      labels: repNames.map(shortName),
+      datasets:[
+        {label:'Jobs', data: repNames.map(n => jobsByRep[n]), backgroundColor:'#2a78d6', borderRadius:3, yAxisID:'y'},
+        {label:'Revenue ($k)', data: repNames.map(n => Math.round((repConfirmedRev[n]||0)/1000)), backgroundColor:'#D9531E', borderRadius:3, yAxisID:'y1'}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:10}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#52514e',font:{size:10}}},
+        y:{grid:{color:'#e8e7e3'},ticks:{color:'#898781',font:{size:11}},title:{display:true,text:'Jobs',font:{size:10}}},
+        y1:{position:'right',grid:{display:false},ticks:{color:'#D9531E',font:{size:11},callback:v=>'$'+v+'k'},title:{display:true,text:'Revenue',font:{size:10}}}
+      }}
+  });
+
+  // ---- pipeline by stage (active jobs, excluding Lead so the chart reads as "committed" work) ----
+  const STAGE_ABBR = {
+    'Appointment Booked':'Appt Booked','Bid':'Bid','Signed Estimate/Project':'Signed Est.',
+    'Deposit Rcvd -> Estimator':'Dep -> Est.','Active Jobs':'Active Jobs','New Construction':'New Const.',
+    'Deposit Received':'Dep Rcvd','Commercial':'Commercial','Job Scheduled':'Job Sched.',
+    'Final Walkthrough':'Final Walk.','Material List Setup':'Mat. List','Warranty Work':'Warranty',
+    'Materials Delivered':'Mat. Delivered','Materials Ordered':'Mat. Ordered',
+  };
+  const stageChartCounts = {};
+  activeJobs.forEach(j => {
+    if (j.Stage === 'Lead') return;
+    stageChartCounts[j.Stage] = (stageChartCounts[j.Stage] || 0) + 1;
+  });
+  const stageEntries = Object.entries(stageChartCounts).sort((a,b) => b[1]-a[1]);
+
+  new Chart(document.getElementById('stageChart'),{
+    type:'bar',
+    data:{
+      labels: stageEntries.map(e => STAGE_ABBR[e[0]] || e[0]),
+      datasets:[{data: stageEntries.map(e => e[1]), backgroundColor:'#1F4E79', borderRadius:3}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x} jobs`}}},
+      scales:{
+        x:{grid:{color:'#e8e7e3'},ticks:{color:'#898781',font:{size:11},stepSize:5}},
+        y:{grid:{display:false},ticks:{color:'#52514e',font:{size:10}}}
+      }}
+  });
+
+  // ---- bottom stat cards ----
+  document.getElementById('stat-pipeline-rev').textContent = fmtMoney(revenue.pipelineRevenue || 0);
+  document.getElementById('stat-pipeline-sub').textContent = (revenue.pipelinePricedCount||0) + ' priced jobs in active pipeline';
+  document.getElementById('stat-avg-job').textContent = fmtMoney(revenue.avgPipelineJobValue || 0);
+  document.getElementById('stat-avg-sub').textContent = 'Based on ' + (revenue.pipelinePricedCount||0) + ' priced active jobs';
+
+  const dominant = tradeEntries[0];
+  if (dominant) {
+    const dominantLabel = TRADE_LABELS[dominant[0]] || dominant[0];
+    const pct = totalJobs ? (dominant[1] / totalJobs * 100).toFixed(1) : '0.0';
+    const dominantConfirmedRev = (revenue.byTradeConfirmed || {})[dominant[0]] || 0;
+    document.getElementById('stat-dom-trade').textContent = dominantLabel;
+    document.getElementById('stat-dom-sub').textContent = pct + '% of all jobs · ' + fmtMoney(dominantConfirmedRev) + ' confirmed revenue';
+  }
+}
 
 const now = new Date();
 const fmt = now.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
 document.getElementById('report-date').textContent = 'Updated '+fmt;
 document.getElementById('footer-date').textContent = fmt;
+
+fetch('/api/leap-data').then(r => r.json()).then(json => {
+  if (!json.bundle) {
+    document.getElementById('data-note').innerHTML =
+      'No data uploaded yet — go to <a href="/leap-upload.html">/leap-upload.html</a> to upload this morning\'s Leap export.';
+    return;
+  }
+  renderDashboard(json.bundle);
+  const updated = json.updated_at ? new Date(json.updated_at) : null;
+  document.getElementById('data-note').textContent =
+    'Source: Leap CRM export · ' + (updated ? updated.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : 'unknown date') +
+    ' · Whatcom, Skagit, Island & San Juan Islands';
+}).catch(err => {
+  document.getElementById('data-note').textContent = 'Failed to load live data: ' + err.message;
+});
 </script>
 </body>
 </html>
