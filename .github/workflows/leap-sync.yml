@@ -1,0 +1,23 @@
+name: Sync Leap data to live dashboards
+
+on:
+  push:
+    paths:
+      - 'data/leap-exports/**'
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install xlsx --no-save
+
+      - name: Sync to Vercel
+        run: node scripts/sync-leap-data.mjs

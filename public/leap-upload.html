@@ -79,11 +79,11 @@ const matched = {}; // slotKey -> { filename, csvText }
 function detectSlot(filename) {
   const n = filename.toLowerCase();
   // order matters: check the more specific "stage entered" pattern before the generic "master list" one
-  if (n.includes('stage_entered') || n.includes('stage entered') || n.includes('stageentered')) return 'stageEntered';
-  if (n.includes('master_list') || n.includes('master list') || n.includes('masterlist')) return 'masterList';
-  if (n.includes('job_schedules') || n.includes('job schedules') || (n.includes('schedule') && !n.includes('appointment'))) return 'jobSchedules';
+  if (/stage[-_ ]?entered/.test(n)) return 'stageEntered';
+  if (/master[-_ ]?list/.test(n)) return 'masterList';
+  if ((/job[-_ ]?schedules/.test(n) || (n.includes('schedule') && !n.includes('appointment')))) return 'jobSchedules';
   if (n.includes('appointment')) return 'appointments';
-  if (n.includes('work_order') || n.includes('work order') || n.includes('workorder')) return 'workOrder';
+  if (/work[-_ ]?order/.test(n)) return 'workOrder';
   return null;
 }
 
