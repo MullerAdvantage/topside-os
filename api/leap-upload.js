@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { masterList, stageEntered, appointments, workOrder } = req.body || {};
+  const { masterList, stageEntered, appointments, jobSchedules, workOrder } = req.body || {};
 
   if (!masterList) {
     return res.status(400).json({
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
   let bundle;
   try {
-    bundle = buildBundle({ masterList, stageEntered, appointments, workOrder });
+    bundle = buildBundle({ masterList, stageEntered, appointments, jobSchedules, workOrder });
   } catch (err) {
     return res.status(400).json({ error: err.message });
   }

@@ -51,9 +51,15 @@
   </div>
 
   <div class="field">
+    <label>Job Schedules Report <span style="color:#898781;font-weight:400;">— optional</span></label>
+    <input type="file" id="jobSchedules" accept=".csv">
+    <div class="note">Preferred source for "crew on active jobsites" — shows schedules whose date range spans today.</div>
+  </div>
+
+  <div class="field">
     <label>Work Order Report <span style="color:#898781;font-weight:400;">— optional</span></label>
     <input type="file" id="workOrder" accept=".csv">
-    <div class="note">Populates the "crew on active jobsites" panel. Often empty — that's fine, the panel just stays empty.</div>
+    <div class="note">Fallback crew source if Job Schedules isn't provided. Often empty — that's fine, the panel just stays empty.</div>
   </div>
 
   <button class="btn" id="uploadBtn" onclick="doUpload()">Upload &amp; refresh dashboards</button>
@@ -96,6 +102,7 @@ async function doUpload() {
     }
     const stageEntered = await readFile(document.getElementById('stageEntered'));
     const appointments = await readFile(document.getElementById('appointments'));
+    const jobSchedules = await readFile(document.getElementById('jobSchedules'));
     const workOrder = await readFile(document.getElementById('workOrder'));
 
     statusEl.textContent = 'Uploading and processing…';
@@ -103,7 +110,7 @@ async function doUpload() {
     const resp = await fetch('/api/leap-upload', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ masterList, stageEntered, appointments, workOrder }),
+      body: JSON.stringify({ masterList, stageEntered, appointments, jobSchedules, workOrder }),
     });
     const json = await resp.json();
 
