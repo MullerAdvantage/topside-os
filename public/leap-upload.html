@@ -4,65 +4,57 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Topside — Morning Leap Data Upload</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f4f0;color:#0b0b0b;min-height:100vh}
-  .page{max-width:640px;margin:0 auto;padding:2.5rem 1.5rem}
+  .page{max-width:680px;margin:0 auto;padding:2.5rem 1.5rem}
   h1{font-size:22px;margin-bottom:6px}
   .sub{font-size:13px;color:#6b6558;margin-bottom:24px;line-height:1.5}
-  .field{background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:8px;padding:16px;margin-bottom:14px}
-  .field label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#52514e;margin-bottom:6px}
-  .field .req{color:#A32D2D;}
-  .field .note{font-size:11px;color:#898781;margin-top:6px;line-height:1.5}
-  input[type=file]{width:100%;font-size:13px}
-  .btn{font-size:14px;font-weight:600;padding:12px 24px;border-radius:8px;border:none;background:#1F4E79;color:#fff;cursor:pointer;width:100%;margin-top:8px}
+  .dropzone{background:#fff;border:2px dashed #C9C4B4;border-radius:10px;padding:40px 20px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:18px}
+  .dropzone.drag{border-color:#1F4E79;background:#E6F1FB}
+  .dropzone .icon{font-size:32px;margin-bottom:10px}
+  .dropzone .main{font-size:15px;font-weight:600;margin-bottom:4px}
+  .dropzone .hint{font-size:12px;color:#898781}
+  input[type=file]{display:none}
+  .filelist{margin-bottom:18px}
+  .fileitem{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid rgba(0,0,0,.09);border-radius:8px;padding:10px 14px;margin-bottom:8px;font-size:13px}
+  .fileitem .name{color:#52514e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%}
+  .fileitem .tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:3px 9px;border-radius:99px}
+  .tag.matched{background:#E2EFDA;color:#375623}
+  .tag.required{background:#FCE4D6;color:#A32D2D}
+  .tag.unused{background:#eee;color:#898781}
+  .slot-missing{font-size:12px;color:#A32D2D;margin-bottom:14px;display:none}
+  .btn{font-size:14px;font-weight:600;padding:12px 24px;border-radius:8px;border:none;background:#1F4E79;color:#fff;cursor:pointer;width:100%}
   .btn:disabled{background:#aaa;cursor:not-allowed}
   .status{margin-top:16px;padding:14px;border-radius:8px;font-size:13px;line-height:1.6;display:none}
   .status.ok{display:block;background:#E2EFDA;color:#375623}
   .status.err{display:block;background:#FCE4D6;color:#A32D2D}
   .status.pending{display:block;background:#FFF2CC;color:#7B4F12}
   a.dash-link{display:inline-block;margin-top:14px;font-size:13px;color:#185FA5}
+  .reset-link{font-size:12px;color:#898781;text-decoration:underline;cursor:pointer;display:inline-block;margin-top:6px}
 </style>
 </head>
 <body>
 <div class="page">
   <h1>Morning Leap Data Upload</h1>
   <div class="sub">
-    Export these from Leap as <strong>CSV</strong> (if a report only offers Excel, open it and "Save As" CSV first)
-    and upload here. This updates all three live dashboards at once — no regeneration needed.
+    Export the reports from Leap in whatever format Leap gives you (CSV or Excel — both work, no conversion needed)
+    and drop them all in below at once. This page figures out which file is which and updates all three live
+    dashboards in one click.
   </div>
 
-  <div class="field">
-    <label>Master List Report <span class="req">— required</span></label>
-    <input type="file" id="masterList" accept=".csv">
-    <div class="note">Primary source for job counts, stages, trades, reps, and pricing.</div>
+  <div class="dropzone" id="dropzone">
+    <div class="icon">📂</div>
+    <div class="main">Drop Leap export files here, or click to browse</div>
+    <div class="hint">Master List Report is required · Stage Entered, Appointments, Job Schedules, Work Order are all optional</div>
+    <input type="file" id="fileInput" multiple accept=".csv,.xlsx,.xls">
   </div>
 
-  <div class="field">
-    <label>Master List Stage Entered Report <span style="color:#898781;font-weight:400;">— optional</span></label>
-    <input type="file" id="stageEntered" accept=".csv">
-    <div class="note">Enables accurate Follow-Up aging (days-in-stage). Without it, aging is skipped rather than estimated.</div>
-  </div>
+  <div class="filelist" id="fileList"></div>
+  <div class="slot-missing" id="slotMissing">Master List Report not detected yet — drop it in above before uploading.</div>
 
-  <div class="field">
-    <label>Appointments Report <span style="color:#898781;font-weight:400;">— optional</span></label>
-    <input type="file" id="appointments" accept=".csv">
-    <div class="note">Adds job addresses and the "upcoming appointments" panel.</div>
-  </div>
-
-  <div class="field">
-    <label>Job Schedules Report <span style="color:#898781;font-weight:400;">— optional</span></label>
-    <input type="file" id="jobSchedules" accept=".csv">
-    <div class="note">Preferred source for "crew on active jobsites" — shows schedules whose date range spans today.</div>
-  </div>
-
-  <div class="field">
-    <label>Work Order Report <span style="color:#898781;font-weight:400;">— optional</span></label>
-    <input type="file" id="workOrder" accept=".csv">
-    <div class="note">Fallback crew source if Job Schedules isn't provided. Often empty — that's fine, the panel just stays empty.</div>
-  </div>
-
-  <button class="btn" id="uploadBtn" onclick="doUpload()">Upload &amp; refresh dashboards</button>
+  <button class="btn" id="uploadBtn" onclick="doUpload()" disabled>Upload &amp; refresh dashboards</button>
 
   <div class="status" id="status"></div>
 
@@ -74,43 +66,117 @@
 </div>
 
 <script>
-function readFile(inputEl) {
+// slot key -> { label, matched: {filename, csvText} }
+const SLOTS = {
+  stageEntered: { label: 'Master List Stage Entered Report', required: false },
+  masterList:   { label: 'Master List Report', required: true },
+  jobSchedules: { label: 'Job Schedules Report', required: false },
+  appointments: { label: 'Appointments Report', required: false },
+  workOrder:    { label: 'Work Order Report', required: false },
+};
+const matched = {}; // slotKey -> { filename, csvText }
+
+function detectSlot(filename) {
+  const n = filename.toLowerCase();
+  // order matters: check the more specific "stage entered" pattern before the generic "master list" one
+  if (n.includes('stage_entered') || n.includes('stage entered') || n.includes('stageentered')) return 'stageEntered';
+  if (n.includes('master_list') || n.includes('master list') || n.includes('masterlist')) return 'masterList';
+  if (n.includes('job_schedules') || n.includes('job schedules') || (n.includes('schedule') && !n.includes('appointment'))) return 'jobSchedules';
+  if (n.includes('appointment')) return 'appointments';
+  if (n.includes('work_order') || n.includes('work order') || n.includes('workorder')) return 'workOrder';
+  return null;
+}
+
+function fileToCsvText(file) {
   return new Promise((resolve, reject) => {
-    const f = inputEl.files[0];
-    if (!f) return resolve(null);
-    const r = new FileReader();
-    r.onload = () => resolve(r.result);
-    r.onerror = reject;
-    r.readAsText(f);
+    const isCsv = /\.csv$/i.test(file.name);
+    const reader = new FileReader();
+    reader.onerror = reject;
+    if (isCsv) {
+      reader.onload = () => resolve(reader.result);
+      reader.readAsText(file);
+    } else {
+      reader.onload = () => {
+        try {
+          const wb = XLSX.read(reader.result, { type: 'array' });
+          const firstSheetName = wb.SheetNames[0];
+          const sheet = wb.Sheets[firstSheetName];
+          const csv = XLSX.utils.sheet_to_csv(sheet);
+          resolve(csv);
+        } catch (err) { reject(err); }
+      };
+      reader.readAsArrayBuffer(file);
+    }
   });
 }
+
+async function handleFiles(fileArr) {
+  for (const file of fileArr) {
+    const slot = detectSlot(file.name);
+    if (!slot) continue; // not one of the five report types this pipeline uses — skip silently, shown as "unused" only if we want; here we just ignore
+    try {
+      const csvText = await fileToCsvText(file);
+      matched[slot] = { filename: file.name, csvText };
+    } catch (err) {
+      matched[slot] = { filename: file.name, error: err.message };
+    }
+  }
+  renderFileList();
+}
+
+function renderFileList() {
+  const listEl = document.getElementById('fileList');
+  listEl.innerHTML = Object.entries(SLOTS).map(([key, def]) => {
+    const m = matched[key];
+    if (!m) {
+      return `<div class="fileitem"><span class="name" style="color:#c0bcae;">${def.label} — not provided</span><span class="tag ${def.required ? 'required' : 'unused'}">${def.required ? 'required' : 'optional'}</span></div>`;
+    }
+    if (m.error) {
+      return `<div class="fileitem"><span class="name">${def.label}: ${m.filename}</span><span class="tag required">read error</span></div>`;
+    }
+    return `<div class="fileitem"><span class="name">${def.label}: ${m.filename}</span><span class="tag matched">matched</span></div>`;
+  }).join('');
+
+  const hasMasterList = matched.masterList && !matched.masterList.error;
+  document.getElementById('slotMissing').style.display = hasMasterList ? 'none' : 'block';
+  document.getElementById('uploadBtn').disabled = !hasMasterList;
+}
+
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+dropzone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', (e) => handleFiles(Array.from(e.target.files)));
+['dragenter','dragover'].forEach(ev => dropzone.addEventListener(ev, (e) => { e.preventDefault(); dropzone.classList.add('drag'); }));
+['dragleave','drop'].forEach(ev => dropzone.addEventListener(ev, (e) => { e.preventDefault(); dropzone.classList.remove('drag'); }));
+dropzone.addEventListener('drop', (e) => handleFiles(Array.from(e.dataTransfer.files)));
 
 async function doUpload() {
   const btn = document.getElementById('uploadBtn');
   const statusEl = document.getElementById('status');
+
+  if (!matched.masterList || matched.masterList.error) {
+    statusEl.className = 'status err';
+    statusEl.textContent = 'Master List Report is required and must be readable.';
+    return;
+  }
+
   statusEl.className = 'status pending';
-  statusEl.textContent = 'Reading files…';
+  statusEl.textContent = 'Uploading and processing…';
   btn.disabled = true;
 
   try {
-    const masterList = await readFile(document.getElementById('masterList'));
-    if (!masterList) {
-      statusEl.className = 'status err';
-      statusEl.textContent = 'Master List Report is required.';
-      btn.disabled = false;
-      return;
-    }
-    const stageEntered = await readFile(document.getElementById('stageEntered'));
-    const appointments = await readFile(document.getElementById('appointments'));
-    const jobSchedules = await readFile(document.getElementById('jobSchedules'));
-    const workOrder = await readFile(document.getElementById('workOrder'));
-
-    statusEl.textContent = 'Uploading and processing…';
+    const payload = {
+      masterList: matched.masterList.csvText,
+      stageEntered: matched.stageEntered && !matched.stageEntered.error ? matched.stageEntered.csvText : undefined,
+      appointments: matched.appointments && !matched.appointments.error ? matched.appointments.csvText : undefined,
+      jobSchedules: matched.jobSchedules && !matched.jobSchedules.error ? matched.jobSchedules.csvText : undefined,
+      workOrder: matched.workOrder && !matched.workOrder.error ? matched.workOrder.csvText : undefined,
+    };
 
     const resp = await fetch('/api/leap-upload', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ masterList, stageEntered, appointments, jobSchedules, workOrder }),
+      body: JSON.stringify(payload),
     });
     const json = await resp.json();
 
