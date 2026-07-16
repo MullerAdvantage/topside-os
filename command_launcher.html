@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topside Command Launcher</title>
+<style>
+  :root{
+    --paper:#F3EEE2;
+    --paper-line:#DCD3BC;
+    --ink:#2B2A28;
+    --ink-soft:#6B6558;
+    --safety:#D9531E;
+    --safety-dark:#A93E14;
+    --slate:#3E4C59;
+    --card:#FFFDF8;
+    --green:#4C6B3F;
+    --f-display:'Arial Narrow',Oswald,'Barlow Condensed',sans-serif;
+    --f-body:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --f-mono:'Courier New',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:
+      linear-gradient(var(--paper-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px);
+    background-size:28px 28px;
+    color:var(--ink);
+    font-family:var(--f-body);
+    padding:32px 40px 80px;
+  }
+  header{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:3px solid var(--ink);
+    padding-bottom:16px;margin-bottom:24px;flex-wrap:wrap;gap:12px;
+  }
+  h1{
+    font-family:var(--f-display);
+    font-weight:700;font-size:38px;letter-spacing:0.5px;
+    text-transform:uppercase;
+  }
+  .sub{color:var(--ink-soft);font-size:14px;margin-top:4px;}
+  .stamp{
+    border:2px solid var(--safety);color:var(--safety-dark);
+    font-family:var(--f-mono);font-size:11px;font-weight:600;
+    text-transform:uppercase;letter-spacing:1px;padding:6px 12px;
+    transform:rotate(-2deg);white-space:nowrap;
+  }
+  .search-wrap{margin-bottom:24px;display:flex;gap:10px;align-items:center;max-width:480px;}
+  .search-wrap input{
+    flex:1;font-size:14px;padding:9px 12px;border:1px solid var(--paper-line);
+    background:var(--card);font-family:var(--f-body);
+  }
+  .search-wrap input:focus{outline:2px solid var(--safety);outline-offset:1px;}
+
+  .section-title{
+    font-family:var(--f-display);font-size:20px;font-weight:700;
+    text-transform:uppercase;letter-spacing:0.5px;margin:28px 0 12px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .section-title::after{content:'';flex:1;height:2px;background:var(--ink);opacity:0.15;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;}
+  .cmd-btn{
+    display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+    background:var(--card);border:1px solid var(--paper-line);border-left:4px solid var(--slate);
+    padding:14px 16px;cursor:pointer;text-align:left;width:100%;
+    transition:border-color .15s, transform .1s; font-family:var(--f-body);
+    position:relative;
+  }
+  .cmd-btn:hover{border-left-color:var(--safety);}
+  .cmd-btn:active{transform:scale(0.98);}
+  .cmd-btn .label{font-size:14px;font-weight:700;color:var(--ink);}
+  .cmd-btn .sublabel{font-size:11.5px;color:var(--ink-soft);line-height:1.4;}
+  .cmd-btn .copytag{
+    position:absolute;top:10px;right:12px;font-family:var(--f-mono);font-size:9px;
+    text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-soft);opacity:0;
+    transition:opacity .15s;
+  }
+  .cmd-btn:hover .copytag{opacity:1;}
+  .cmd-btn.copied{border-left-color:var(--green);}
+  .cmd-btn.copied .copytag{opacity:1;color:var(--green);content:'Copied';}
+
+  .badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;
+    text-transform:uppercase;letter-spacing:0.4px;margin-left:6px;background:#E1F0E6;color:var(--green);}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:var(--paper);font-family:var(--f-mono);font-size:12.5px;
+    padding:12px 20px;opacity:0;pointer-events:none;transition:all .2s;z-index:50;
+    max-width:90vw;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .footnote{margin-top:36px;font-size:11px;color:var(--ink-soft);border-top:1px solid var(--paper-line);padding-top:12px;max-width:800px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Topside Command Launcher</h1>
+    <div class="sub">Click a workflow to copy its prompt, then paste it into Claude to run it.</div>
+  </div>
+  <div class="stamp">Click copies prompt<br>&amp; opens Claude</div>
+</header>
+
+<div class="search-wrap">
+  <input type="text" id="search" placeholder="Search workflows..." oninput="filterCards(this.value)">
+</div>
+
+<div id="sections"></div>
+
+<div class="toast" id="toast">Prompt copied — paste it into Claude</div>
+
+<div class="footnote">
+  Clicking a workflow copies its full prompt to your clipboard and opens claude.ai in a new tab. Paste (Ctrl/Cmd+V) into the chat box and send.
+  This page does not connect to Claude directly — it's a static launcher anyone on the team can open and use.
+</div>
+
+<script>
+var SECTIONS = [
+  { title: "Web intelligence", items: [
+    { label:"Watch competitors", sub:"Monitor pricing & service page changes", prompt:"I'm providing competitor data for analysis — this may include screenshots, exported pricing sheets, service page text, or notes on Mt. Baker Roofing, SRS Roofing, or other named competitors. Work through this in order: (1) Inventory what's been provided — list each competitor and what data exists for them; (2) Compare pricing, services offered, and positioning across competitors wherever the data allows a direct comparison; (3) Flag gaps — call out what's missing that would strengthen the analysis rather than guessing to fill it in; (4) Highlight the most actionable differences — pricing gaps, service gaps, or positioning opportunities Topside could act on. End every response with a clearly labeled 'Summary' section: the top 3-5 findings, a confidence level (HIGH/MEDIUM/LOW) for each based on how solid the underlying data is, and one recommended next action." },
+    { label:"SEO audit", sub:"Who outranks us and what they do differently", prompt:"I'm providing SEO/search data for analysis — this may include Google Search Console exports, keyword rank tracker exports, or competitor page screenshots. Work through this in order: (1) Inventory the files provided and confirm their exact date ranges before comparing anything; (2) Calculate current performance — clicks, impressions, average position, ranking keyword/page counts — directly from the raw numbers in the files, never estimate or round without saying so; (3) Compare against the prior period only if the date ranges are genuinely comparable, and flag it clearly if they aren't; (4) Identify the specific pages or keywords with the biggest opportunity or decline; (5) Note any data-quality caveats — sampling gaps, mismatched dimensions, incomplete date ranges. End every response with a clearly labeled 'Summary' section: 3-5 headline findings with exact numbers, a confidence level (HIGH/MEDIUM/LOW) for each, and one recommended next action." },
+    { label:"Pricing intel", sub:"What competitors are charging locally", prompt:"I'm providing local competitor pricing data for analysis — this may include quotes, screenshots, or notes on what other roofers are charging in Whatcom and Skagit County. Work through this in order: (1) Inventory what's been provided; (2) Organize pricing by service type (roof replacement, repair, siding, gutters, etc.) and by competitor; (3) Calculate where Topside's own pricing sits relative to that range — below, at, or above market — only where I've also given you Topside's pricing to compare against; (4) Flag any services where Topside's pricing looks likely to lose bids or leave margin on the table. End every response with a clearly labeled 'Summary' section: headline pricing position, 3-5 key findings, a confidence level (HIGH/MEDIUM/LOW) for each, and recommended pricing adjustments if any are supported by the data." },
+    { label:"Contractor directory", sub:"Full competitive landscape with ratings", prompt:"Build a list of all roofing contractors in Bellingham and Whatcom County from Yelp and Angi" },
+    { label:"Storm / market signals", sub:"Hail events, insurance demand spikes", prompt:"Search for storm damage or hail events in Whatcom and Skagit County and insurance claim surge signals" },
+    { label:"Lead harvesting", sub:"Pull from HomeAdvisor, Angi, Thumbtack", prompt:"Harvest leads from HomeAdvisor and Angi for roofing in the Bellingham WA area" }
+  ]},
+  { title: "Website & design", items: [
+    { label:"Redesign a client website", sub:"Full redesign workflow — URL to mockup", badge:"start here", prompt:"I need to redesign a client website. Ask me for the URL, what industry they are in, and what outcome they want, then run the full website redesign workflow" },
+    { label:"Clone a design system", sub:"Extract colors, fonts, layout patterns", prompt:"Extract the design system from this website — colors, fonts, spacing, components — and produce a DESIGN.md file I can use as a reference" },
+    { label:"Roofing landing page", sub:"Hero, services, CTA mockup", prompt:"Build me a landing page mockup for a roofing company — show homepage hero, services section, and a call to action" },
+    { label:"Client site SEO audit", sub:"On-page audit with fix recommendations", prompt:"Run an SEO audit on a client website — give me the URL prompt and analyze title tags, meta descriptions, headings, and content gaps" }
+  ]},
+  { title: "Operations", items: [
+    { label:"Process job document", sub:"Extract → Leap → QuickBooks → PO", prompt:"I have a scanned job document to process — walk me through extracting the data and pushing it to Leap, QuickBooks, and Excel" },
+    { label:"New QB estimate", sub:"Create estimate in QuickBooks Online", prompt:"Create a new estimate in QuickBooks Online for a roofing job — ask me for the customer name, job details, and line items" },
+    { label:"New Leap job record", sub:"Add customer + job to Leap CRM", prompt:"Create a new job record in Leap CRM — ask me for the customer and job details" },
+    { label:"Assign PO number", sub:"Next sequential PO in Excel tracker", prompt:"Generate the next PO number in the Excel tracker and add a new job row — ask me for the job details" }
+  ]},
+  { title: "Marketing", items: [
+    { label:"Monthly marketing report", sub:"Leads, CPL, top pages, summary", prompt:"Pull my monthly marketing performance report — leads by source, cost per lead, top landing pages, and a plain-English summary" },
+    { label:"Write GBP post", sub:"Weekly Google Business Profile update", prompt:"Write a Google Business Profile post for this week — ask me what project or topic to highlight" },
+    { label:"Respond to review", sub:"Draft reply for Google or Yelp review", prompt:"Draft a professional response to a Google review — I will paste the review text" },
+    { label:"Ads performance check", sub:"LSA & Google Ads CPL, wasted spend", prompt:"Check our Google Ads and LSA performance — flag any keywords wasting budget and give me a cost-per-lead summary" },
+    { label:"Review request SMS", sub:"Post-job text to get Google reviews", prompt:"Write a review request SMS to send after a job is complete — keep it short, friendly, and link to Google" },
+    { label:"Marketing 360 health check", sub:"Channel-by-channel scorecard", prompt:"I'm providing Marketing 360 / marketing channel data for analysis — this may include dashboard screenshots, CSV/Excel exports (GSC, Google Ads, CallRail, Leap CRM), billing records, or written reports/emails from the agency. Work through this in order: (1) Inventory what's been provided and the exact date range each file covers; (2) Score each channel — LSA, Google Ads, organic/SEO, GBP, content/social — as Green/Yellow/Red based on the actual numbers in the files, not the agency's narrative summary of them; (3) Cross-check any specific claims from agency reports directly against the raw data, and flag every discrepancy by exact figures on both sides; (4) Note any billing, access, or transparency concerns visible in the data. End every response with a clearly labeled 'Summary' section: overall health rating, the top 3-5 findings, a confidence level (HIGH/MEDIUM/LOW) for each, and one recommended next action." }
+  ]},
+  { title: "Research & intel", items: [
+    { label:"Pre-call intel", sub:"Company brief before sales or supplier call", prompt:"Research a company before I call them — ask me for the company name and the meeting context" },
+    { label:"Deep research report", sub:"Sourced, cited analytical report", prompt:"Run a deep research report — ask me for the topic and how long I want it to run" },
+    { label:"Material pricing check", sub:"Shingles, underlayment, supply chain", prompt:"What are the latest roofing material prices and supply chain conditions in Washington state" }
+  ]}
+];
+
+var container = document.getElementById('sections');
+container.innerHTML = SECTIONS.map(function(sec){
+  var cards = sec.items.map(function(it){
+    var badge = it.badge ? '<span class="badge">' + it.badge + '</span>' : '';
+    var promptAttr = it.prompt.replace(/"/g,'&quot;');
+    return '<button class="cmd-btn" data-prompt="' + promptAttr + '" onclick="runPrompt(this)">' +
+      '<span class="copytag">Copy &amp; open</span>' +
+      '<span class="label">' + it.label + badge + '</span>' +
+      '<span class="sublabel">' + it.sub + '</span>' +
+    '</button>';
+  }).join('');
+  return '<div class="section-wrap"><div class="section-title">' + sec.title + '</div><div class="grid">' + cards + '</div></div>';
+}).join('');
+
+function runPrompt(btn){
+  var text = btn.getAttribute('data-prompt');
+  var toast = document.getElementById('toast');
+  function done(){
+    btn.classList.add('copied');
+    setTimeout(function(){ btn.classList.remove('copied'); }, 1500);
+    toast.classList.add('show');
+    setTimeout(function(){ toast.classList.remove('show'); }, 2500);
+    window.open('https://claude.ai/new', '_blank');
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(function(){
+      fallbackCopy(text); done();
+    });
+  } else {
+    fallbackCopy(text); done();
+  }
+}
+function fallbackCopy(text){
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(ta);
+}
+
+function filterCards(val){
+  var q = val.toLowerCase();
+  document.querySelectorAll('.cmd-btn').forEach(function(btn){
+    var show = btn.innerText.toLowerCase().indexOf(q) !== -1;
+    btn.style.display = show ? '' : 'none';
+  });
+  document.querySelectorAll('.section-wrap').forEach(function(sec){
+    var visible = Array.prototype.some.call(sec.querySelectorAll('.cmd-btn'), function(b){ return b.style.display !== 'none'; });
+    sec.style.display = visible ? '' : 'none';
+  });
+}
+</script>
+
+</body>
+</html>

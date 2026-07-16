@@ -1,64 +1,56 @@
-# uncrypto
+# Executive Dashboard
 
-[![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![Github Actions][github-actions-src]][github-actions-href]
-[![Codecov][codecov-src]][codecov-href]
+## Purpose
+CEO command center providing a complete real-time overview of company health.
 
-This library provides a single api to use [web-crypto](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API) and [Subtle Crypto](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto) in both Node.js using [Crypto Module](https://nodejs.org/api/crypto.html#crypto) and Web targets using [Web Crypto API](https://nodejs.org/api/crypto.html#crypto) using [Conditional Exports](https://nodejs.org/api/packages.html#conditional-exports).
+## Primary Users
+- Business Owner
+- Executive Team
+- Department Managers
 
-**Requirements:**
+## Objectives
+- Present live business intelligence
+- Monitor KPI health
+- Detect issues automatically
+- Recommend corrective actions
+- Track trends over time
 
-- **Node.js**: Version **15 and above** (this library provides no polyfills for older versions!)
-- **Browser**: [Secure Context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts) (HTTPS/Localhost) in [Supported Browsers](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto#browser_compatibility)
-- **Other Runtimes:** Exposed `globalThis.crypto` and `globalThis.crypto.subtle`. (you can polyfill if neeeded)
+## Core Files
+- Prompt.md
+- Metrics.md (future)
+- Calculations.md (future)
+- DataSources.md (future)
+- Reports.md (future)
 
-## Usage
+## Standard KPI Fields
+- Current Value
+- Previous Value
+- Target
+- Benchmark
+- Variance
+- Trend
+- Health Score
+- Health Status
+- Financial Impact
+- AI Recommendation
+- Priority
+- Data Source
+- Last Updated
 
-Install package:
+## Required Data Sources
+- Google Analytics 4
+- Google Search Console
+- Google Ads
+- Google Business Profile
+- Local Services Ads
+- LEAP CRM
+- QuickBooks
+- CallRail
+- Internal Company Database
 
-```sh
-# npm
-npm install uncrypto
-
-# yarn
-yarn add uncrypto
-
-# pnpm
-pnpm install uncrypto
-```
-
-Import:
-
-```js
-// ESM
-import { subtle, randomUUID, getRandomValues } from "uncrypto";
-
-// CommonJS
-const { subtle, randomUUID, getRandomValues } = require("uncrypto");
-```
-
-## Development
-
-- Clone this repository
-- Install latest LTS version of [Node.js](https://nodejs.org/en/)
-- Enable [Corepack](https://github.com/nodejs/corepack) using `corepack enable`
-- Install dependencies using `pnpm install`
-- Run interactive tests using `pnpm dev`
-
-## License
-
-Made with 💛
-
-Published under [MIT License](./LICENSE).
-
-<!-- Badges -->
-
-[npm-version-src]: https://img.shields.io/npm/v/uncrypto?style=flat-square
-[npm-version-href]: https://npmjs.com/package/uncrypto
-[npm-downloads-src]: https://img.shields.io/npm/dm/uncrypto?style=flat-square
-[npm-downloads-href]: https://npmjs.com/package/uncrypto
-[github-actions-src]: https://img.shields.io/github/workflow/status/unjs/uncrypto/ci/main?style=flat-square
-[github-actions-href]: https://github.com/unjs/uncrypto/actions?query=workflow%3Aci
-[codecov-src]: https://img.shields.io/codecov/c/gh/unjs/uncrypto/main?style=flat-square
-[codecov-href]: https://codecov.io/gh/unjs/uncrypto
+## AI Outputs
+- Executive Summary
+- Critical Alerts
+- Opportunities
+- Recommended Actions
+- 30/60/90 Day Forecast

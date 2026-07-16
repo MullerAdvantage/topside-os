@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estimator Scheduling Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#1D9E75;--teal-l:#E1F5EE;--teal-d:#085041;
+  --purple:#534AB7;--purple-l:#EEEDFE;--purple-d:#26215C;
+  --amber:#BA7517;--amber-l:#FAEEDA;--amber-d:#412402;
+  --coral:#D85A30;--coral-l:#FAECE7;
+  --blue:#185FA5;--blue-l:#E6F1FB;--blue-d:#042C53;
+  --green:#639922;--green-l:#EAF3DE;--green-d:#173404;
+  --red-l:#FCEBEB;--red-d:#A32D2D;--red-b:#E24B4A;
+  --bg:#fff;--bg2:#f7f6f3;--border:rgba(0,0,0,.12);--border2:rgba(0,0,0,.2);
+  --text:#1a1a18;--text2:#6b6a63;--text3:#9e9d97;
+  --radius:8px;--font:'Segoe UI',system-ui,sans-serif;--mono:'Consolas',monospace;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1e1e1c;--bg2:#2a2a27;--border:rgba(255,255,255,.12);--border2:rgba(255,255,255,.22);
+  --text:#d8d7cf;--text2:#9e9d97;--text3:#6b6a63;
+}}
+body{font-family:var(--font);font-size:13px;color:var(--text);background:var(--bg);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bg2);border-bottom:0.5px solid var(--border);flex-wrap:wrap;flex-shrink:0}
+.title{font-size:15px;font-weight:700;flex:1;min-width:100px}
+.week-nav{display:flex;align-items:center;gap:4px}
+.wk-label{font-size:12px;font-weight:500;min-width:140px;text-align:center;color:var(--text2)}
+.btn{padding:4px 10px;border:0.5px solid var(--border2);border-radius:6px;background:var(--bg);cursor:pointer;font-size:12px;font-family:var(--font);color:var(--text);transition:background .12s}
+.btn:hover{background:var(--bg2)}
+.btn.primary{background:var(--teal);color:#fff;border-color:var(--teal-d)}
+.btn.primary:hover{background:var(--teal-d)}
+.btn.sm{padding:3px 8px;font-size:11px}
+.btn.danger{color:var(--red-d);border-color:var(--red-b)}
+.btn.warning{color:var(--amber-d);border-color:var(--amber);background:var(--amber-l)}
+.tf{display:flex;gap:2px;align-items:center}
+.tf label{padding:3px 8px;border:0.5px solid var(--border);border-radius:5px;cursor:pointer;font-size:11px;background:var(--bg);color:var(--text2)}
+.tf input{display:none}
+.tf input:checked+label{background:var(--amber-l);border-color:var(--amber);color:var(--amber-d);font-weight:600}
+.main{display:flex;flex:1;overflow:hidden}
+.sched{flex:1;overflow:auto;padding:10px 14px}
+.grid{display:grid;grid-template-columns:100px repeat(5,1fr);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.hc{padding:6px 8px;background:var(--bg2);border-bottom:0.5px solid var(--border);font-size:11px;font-weight:600;text-align:center;color:var(--text2)}
+.hc.est{text-align:left}
+.hc.today{color:var(--blue);background:var(--blue-l)}
+/* Estimator cell — editable name */
+.ec{padding:6px 8px;display:flex;align-items:center;gap:6px;background:var(--bg);border-bottom:0.5px solid var(--border);border-right:0.5px solid var(--border)}
+.edot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ename{font-size:11px;font-weight:600;line-height:1.2}
+.esub{font-size:9px;color:var(--text2)}
+.ename-edit-btn{opacity:0;font-size:9px;color:var(--teal);cursor:pointer;margin-left:2px;border:none;background:none;padding:0}
+.ec:hover .ename-edit-btn{opacity:1}
+/* Day cells */
+.dc{padding:4px 3px;display:flex;flex-direction:column;gap:3px;background:var(--bg);border-bottom:0.5px solid var(--border);border-right:0.5px solid var(--border);min-height:90px;vertical-align:top;position:relative}
+.dc.off{background:var(--blue-l)}
+.dc.drag-over{background:var(--teal-l);outline:2px dashed var(--teal)}
+/* Appointment blocks */
+.ab{border-radius:5px;padding:3px 5px;font-size:10px;line-height:1.3;cursor:pointer;border:0.5px solid transparent;transition:opacity .12s,transform .1s;margin-bottom:1px;user-select:none}
+.ab:hover{opacity:.8;transform:translateY(-1px)}
+.ab.dragging{opacity:.4;transform:scale(.97)}
+.ab.office{background:var(--blue-l);border-color:var(--blue);color:var(--blue-d)}
+.ab.meeting{background:var(--amber-l);border-color:var(--amber);color:var(--amber-d)}
+.ab.visit{background:var(--green-l);border-color:var(--green);color:var(--green-d)}
+.ab.proposed{background:#FFF3E0;border:1.5px dashed var(--coral);color:#BF360C}
+.ab.conflict{border-color:var(--red-b)!important;background:var(--red-l)!important;color:var(--red-d)!important}
+.at{font-family:var(--mono);font-size:9px;opacity:.65}
+.atitle{font-weight:600}
+.drv{font-size:9px;opacity:.7;margin-top:1px}
+.empty{font-size:10px;color:var(--text3);padding:2px;font-style:italic}
+/* Side panel */
+.panel{width:260px;border-left:0.5px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;background:var(--bg);flex-shrink:0}
+.ps{padding:10px 12px;border-bottom:0.5px solid var(--border)}
+.pst{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:8px}
+.fr{margin-bottom:7px}
+.fl{display:block;font-size:11px;color:var(--text2);margin-bottom:3px;font-weight:500}
+.fi{width:100%;padding:5px 7px;border:0.5px solid var(--border2);border-radius:6px;font-size:12px;font-family:var(--font);background:var(--bg);color:var(--text)}
+.fi:focus{outline:none;border-color:var(--teal)}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sc{border:0.5px solid var(--border);border-radius:8px;padding:7px 9px;margin-bottom:6px;cursor:pointer;transition:border-color .12s}
+.sc:hover{border-color:var(--teal)}
+.sc.best{border-color:var(--teal);background:var(--teal-l)}
+.sch{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sbadge{margin-left:auto;font-size:9px;padding:1px 5px;border-radius:10px;background:var(--teal);color:#fff;font-weight:600}
+.sd{font-size:11px;color:var(--text2);display:flex;flex-direction:column;gap:2px}
+.sa{display:flex;gap:5px;margin-top:6px}
+.wl{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.wstat{font-size:10px;padding:2px 7px;border-radius:10px}
+/* === MODALS === */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:200}
+.md{background:var(--bg);border-radius:12px;padding:18px;width:340px;border:0.5px solid var(--border2);max-height:94vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.mh{display:flex;align-items:flex-start;gap:8px;margin-bottom:12px}
+.mav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0}
+.mtitle{font-size:14px;font-weight:700;margin-bottom:2px}
+.maddr{font-size:11px;color:var(--text2);margin-bottom:4px}
+.mr{display:flex;gap:8px;margin-bottom:6px;font-size:12px}
+.ml{color:var(--text2);flex-shrink:0;width:75px;font-size:11px;padding-top:1px}
+.mv{font-weight:600}
+.mv.mono{font-family:var(--mono);font-size:11px}
+.chip{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.chip.green{background:var(--green-l);color:var(--green-d)}
+.chip.amber{background:var(--amber-l);color:var(--amber-d)}
+.chip.blue{background:var(--blue-l);color:var(--blue-d)}
+.chip.coral{background:var(--coral-l);color:var(--coral)}
+.ma{display:flex;gap:6px;margin-top:12px;padding-top:10px;border-top:0.5px solid var(--border);flex-wrap:wrap}
+/* Edit form inside modal */
+.edit-fi{width:100%;padding:5px 7px;border:0.5px solid var(--border2);border-radius:6px;font-size:12px;font-family:var(--font);background:var(--bg);color:var(--text);margin-top:2px}
+.edit-fi:focus{outline:none;border-color:var(--teal)}
+.edit-row{margin-bottom:8px}
+.edit-label{display:block;font-size:11px;color:var(--text2);margin-bottom:3px;font-weight:500}
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* Travel info bar */
+.travel-bar{background:var(--teal-l);border:0.5px solid var(--teal);border-radius:6px;padding:7px 9px;margin-bottom:8px;font-size:11px;color:var(--teal-d)}
+.travel-bar.conflict{background:var(--red-l);border-color:var(--red-b);color:var(--red-d)}
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:8px;padding:6px 14px;border-top:0.5px solid var(--border);flex-shrink:0}
+.li{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)}
+.ld{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+/* Estimator name inline editor */
+.name-editor-mo{position:fixed;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;z-index:300}
+.name-editor-box{background:var(--bg);border-radius:10px;padding:16px;width:280px;border:0.5px solid var(--border2);box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.name-editor-box h3{font-size:13px;font-weight:700;margin-bottom:10px}
+/* Conflict warning badge */
+.conflict-badge{font-size:9px;background:var(--red-l);color:var(--red-d);border:0.5px solid var(--red-b);border-radius:4px;padding:1px 4px;margin-top:2px;display:inline-block}
+/* Completed jobs — faded on the grid, still clickable for details */
+.ab.completed{opacity:.45;filter:grayscale(.3)}
+.ab.completed:hover{opacity:.65}
+/* Import modal (LEAP Master List upload) */
+.md.wide{width:560px}
+.import-drop{border:1.5px dashed var(--border2);border-radius:8px;padding:22px;text-align:center;color:var(--text2);font-size:12px;margin-bottom:12px;cursor:pointer;transition:border-color .12s,background .12s}
+.import-drop:hover{border-color:var(--teal);background:var(--teal-l)}
+.import-drop input{display:none}
+.map-row{display:grid;grid-template-columns:150px 1fr;gap:8px;align-items:center;margin-bottom:7px}
+.map-label{font-size:11px;color:var(--text2);font-weight:500}
+.map-label.required::after{content:' *';color:var(--red-b)}
+.stage-check-row{display:flex;align-items:center;gap:6px;padding:4px 0;font-size:12px;border-bottom:0.5px solid var(--border)}
+.stage-check-row input{cursor:pointer}
+.import-summary{background:var(--bg2);border-radius:8px;padding:10px 12px;font-size:12px;line-height:1.7;margin-top:10px}
+.import-summary .warn{color:var(--amber-d)}
+.import-summary .err{color:var(--red-d)}
+/* Completed jobs panel */
+.completed-table{width:100%;border-collapse:collapse;font-size:11px}
+.completed-table th{text-align:left;padding:6px 8px;background:var(--bg2);color:var(--text2);font-weight:600;position:sticky;top:0}
+.completed-table td{padding:6px 8px;border-bottom:0.5px solid var(--border)}
+.completed-table tr:hover td{background:var(--bg2)}
+.completed-filter{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="title">📋 Topside Estimator Schedule</span>
+  <div class="week-nav">
+    <button class="btn sm" onclick="shiftWeek(-1)">‹ Prev</button>
+    <span class="wk-label" id="wk-label">—</span>
+    <button class="btn sm" onclick="shiftWeek(1)">Next ›</button>
+  </div>
+  <div class="tf">
+    <span style="font-size:11px;color:var(--text2);margin-right:3px">Traffic:</span>
+    <div><input type="radio" name="tr" id="tr_low" value="low" onchange="setTraffic('low')"><label for="tr_low">Low</label></div>
+    <div><input type="radio" name="tr" id="tr_med" value="medium" checked onchange="setTraffic('medium')"><label for="tr_med">Med</label></div>
+    <div><input type="radio" name="tr" id="tr_hi" value="high" onchange="setTraffic('high')"><label for="tr_hi">High</label></div>
+  </div>
+  <button class="btn sm" onclick="openEstimatorEditor()">✏️ Edit Names</button>
+  <button class="btn sm" onclick="openImportModal()">📥 Import from LEAP</button>
+  <button class="btn sm" onclick="openCompletedPanel()">✅ Completed Jobs</button>
+  <button class="btn primary sm" onclick="openPanel()">+ Schedule Job</button>
+</div>
+<div class="main">
+  <div class="sched" id="sched"></div>
+  <div class="panel" id="panel"></div>
+</div>
+<div class="legend">
+  <div class="li"><div class="ld" style="background:var(--blue-l);border:0.5px solid var(--blue)"></div>Office Day</div>
+  <div class="li"><div class="ld" style="background:var(--amber-l);border:0.5px solid var(--amber)"></div>Meeting</div>
+  <div class="li"><div class="ld" style="background:var(--green-l);border:0.5px solid var(--green)"></div>Site Visit</div>
+  <div class="li"><div class="ld" style="background:#FFF3E0;border:1.5px dashed var(--coral)"></div>Proposed</div>
+  <div class="li"><div class="ld" style="background:var(--red-l);border:0.5px solid var(--red-b)"></div>Conflict</div>
+  <div class="li"><div class="ld" style="background:var(--green-l);border:0.5px solid var(--green);opacity:.45"></div>Completed</div>
+  <div class="li" style="margin-left:auto;font-size:10px;color:var(--text2)" id="buf-info">Buffer: ×1.25 (medium)</div>
+  <div class="li" style="font-size:10px;color:var(--text2)" id="ferry-info">🚢 Ferry schedule: loading…</div>
+</div>
+<div id="modal-root"></div>
+<div id="name-editor-root"></div>
+<div id="import-root"></div>
+<div id="completed-root"></div>
+
+<script>
+// ─── CONSTANTS ───────────────────────────────────────────────────────────────
+const APPT_DURATION = 60; // minutes — fixed 60 min appointments
+const GRACE = 10;         // minutes grace period buffer
+const WORK_START = pt('08:00');
+const WORK_END   = pt('17:00');
+
+// Cities: base drive time from Bellingham (minutes)
+const CITIES = {
+  'Bellingham':10,'Ferndale':18,'Lynden':22,'Blaine':28,'Birch Bay':20,
+  'Everson':25,'Nooksack':28,'Sumas':35,
+  'Burlington':30,'Mount Vernon':35,'Sedro-Woolley':30,
+  'Anacortes':45,'Oak Harbor':50,'Coupeville':55,'Langley':60
+};
+
+// ─── FERRY-DEPENDENT DESTINATIONS (San Juan Islands) ──────────────────────────
+// These are NOT reachable by road — every appointment out here requires a WSDOT
+// ferry crossing from the Anacortes terminal, with a vehicle reservation checked
+// in ahead of the sailing. Whidbey Island (Oak Harbor, Coupeville, Langley) is
+// deliberately NOT in this list — it's reachable by road via the Deception Pass
+// bridge, so it just uses the normal flat-drive-time CITIES table above.
+const FERRY_CITIES = ['Friday Harbor','Orcas Island','Lopez Island','Shaw Island'];
+
+// Standard vehicle-reservation check-in window. Per Jess: 30-60 min before
+// sailing — using the conservative (safer) end of that range as the default.
+const FERRY_CHECKIN_MINS = 45;
+
+// Typical one-way crossing durations, Anacortes → island (minutes). These are
+// TYPICAL/approximate figures only — WSDOT publishes real per-sailing times
+// seasonally. Never treat these as authoritative; they're a fallback estimate
+// used only when live/manual sailing data doesn't cover a needed calculation.
+const FERRY_CROSSING_MINS = {
+  'Lopez Island': 45,
+  'Orcas Island': 65,
+  'Friday Harbor': 75,
+  'Shaw Island': 55
+};
+
+// Real sailing departure times from Anacortes, by day-of-week (0=Mon..4=Fri),
+// as "HH:MM" strings. EMPTY BY DEFAULT — no sailing times are fabricated here.
+// Populate this either by pasting in the current WSDOT seasonal schedule via
+// the Ferry Schedule button in the UI, or by deploying the /api/wsdot-schedule
+// serverless proxy (see the companion file this skill also produced) so
+// loadFerrySchedule() below fills it in live from the real WSDOT API.
+let SAILING_SCHEDULE = loadLS('ferry_schedule') || {};
+let ferryScheduleSource = loadLS('ferry_schedule') ? 'manual' : 'none'; // 'none' | 'manual' | 'live'
+
+function updateFerryBadge() {
+  const el = document.getElementById('ferry-info');
+  if (!el) return;
+  if (ferryScheduleSource === 'live') el.textContent = '🚢 Ferry schedule: live (WSDOT)';
+  else if (ferryScheduleSource === 'manual') el.textContent = '🚢 Ferry schedule: loaded (manual)';
+  else el.textContent = '🚢 Ferry schedule: not set up';
+}
+
+// Attempt to pull live sailings from a Vercel serverless proxy, if one has
+// been deployed. Silently falls back to whatever's in SAILING_SCHEDULE (or
+// nothing) on any failure — this must never throw or block the rest of the
+// app from working, since most environments won't have the proxy deployed yet.
+async function loadFerrySchedule() {
+  updateFerryBadge();
+  try {
+    const resp = await fetch('/api/wsdot-schedule?route=anacortes-sanjuan');
+    if (!resp.ok) return;
+    const data = await resp.json();
+    if (data && data.schedule && Object.keys(data.schedule).length) {
+      SAILING_SCHEDULE = data.schedule;
+      ferryScheduleSource = 'live';
+      saveLS('ferry_schedule', SAILING_SCHEDULE);
+      updateFerryBadge();
+      renderAll();
+    }
+  } catch (e) {
+    // No proxy deployed, or WSDOT unreachable right now — fall back silently.
+  }
+}
+loadFerrySchedule();
+
+// Manual entry path: paste WSDOT's published seasonal schedule in here if
+// there's no live proxy yet. Expects {0:['07:15','09:50',...], 1:[...], ...}
+// with days 0=Mon..4=Fri and "HH:MM" 24-hour departure times from Anacortes.
+function setManualFerrySchedule(scheduleObj) {
+  SAILING_SCHEDULE = scheduleObj;
+  ferryScheduleSource = 'manual';
+  saveLS('ferry_schedule', SAILING_SCHEDULE);
+  updateFerryBadge();
+  renderAll();
+}
+
+const TFACTORS = {low:1.10, medium:1.25, high:1.40};
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+// Load from localStorage or use defaults
+let ESTIMATORS = loadLS('est_names') || [
+  {id:'carson',name:'Carson Engholm',   initials:'CE',color:'#1D9E75',officeDays:[2,4]},
+  {id:'dustin',name:'Dustin Suitter',    initials:'DS',color:'#534AB7',officeDays:[0,3]},
+  {id:'duane', name:'Duane Vander Molen',initials:'DV',color:'#BA7517',officeDays:[1,3]},
+  {id:'braedan',name:'Braden York',    initials:'BY',color:'#D85A30',officeDays:[1,3]},
+];
+// Always ensure an "Unassigned" bucket exists — LEAP rows whose estimator name doesn't
+// match anyone on the team land here instead of being silently dropped or mis-assigned.
+if (!ESTIMATORS.find(e => e.id === 'unassigned')) {
+  ESTIMATORS.push({id:'unassigned', name:'Unassigned', initials:'—', color:'#8891A4', officeDays:[]});
+}
+
+let schedule = loadLS('schedule') || [
+  {id:'b1',est:'carson',day:0,type:'office',title:'Office Day',start:'08:00',end:'17:00'},
+  {id:'b2',est:'carson',day:1,type:'visit',title:'Johnson Estimate',city:'Ferndale',address:'4521 Portal Way, Ferndale WA',start:'09:30',end:'10:30',contact:'Jim Johnson',phone:'360-555-2211',notes:'Roof + gutters — 28 sq',rawMins:18,buffer:5,dep:'09:07',status:'scheduled'},
+  {id:'b3',est:'carson',day:1,type:'visit',title:'Parker Re-Roof',city:'Lynden',address:'987 Guide Meridian, Lynden WA',start:'13:00',end:'14:00',contact:'Carol Parker',phone:'360-555-4422',notes:'Full re-roof',rawMins:15,buffer:4,dep:'12:41',status:'scheduled'},
+  {id:'b4',est:'carson',day:2,type:'office',title:'Office Day',start:'08:00',end:'17:00'},
+  {id:'b5',est:'carson',day:3,type:'visit',title:'Hernandez Roof',city:'Mount Vernon',address:'1208 College Way, Mount Vernon WA',start:'10:15',end:'11:15',contact:'Luis Hernandez',phone:'360-555-7788',notes:'Storm damage claim',rawMins:35,buffer:9,dep:'09:31',status:'scheduled'},
+  {id:'b6',est:'carson',day:3,type:'meeting',title:'Team Sync',start:'14:00',end:'15:00',notes:'Video call'},
+  {id:'b7',est:'carson',day:4,type:'visit',title:'Sullivan Siding',city:'Blaine',address:'215 Peace Portal Dr, Blaine WA',start:'09:00',end:'10:00',contact:'Tom Sullivan',phone:'360-555-3311',notes:'Vinyl siding full house',rawMins:28,buffer:7,dep:'08:25',status:'scheduled'},
+  {id:'s1',est:'dustin',day:0,type:'office',title:'Office Day',start:'08:00',end:'17:00'},
+  {id:'s2',est:'dustin',day:1,type:'visit',title:'Williams Estimate',city:'Bellingham',address:'3312 Alabama St, Bellingham WA',start:'10:00',end:'11:00',contact:'Dana Williams',phone:'360-555-9900',notes:'Gutters + fascia',rawMins:10,buffer:3,dep:'09:47',status:'scheduled'},
+  {id:'s3',est:'dustin',day:1,type:'visit',title:'Nguyen Roof',city:'Burlington',address:'460 Fairhaven Ave, Burlington WA',start:'13:30',end:'14:30',contact:'Minh Nguyen',phone:'360-555-6677',notes:'Comp re-roof',rawMins:30,buffer:8,dep:'12:52',status:'scheduled'},
+  {id:'s4',est:'dustin',day:2,type:'meeting',title:'Pre-Con Meeting',start:'09:00',end:'10:00',notes:'Contractor mtg'},
+  {id:'s5',est:'dustin',day:2,type:'visit',title:'Reyes Estimate',city:'Anacortes',address:'1500 Commercial Ave, Anacortes WA',start:'13:00',end:'14:00',contact:'Maria Reyes',phone:'360-555-2255',notes:'Metal roof inquiry',rawMins:45,buffer:11,dep:'11:56',status:'scheduled'},
+  {id:'s6',est:'dustin',day:3,type:'visit',title:'Chen Roof',city:'Burlington',address:'901 S Burlington Blvd, Burlington WA',start:'11:00',end:'12:00',contact:'Kevin Chen',phone:'360-555-8833',notes:'Leaking skylights',rawMins:30,buffer:8,dep:'10:22',status:'completed'},
+  {id:'s7',est:'dustin',day:4,type:'office',title:'Office Day',start:'08:00',end:'17:00'},
+  {id:'t1',est:'duane',day:0,type:'visit',title:'Morrison Estimate',city:'Lynden',address:'741 Grover St, Lynden WA',start:'09:00',end:'10:00',contact:'Pete Morrison',phone:'360-555-5544',notes:'New install + solar prep',rawMins:22,buffer:6,dep:'08:32',status:'scheduled'},
+  {id:'t2',est:'duane',day:1,type:'visit',title:'Blackwood Roof',city:'Ferndale',address:'6200 Portal Way, Ferndale WA',start:'13:30',end:'14:30',contact:'Alice Blackwood',phone:'360-555-3322',notes:'Full tear-off',rawMins:18,buffer:5,dep:'13:07',status:'scheduled'},
+  {id:'t3',est:'duane',day:2,type:'office',title:'Office Day',start:'08:00',end:'17:00'},
+  {id:'t4',est:'duane',day:3,type:'visit',title:'Okafor Gutters',city:'Anacortes',address:'2200 Q Ave, Anacortes WA',start:'09:30',end:'10:30',contact:'Emeka Okafor',phone:'360-555-1199',notes:'Full gutter replacement',rawMins:45,buffer:11,dep:'08:34',status:'completed'},
+  {id:'t5',est:'duane',day:3,type:'meeting',title:'Supplier Call',start:'13:00',end:'13:30',notes:'CertainTeed product review'},
+  {id:'t6',est:'duane',day:4,type:'visit',title:'Yamamoto Siding',city:'Sedro-Woolley',address:'901 Cook Rd, Sedro-Woolley WA',start:'14:00',end:'15:00',contact:'Kenji Yamamoto',phone:'360-555-7711',notes:'LP SmartSide bid',rawMins:30,buffer:8,dep:'13:22',status:'scheduled'},
+];
+
+// Non-office blocks are date-specific events. Demo/seed data only carries a day-of-week
+// index (0-4), so on first load (no localStorage yet) stamp each with a real ISO date
+// aligned to *this* current week, so the demo still looks right regardless of when it's
+// opened. Once LEAP data or manual bookings are added, those always carry a real `date`
+// from the moment they're created — this backfill only ever runs once, against the seed set.
+(function backfillSeedDates() {
+  if (loadLS('schedule')) return; // already real data — don't touch it
+  const now = new Date();
+  const dow = now.getDay();
+  const diff = dow === 0 ? -6 : 1 - dow;
+  const monday = new Date(now); monday.setDate(now.getDate() + diff);
+  schedule.forEach(b => {
+    if (b.type === 'office') return; // office days recur weekly by design, no fixed date
+    const d = new Date(monday); d.setDate(monday.getDate() + b.day);
+    b.date = d.toISOString().slice(0,10);
+  });
+})();
+
+let traffic = 'medium';
+let slots = [];
+let newJob = {address:'',city:'',type:'Roofing',estimator:'any',contact:'',phone:'',notes:''};
+let dragBlockId = null;
+
+// Week offset from current Monday
+let weekOffset = 0;
+
+// ─── WEEK HELPERS ─────────────────────────────────────────────────────────────
+function getWeekDates(offset) {
+  const now = new Date();
+  const dow = now.getDay(); // 0=Sun
+  const diff = dow === 0 ? -6 : 1 - dow; // Monday of this week
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + diff + offset * 7);
+  const dates = [];
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    dates.push(d);
+  }
+  return dates;
+}
+
+function formatDate(d) {
+  return d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+}
+
+function isoDate(d) { return d.toISOString().slice(0,10); }
+
+// Recomputed once at the top of every render pass — blocks() reads this rather than
+// recalculating getWeekDates() itself, so a render is internally consistent.
+let currentWeekDates = getWeekDates(0);
+
+function getDayLabel(d) {
+  return d.toLocaleDateString('en-US', {weekday:'short'});
+}
+
+function getTodayIdx(weekDates) {
+  const today = new Date();
+  for (let i = 0; i < weekDates.length; i++) {
+    if (weekDates[i].toDateString() === today.toDateString()) return i;
+  }
+  return -1;
+}
+
+function shiftWeek(dir) {
+  weekOffset += dir;
+  renderAll();
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function pt(t) { const [h,m] = t.split(':').map(Number); return h*60+m; }
+function ft(mins) { const h=Math.floor(mins/60),m=mins%60,ap=h>=12?'PM':'AM',hh=h>12?h-12:h===0?12:h; return `${hh}:${String(m).padStart(2,'0')} ${ap}`; }
+function ftShort(mins) { const h=Math.floor(mins/60),m=mins%60; return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`; }
+function uid() { return 'b_' + Date.now() + '_' + Math.random().toString(36).slice(2,6); }
+function getEst(id) { return ESTIMATORS.find(e => e.id === id); }
+function blocks(eid, day) {
+  return schedule.filter(b => {
+    if (b.est !== eid) return false;
+    if (b.type === 'office') return b.day === day; // office days recur every week
+    // Dated blocks (LEAP imports, bookings) only appear on the week that actually
+    // contains their date — a block without a date at all falls back to the old
+    // day-index behavior so hand-edited/legacy entries don't just disappear.
+    if (b.date) return currentWeekDates[day] && isoDate(currentWeekDates[day]) === b.date;
+    return b.day === day;
+  }).sort((a,b) => pt(a.start)-pt(b.start));
+}
+function initials(name) { return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+
+function loadLS(key) { try { const v=localStorage.getItem(key); return v?JSON.parse(v):null; } catch(e){return null;} }
+function saveLS(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){} }
+
+// ─── TRAVEL TIME ALGORITHM ────────────────────────────────────────────────────
+// Base drive time from Bellingham (or between cities) using CITIES table
+// For job-to-job: uses CITIES[city] as proxy for inter-job drive
+// Grace period (GRACE=10 min) always added on top of traffic-adjusted time
+function getTravelTime(fromCity, toCity) {
+  // Ferry destinations: treat drive time as "to the Anacortes terminal" — this
+  // is a safety-net approximation for manual drag/edit conflict checks only.
+  // It does NOT include check-in cutoff or crossing time; real ferry slot
+  // suggestions always go through findFerrySlots()/getTravelTime(_, 'Anacortes').
+  const effectiveTo = FERRY_CITIES.includes(toCity) ? 'Anacortes' : toCity;
+  const base = CITIES[effectiveTo] || 20;
+  const raw = Math.ceil(base * TFACTORS[traffic]);
+  return { raw, grace: GRACE, total: raw + GRACE };
+}
+
+// Get drive time needed BEFORE a visit given previous same-day job
+function getDriveBeforeVisit(eid, day, targetCity) {
+  const dayBlocks = blocks(eid, day).filter(b => b.type !== 'office');
+  if (dayBlocks.length === 0) {
+    // Coming from Bellingham office
+    return getTravelTime('Bellingham', targetCity);
+  }
+  const lastBlock = dayBlocks[dayBlocks.length - 1];
+  const fromCity = lastBlock.city || 'Bellingham';
+  return getTravelTime(fromCity, targetCity);
+}
+
+// Check if a block causes a conflict with its neighbors
+function detectConflict(b) {
+  if (b.type === 'office') return false;
+  const dayBlocks = blocks(b.est, b.day).filter(x => x.id !== b.id && x.type !== 'office');
+  const bs = pt(b.start), be = pt(b.end);
+  for (const other of dayBlocks) {
+    const os = pt(other.start), oe = pt(other.end);
+    if (bs < oe && be > os) return true; // overlap
+    // Check travel gap if sequential
+    if (oe <= bs) {
+      const needed = getTravelTime(other.city||'Bellingham', b.city||'Bellingham').total;
+      if (bs - oe < needed) return true;
+    }
+    if (be <= os) {
+      const needed = getTravelTime(b.city||'Bellingham', other.city||'Bellingham').total;
+      if (os - be < needed) return true;
+    }
+  }
+  return false;
+}
+
+// ─── SLOT FINDER ─────────────────────────────────────────────────────────────
+function findSlots() {
+  const city = newJob.city; if (!city) return [];
+  const ests = newJob.estimator === 'any' ? ESTIMATORS : ESTIMATORS.filter(e => e.id === newJob.estimator);
+  if (FERRY_CITIES.includes(city)) return findFerrySlots(city, ests);
+  const found = [];
+  for (const est of ests) {
+    for (let day = 0; day < 5; day++) {
+      if (est.officeDays.includes(day)) continue;
+      const dayBlocks = blocks(est.id, day).filter(b => b.type !== 'office').sort((a,b) => pt(a.start)-pt(b.start));
+      // Try slots from work start
+      const candidates = [];
+      // Before first block
+      const drv0 = getTravelTime('Bellingham', city);
+      const arr0 = WORK_START + drv0.total;
+      if (arr0 + APPT_DURATION <= WORK_END) {
+        // Check doesn't overlap first block
+        if (dayBlocks.length === 0 || arr0 + APPT_DURATION <= pt(dayBlocks[0].start)) {
+          candidates.push({arr: arr0, dep: WORK_START, raw: drv0.raw, grace: drv0.grace, prevCity:'Bellingham'});
+        }
+      }
+      // After each existing block
+      for (let i = 0; i < dayBlocks.length; i++) {
+        const prev = dayBlocks[i];
+        const prevEnd = pt(prev.end);
+        const fromCity = prev.city || 'Bellingham';
+        const drv = getTravelTime(fromCity, city);
+        const arr = prevEnd + drv.total;
+        const end = arr + APPT_DURATION;
+        if (end > WORK_END) continue;
+        // Check doesn't overlap next block
+        if (i + 1 < dayBlocks.length && end > pt(dayBlocks[i+1].start)) continue;
+        candidates.push({arr, dep: prevEnd, raw: drv.raw, grace: drv.grace, prevCity: fromCity});
+      }
+      if (candidates.length > 0) {
+        const best = candidates[0];
+        found.push({eid: est.id, day, arr: best.arr, end: best.arr + APPT_DURATION, dep: best.dep, raw: best.raw, grace: best.grace, city, prevCity: best.prevCity});
+      }
+    }
+  }
+  return found.sort((a,b) => a.day !== b.day ? a.day - b.day : a.raw - b.raw).slice(0, 4);
+}
+
+// ─── FERRY SLOT LOGIC (San Juan Islands) ──────────────────────────────────────
+// For an island job, a valid slot needs: (1) the estimator can physically reach
+// the Anacortes terminal and check in FERRY_CHECKIN_MINS before a sailing,
+// given whatever's already on their schedule that day, and (2) the resulting
+// on-island arrival + 60min appointment fits before the workday ends.
+function getSailingsForDay(dow) {
+  return (SAILING_SCHEDULE[dow] || []).map(pt).sort((a,b)=>a-b);
+}
+
+function findFerrySlots(city, ests) {
+  if (Object.keys(SAILING_SCHEDULE).length === 0) return []; // no sailing data loaded — caller shows a setup message instead
+  const crossing = FERRY_CROSSING_MINS[city] || 60;
+  const found = [];
+  for (const est of ests) {
+    for (let day = 0; day < 5; day++) {
+      if (est.officeDays.includes(day)) continue;
+      const dayBlocks = blocks(est.id, day).filter(b => b.type !== 'office').sort((a,b) => pt(a.start)-pt(b.start));
+      const sailings = getSailingsForDay(day);
+      for (const sailDep of sailings) {
+        const mustCheckInBy = sailDep - FERRY_CHECKIN_MINS;
+        // Whatever block (if any) ends before we'd need to be checked in:
+        const prevBlock = dayBlocks.filter(b => pt(b.end) <= mustCheckInBy).slice(-1)[0];
+        const fromCity = prevBlock ? (prevBlock.city || 'Bellingham') : 'Bellingham';
+        const driveStart = prevBlock ? pt(prevBlock.end) : WORK_START;
+        const drv = getTravelTime(fromCity, 'Anacortes');
+        if (driveStart + drv.total > mustCheckInBy) continue; // can't make check-in for this sailing
+        const arr = sailDep + crossing;
+        const end = arr + APPT_DURATION;
+        if (end > WORK_END) continue;
+        const conflictsWithNext = dayBlocks.some(b => pt(b.start) < end && pt(b.end) > arr);
+        if (conflictsWithNext) continue;
+        found.push({
+          eid: est.id, day, arr, end, dep: driveStart, raw: drv.raw, grace: drv.grace,
+          city, prevCity: fromCity, ferry: true, sailDep, sailCheckin: mustCheckInBy
+        });
+        break; // first workable sailing per estimator/day is enough for the suggestion list
+      }
+    }
+  }
+  return found.sort((a,b) => a.day !== b.day ? a.day - b.day : a.arr - b.arr).slice(0,4);
+}
+
+// ─── BOOK SLOT ────────────────────────────────────────────────────────────────
+function bookSlot(s) {
+  const jobTitle = newJob.contact ? newJob.contact.split(' ')[0] + ' Estimate' : (s.city + ' Estimate');
+  const weekDates = getWeekDates(weekOffset);
+  const ferryNote = s.ferry ? ` · 🚢 ${ft(s.sailDep)} sailing from Anacortes, check in by ${ft(s.sailCheckin)} — book vehicle reservation via myWSF` : '';
+  const newBlock = {
+    id: uid(), est: s.eid, day: s.day, type: 'visit',
+    date: isoDate(weekDates[s.day]),
+    title: jobTitle,
+    city: s.city, address: newJob.address || s.city + ', WA',
+    start: ftShort(s.arr), end: ftShort(s.arr + APPT_DURATION),
+    contact: newJob.contact||'', phone: newJob.phone||'',
+    notes: newJob.type + ' estimate' + (newJob.notes ? ' · ' + newJob.notes : '') + ferryNote,
+    rawMins: s.raw, buffer: s.grace, dep: ftShort(s.dep), status: 'proposed'
+  };
+  schedule.push(newBlock);
+  slots = [];
+  newJob = {address:'',city:'',type:'Roofing',estimator:'any',contact:'',phone:'',notes:''};
+  saveLS('schedule', schedule);
+  renderAll();
+}
+
+// ─── REMOVE ───────────────────────────────────────────────────────────────────
+function removeBlock(id) {
+  schedule = schedule.filter(b => b.id !== id);
+  document.getElementById('modal-root').innerHTML = '';
+  saveLS('schedule', schedule);
+  renderAll();
+}
+
+// ─── TRAFFIC ─────────────────────────────────────────────────────────────────
+function setTraffic(t) {
+  traffic = t;
+  slots = [];
+  document.getElementById('buf-info').textContent = `Buffer: ×${TFACTORS[t].toFixed(2)} (${t})`;
+  renderAll();
+}
+
+// ─── DRAG & DROP ──────────────────────────────────────────────────────────────
+function onDragStart(e, id) {
+  dragBlockId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => {
+    const el = document.querySelector(`[data-id="${id}"]`);
+    if (el) el.classList.add('dragging');
+  }, 0);
+}
+
+function onDragEnd(e) {
+  document.querySelectorAll('.ab.dragging').forEach(el => el.classList.remove('dragging'));
+  document.querySelectorAll('.dc.drag-over').forEach(el => el.classList.remove('drag-over'));
+}
+
+function onDragOver(e, eid, day) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.dc.drag-over').forEach(el => el.classList.remove('drag-over'));
+  const cell = document.querySelector(`[data-cell="${eid}-${day}"]`);
+  if (cell) cell.classList.add('drag-over');
+}
+
+function onDrop(e, eid, day) {
+  e.preventDefault();
+  document.querySelectorAll('.dc.drag-over').forEach(el => el.classList.remove('drag-over'));
+  if (!dragBlockId) return;
+  const b = schedule.find(x => x.id === dragBlockId);
+  if (!b || b.type === 'office') return;
+  // Recalculate travel time for new position
+  const est = getEst(eid);
+  if (!est) return;
+  const toCity = b.city || 'Bellingham';
+  const drv = getDriveBeforeVisit(eid, day, toCity);
+  const existingDay = blocks(eid, day).filter(x => x.type !== 'office');
+  let arr;
+  if (existingDay.length === 0) {
+    arr = WORK_START + drv.total;
+  } else {
+    const lastEnd = Math.max(...existingDay.map(x => pt(x.end)));
+    arr = lastEnd + drv.total;
+  }
+  const end = arr + APPT_DURATION;
+  if (end > WORK_END) { alert('No room in that day — would run past 5:00 PM.'); return; }
+  b.est = eid;
+  b.day = day;
+  b.date = isoDate(currentWeekDates[day]);
+  b.start = ftShort(arr);
+  b.end = ftShort(end);
+  b.rawMins = drv.raw;
+  b.buffer = drv.grace;
+  b.dep = ftShort(arr - drv.total);
+  dragBlockId = null;
+  saveLS('schedule', schedule);
+  renderAll();
+}
+
+// ─── EDIT MODAL ───────────────────────────────────────────────────────────────
+function openModal(id) {
+  const b = schedule.find(x => x.id === id);
+  if (!b) return;
+  const est = getEst(b.est);
+  const typeLabel = {office:'Office Day', meeting:'Meeting', visit:'Site Visit'}[b.type] || b.type;
+  const chipCls = {office:'blue', meeting:'amber', visit:'green'}[b.type] || 'blue';
+  const hasConflict = detectConflict(b);
+  const isEditable = b.type === 'visit' || b.type === 'meeting';
+  const weekDates = getWeekDates(weekOffset);
+
+  let h = `<div class="mo" onclick="closeModal()"><div class="md" onclick="event.stopPropagation()">`;
+  h += `<div class="mh">
+    <div class="mav" style="background:${est.color}">${est.initials}</div>
+    <div style="flex:1">
+      <div class="mtitle">${b.title}</div>
+      ${b.address ? `<div class="maddr">📍 ${b.address}</div>` : ''}
+    </div>
+    <span class="chip ${chipCls}">${typeLabel}</span>
+  </div>`;
+
+  if (hasConflict) {
+    h += `<div class="travel-bar conflict">⚠️ <strong>Scheduling conflict</strong> — travel time overlap detected. Edit times or move this job.</div>`;
+  }
+
+  if (b.type === 'visit' && b.rawMins) {
+    h += `<div class="travel-bar">🚗 Drive: ${b.rawMins} min + ${b.buffer} min grace = ${b.rawMins + b.buffer} min total · Depart ${b.dep}</div>`;
+  }
+
+  h += `<div style="border-top:0.5px solid var(--border);padding-top:10px;margin-top:4px">`;
+
+  if (isEditable) {
+    // EDIT FORM
+    h += `<div class="edit-row"><label class="edit-label">Job Title</label>
+      <input class="edit-fi" id="ef-title" value="${escQ(b.title)}" placeholder="e.g. Smith Estimate"></div>`;
+
+    if (b.type === 'visit') {
+      h += `<div class="edit-row"><label class="edit-label">Address</label>
+        <input class="edit-fi" id="ef-addr" value="${escQ(b.address||'')}" placeholder="123 Main St, Ferndale WA"></div>`;
+      h += `<div class="edit-row"><label class="edit-label">City / Area</label>
+        <select class="edit-fi" id="ef-city">`;
+      Object.keys(CITIES).forEach(c => h += `<option value="${c}"${b.city===c?' selected':''}>${c}</option>`);
+      FERRY_CITIES.forEach(c => h += `<option value="${c}"${b.city===c?' selected':''}>🚢 ${c}</option>`);
+      h += `</select></div>`;
+    }
+
+    h += `<div class="edit-grid">
+      <div class="edit-row"><label class="edit-label">Start Time</label>
+        <input class="edit-fi" id="ef-start" type="time" value="${b.start}"></div>
+      <div class="edit-row"><label class="edit-label">End Time</label>
+        <input class="edit-fi" id="ef-end" type="time" value="${b.end}"></div>
+    </div>`;
+
+    h += `<div class="edit-grid">
+      <div class="edit-row"><label class="edit-label">Estimator</label>
+        <select class="edit-fi" id="ef-est">`;
+    ESTIMATORS.forEach(e => h += `<option value="${e.id}"${b.est===e.id?' selected':''}>${e.name}</option>`);
+    h += `</select></div>
+      <div class="edit-row"><label class="edit-label">Move to Day</label>
+        <select class="edit-fi" id="ef-day">`;
+    for (let i = 0; i < 5; i++) {
+      h += `<option value="${i}"${b.day===i?' selected':''}>${getDayLabel(weekDates[i])} ${formatDate(weekDates[i])}</option>`;
+    }
+    h += `</select></div></div>`;
+
+    if (b.type === 'visit') {
+      h += `<div class="edit-row"><label class="edit-label">Contact Name</label>
+        <input class="edit-fi" id="ef-contact" value="${escQ(b.contact||'')}" placeholder="Full name"></div>`;
+      h += `<div class="edit-grid">
+        <div class="edit-row"><label class="edit-label">Phone</label>
+          <input class="edit-fi" id="ef-phone" value="${escQ(b.phone||'')}" placeholder="360-555-0000"></div>
+        <div class="edit-row"><label class="edit-label">Travel (min)</label>
+          <input class="edit-fi" id="ef-travel" type="number" min="1" max="120" value="${b.rawMins||CITIES[b.city]||20}"></div>
+      </div>`;
+      h += `<div class="edit-row"><label class="edit-label">Notes</label>
+        <input class="edit-fi" id="ef-notes" value="${escQ(b.notes||'')}" placeholder="Job details, scope, etc."></div>`;
+    } else {
+      h += `<div class="edit-row"><label class="edit-label">Notes</label>
+        <input class="edit-fi" id="ef-notes" value="${escQ(b.notes||'')}" placeholder="Notes"></div>`;
+    }
+
+    h += `</div>`;
+    h += `<div class="ma">
+      <button class="btn sm danger" onclick="removeBlock('${b.id}')">Delete</button>
+      <button class="btn sm warning" onclick="recalcTravel('${b.id}')">Recalc Travel</button>
+      <button class="btn sm primary" style="margin-left:auto" onclick="saveEdit('${b.id}')">Save Changes</button>
+    </div>`;
+  } else {
+    // READ-ONLY (office day)
+    h += `<div class="mr"><span class="ml">Estimator</span><span class="mv">${est.name}</span></div>`;
+    h += `<div class="mr"><span class="ml">Date</span><span class="mv">${getDayLabel(weekDates[b.day])}, ${formatDate(weekDates[b.day])}</span></div>`;
+    h += `<div class="mr"><span class="ml">Time</span><span class="mv mono">${ft(pt(b.start))} – ${ft(pt(b.end))}</span></div>`;
+    if (b.notes) h += `<div class="mr"><span class="ml">Notes</span><span class="mv" style="color:var(--text2);font-weight:400">${b.notes}</span></div>`;
+    h += `</div>`;
+    h += `<div class="ma"><button class="btn sm" style="margin-left:auto" onclick="closeModal()">Close</button></div>`;
+  }
+
+  h += `</div></div>`;
+  document.getElementById('modal-root').innerHTML = h;
+}
+
+function escQ(s) { return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+function saveEdit(id) {
+  const b = schedule.find(x => x.id === id);
+  if (!b) return;
+  b.title   = document.getElementById('ef-title').value.trim() || b.title;
+  b.day     = parseInt(document.getElementById('ef-day').value);
+  b.est     = document.getElementById('ef-est').value;
+  b.start   = document.getElementById('ef-start').value;
+  b.end     = document.getElementById('ef-end').value;
+  b.notes   = document.getElementById('ef-notes').value.trim();
+  if (b.type === 'visit') {
+    b.address = document.getElementById('ef-addr').value.trim();
+    b.city    = document.getElementById('ef-city').value;
+    b.contact = document.getElementById('ef-contact').value.trim();
+    b.phone   = document.getElementById('ef-phone').value.trim();
+    const manualTravel = parseInt(document.getElementById('ef-travel').value);
+    if (!isNaN(manualTravel)) {
+      b.rawMins = manualTravel;
+      b.buffer  = GRACE;
+      b.dep     = ftShort(pt(b.start) - manualTravel - GRACE);
+    }
+  }
+  closeModal();
+  saveLS('schedule', schedule);
+  renderAll();
+}
+
+function recalcTravel(id) {
+  const b = schedule.find(x => x.id === id);
+  if (!b || b.type !== 'visit') return;
+  const city = document.getElementById('ef-city')?.value || b.city;
+  const drv = getDriveBeforeVisit(b.est, b.day, city);
+  const travelInput = document.getElementById('ef-travel');
+  if (travelInput) travelInput.value = drv.raw;
+}
+
+function closeModal() { document.getElementById('modal-root').innerHTML = ''; }
+
+// ─── ESTIMATOR NAME EDITOR ────────────────────────────────────────────────────
+function openEstimatorEditor() {
+  let h = `<div class="name-editor-mo" onclick="closeNameEditor()"><div class="name-editor-box" onclick="event.stopPropagation()">`;
+  h += `<h3>✏️ Edit Estimator Names</h3>`;
+  ESTIMATORS.forEach((e, i) => {
+    h += `<div style="margin-bottom:10px;display:flex;align-items:center;gap:8px">
+      <div style="width:10px;height:10px;border-radius:50%;background:${e.color};flex-shrink:0"></div>
+      <input class="fi" id="ne-${e.id}" value="${escQ(e.name)}" placeholder="Full name" style="flex:1">
+    </div>`;
+  });
+  h += `<div style="display:flex;gap:6px;margin-top:4px">
+    <button class="btn sm danger" onclick="closeNameEditor()">Cancel</button>
+    <button class="btn sm primary" style="margin-left:auto" onclick="saveEstimatorNames()">Save Names</button>
+  </div>`;
+  h += `</div></div>`;
+  document.getElementById('name-editor-root').innerHTML = h;
+}
+
+function saveEstimatorNames() {
+  ESTIMATORS.forEach(e => {
+    const inp = document.getElementById('ne-' + e.id);
+    if (inp) {
+      e.name = inp.value.trim() || e.name;
+      e.initials = initials(e.name);
+    }
+  });
+  closeNameEditor();
+  saveLS('est_names', ESTIMATORS);
+  renderAll();
+}
+
+function closeNameEditor() { document.getElementById('name-editor-root').innerHTML = ''; }
+
+// ─── RENDER GRID ─────────────────────────────────────────────────────────────
+function renderGrid() {
+  const weekDates = getWeekDates(weekOffset);
+  currentWeekDates = weekDates; // keep blocks() in sync with what's on screen
+  const todayIdx  = getTodayIdx(weekDates);
+
+  // Update week label
+  document.getElementById('wk-label').textContent =
+    `${formatDate(weekDates[0])} – ${formatDate(weekDates[4])}, ${weekDates[0].getFullYear()}`;
+
+  const s = document.getElementById('sched');
+  let h = `<div class="grid">`;
+  h += `<div class="hc est">Estimator</div>`;
+  weekDates.forEach((d, i) => {
+    h += `<div class="hc${i === todayIdx ? ' today' : ''}">${getDayLabel(d)}<br><small style="font-weight:400;font-size:10px">${formatDate(d)}</small></div>`;
+  });
+
+  ESTIMATORS.forEach(est => {
+    // Estimator row header
+    h += `<div class="ec">
+      <div class="edot" style="background:${est.color}"></div>
+      <div>
+        <div class="ename">${est.name.split(' ')[0]}<button class="ename-edit-btn" onclick="openEstimatorEditor()" title="Edit names">✏️</button></div>
+        <div class="esub">${est.name.split(' ').slice(1).join(' ')}</div>
+      </div>
+    </div>`;
+
+    // Day cells
+    for (let day = 0; day < 5; day++) {
+      const isOff = est.officeDays.includes(day);
+      const dayBlocks = blocks(est.id, day);
+      h += `<div class="dc${isOff ? ' off' : ''}" data-cell="${est.id}-${day}"
+        ondragover="onDragOver(event,'${est.id}',${day})"
+        ondrop="onDrop(event,'${est.id}',${day})"
+        ondragleave="this.classList.remove('drag-over')">`;
+
+      if (dayBlocks.length === 0 && !isOff) {
+        h += `<div class="empty">available</div>`;
+      }
+
+      dayBlocks.forEach(b => {
+        const cls = b.status === 'proposed' ? 'proposed' : b.type;
+        const completedCls = b.status === 'completed' ? ' completed' : '';
+        const hasConflict = detectConflict(b);
+        const draggable = (b.type !== 'office') ? 'draggable="true"' : '';
+        h += `<div class="ab ${cls}${completedCls}${hasConflict ? ' conflict' : ''}" data-id="${b.id}"
+          ${draggable}
+          onclick="openModal('${b.id}')"
+          ondragstart="onDragStart(event,'${b.id}')"
+          ondragend="onDragEnd(event)">`;
+        h += `<div class="at">${ft(pt(b.start))}</div>`;
+        h += `<div class="atitle">${b.title}${b.status === 'completed' ? ' ✓' : ''}</div>`;
+        if (b.city) h += `<div style="font-size:9px;opacity:.65">${b.city}</div>`;
+        if (b.rawMins) h += `<div class="drv">🚗 ${b.rawMins}+${b.buffer}m grace</div>`;
+        if (hasConflict) h += `<div class="conflict-badge">⚠️ overlap</div>`;
+        h += `</div>`;
+      });
+      h += `</div>`;
+    }
+  });
+
+  h += `</div>`;
+  s.innerHTML = h;
+}
+
+// ─── RENDER PANEL ─────────────────────────────────────────────────────────────
+function openPanel() { renderPanel(); document.getElementById('panel').scrollIntoView({behavior:'smooth'}); }
+
+function renderPanel() {
+  const p = document.getElementById('panel');
+  const ss = findSlots();
+  slots = ss;
+
+  let h = `<div class="ps">`;
+  h += `<div class="pst">Schedule New Estimate</div>`;
+  h += `<div class="fr"><label class="fl">Customer Name</label><input class="fi" id="nj-contact" placeholder="Jane Smith" value="${escQ(newJob.contact)}" oninput="newJob.contact=this.value"></div>`;
+  h += `<div class="fr"><label class="fl">Phone</label><input class="fi" id="nj-phone" placeholder="360-555-0000" value="${escQ(newJob.phone)}" oninput="newJob.phone=this.value"></div>`;
+  h += `<div class="fr"><label class="fl">Job Site Address</label><input class="fi" id="nj-addr" placeholder="456 Maple St, Ferndale WA" value="${escQ(newJob.address)}" oninput="newJob.address=this.value"></div>`;
+  h += `<div class="fr"><label class="fl">City / Area <small style="color:var(--text3)">(sets drive time)</small></label><select class="fi" onchange="newJob.city=this.value;slots=[];renderPanel()"><option value="">-- select city --</option>`;
+  Object.keys(CITIES).forEach(c => h += `<option value="${c}"${newJob.city===c?' selected':''}>${c} (~${CITIES[c]} min base)</option>`);
+  FERRY_CITIES.forEach(c => h += `<option value="${c}"${newJob.city===c?' selected':''}>🚢 ${c} (ferry required)</option>`);
+  h += `</select></div>`;
+  if (FERRY_CITIES.includes(newJob.city)) {
+    h += `<div style="font-size:10px;background:var(--teal-l);color:var(--teal-d);border-radius:6px;padding:6px 8px;margin:-4px 0 8px">🚢 Ferry-dependent destination — slots below are built around actual WSDOT sailings, not a flat drive time.</div>`;
+  }
+  h += `<div class="fg">
+    <div class="fr"><label class="fl">Type</label><select class="fi" onchange="newJob.type=this.value">`;
+  ['Roofing','Siding','Gutters','Fascia/Soffit','Multi-trade'].forEach(t => h += `<option${newJob.type===t?' selected':''}>${t}</option>`);
+  h += `</select></div>
+    <div class="fr"><label class="fl">Assign To</label><select class="fi" onchange="newJob.estimator=this.value"><option value="any">Any</option>`;
+  ESTIMATORS.forEach(e => h += `<option value="${e.id}"${newJob.estimator===e.id?' selected':''}>${e.name.split(' ')[0]}</option>`);
+  h += `</select></div></div>`;
+  h += `<div class="fr"><label class="fl">Notes</label><input class="fi" id="nj-notes" placeholder="Scope, access, etc." value="${escQ(newJob.notes)}" oninput="newJob.notes=this.value"></div>`;
+  h += `<div style="font-size:10px;color:var(--text2);margin-bottom:6px">⏱ Appointments are fixed at <strong>60 min</strong> + ${GRACE} min grace travel buffer.</div>`;
+  h += `<button class="btn primary" style="width:100%;margin-top:2px" onclick="newJob.contact=document.getElementById('nj-contact').value;newJob.phone=document.getElementById('nj-phone').value;newJob.address=document.getElementById('nj-addr').value;newJob.notes=document.getElementById('nj-notes').value;slots=findSlots();renderPanel()">Find Best Slot ↗</button>`;
+  h += `</div>`;
+
+  if (FERRY_CITIES.includes(newJob.city) && Object.keys(SAILING_SCHEDULE).length === 0) {
+    h += `<div class="ps"><div style="font-size:11px;color:var(--amber-d);background:var(--amber-l);border-radius:6px;padding:10px 12px">⚠ No ferry sailing schedule loaded yet — can't suggest slots for ${newJob.city} until this is set up. Deploy the WSDOT schedule proxy, or call <code>setManualFerrySchedule(...)</code> in the console with the current seasonal schedule pasted in.</div></div>`;
+  } else if (slots.length > 0) {
+    h += `<div class="ps"><div class="pst">Available Slots</div>`;
+    slots.forEach((s, i) => {
+      const est = getEst(s.eid);
+      const weekDates = getWeekDates(weekOffset);
+      h += `<div class="sc${i===0?' best':''}">`;
+      h += `<div class="sch"><div class="sdot" style="background:${est.color}"></div><strong style="font-size:12px">${est.name.split(' ')[0]}</strong><span style="font-size:11px;color:var(--text2);margin-left:3px">${getDayLabel(weekDates[s.day])} ${formatDate(weekDates[s.day])}</span>${i===0?'<span class="sbadge">Best</span>':''}${s.ferry?'<span class="sbadge" style="background:var(--teal-l);color:var(--teal-d)">🚢 Ferry</span>':''}</div>`;
+      if (s.ferry) {
+        h += `<div class="sd">
+          <div>🚢 Sailing ${ft(s.sailDep)} from Anacortes — check in by ${ft(s.sailCheckin)}</div>
+          <div>⏰ On island ${ft(s.arr)} — Done ${ft(s.arr + APPT_DURATION)}</div>
+          <div>🚗 ${s.raw} min drive from ${s.prevCity} + ${s.grace} min grace to terminal</div>
+          <div style="color:var(--text3)">Vehicle reservation still needs to be booked manually via myWSF.</div>
+        </div>`;
+      } else {
+        h += `<div class="sd">
+          <div>⏰ Arrive ${ft(s.arr)} — Done ${ft(s.arr + APPT_DURATION)}</div>
+          <div>🚗 ${s.raw} min drive + ${s.grace} min grace</div>
+          <div>📍 From: ${s.prevCity} → ${s.city}</div>
+          <div>🕐 Depart ${ft(s.dep)}</div>
+        </div>`;
+      }
+      h += `<div class="sa"><button class="btn sm primary" onclick='bookSlot(${JSON.stringify(s)})'>Book This</button></div>`;
+      h += `</div>`;
+    });
+    h += `</div>`;
+  } else if (newJob.city) {
+    h += `<div class="ps"><div style="font-size:11px;color:var(--text2)">No open slots found this week${FERRY_CITIES.includes(newJob.city)?' — no sailing this week fits the current schedule with the check-in cutoff':''}. Try a different estimator or use week navigation to check ahead.</div></div>`;
+  }
+
+  h += `<div class="ps"><div class="pst">This Week Summary</div>`;
+  ESTIMATORS.forEach(est => {
+    const visits = schedule.filter(b => b.est === est.id && b.type === 'visit');
+    const conflicts = schedule.filter(b => b.est === est.id && detectConflict(b));
+    h += `<div class="wl">
+      <div style="width:8px;height:8px;border-radius:50%;background:${est.color};flex-shrink:0"></div>
+      <div style="flex:1">
+        <div style="font-size:11px;font-weight:600">${est.name}</div>
+        <div style="font-size:10px;color:var(--text2)">${visits.length} estimate${visits.length!==1?'s':''}${conflicts.length>0?` · <span style="color:var(--red-d)">⚠️ ${conflicts.length} conflict</span>`:''}</div>
+      </div>
+      <div class="wstat" style="background:${visits.length>=4?'var(--amber-l)':'var(--green-l)'};color:${visits.length>=4?'var(--amber-d)':'var(--green-d)'};font-weight:600">${visits.length>=4?'Busy':'Open'}</div>
+    </div>`;
+  });
+  h += `</div>`;
+  p.innerHTML = h;
+}
+
+function renderAll() { renderGrid(); renderPanel(); }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LEAP MASTER LIST IMPORT
+// ═══════════════════════════════════════════════════════════════════════════
+// Master List exports come as utf-8-sig CSV with no metadata skip-row (unlike
+// Appointments/Job Schedules exports, which have a "Filters:" row on line 1 —
+// this parser assumes Master List format specifically).
+
+let importState = null; // {headers, rows, mapping, stageValues, completedStages, step}
+
+const FIELD_DEFS = [
+  {key:'jobId',     label:'Job ID',            required:false, keywords:['job id','job #','job number','id']},
+  {key:'jobName',    label:'Customer / Job Name', required:true,  keywords:['customer','client','job name','name']},
+  {key:'estimator',  label:'Estimator',         required:true,  keywords:['estimator','assigned','rep']},
+  {key:'date',       label:'Scheduled Date',    required:true,  keywords:['scheduled date','date','appt date','appointment date']},
+  {key:'startTime',  label:'Appointment Time',  required:false, keywords:['time','start time','appt time']},
+  {key:'stage',      label:'Job Stage / Status',required:false, keywords:['stage','status']},
+  {key:'address',    label:'Address',           required:false, keywords:['address','street']},
+  {key:'city',       label:'City',              required:false, keywords:['city','area']},
+  {key:'phone',      label:'Phone',             required:false, keywords:['phone','contact number']},
+  {key:'notes',      label:'Notes',             required:false, keywords:['notes','description','scope']},
+];
+
+function parseCSV(text) {
+  text = text.replace(/^\uFEFF/, ''); // strip BOM (Leap Master List is utf-8-sig)
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], next = text[i+1];
+    if (inQuotes) {
+      if (c === '"' && next === '"') { field += '"'; i++; }
+      else if (c === '"') { inQuotes = false; }
+      else { field += c; }
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\r') { /* skip, \n handles the break */ }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+      else field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  const filtered = rows.filter(r => r.length > 1 || (r.length === 1 && r[0] !== ''));
+  if (filtered.length === 0) return { headers: [], rows: [] };
+  const headers = filtered[0].map(h => h.trim());
+  const dataRows = filtered.slice(1).map(r => {
+    const obj = {};
+    headers.forEach((h, idx) => obj[h] = (r[idx] || '').trim());
+    return obj;
+  });
+  return { headers, rows: dataRows };
+}
+
+function guessColumn(headers, keywords) {
+  const lower = headers.map(h => h.toLowerCase());
+  for (const kw of keywords) {
+    const idx = lower.findIndex(h => h === kw);
+    if (idx >= 0) return headers[idx];
+  }
+  for (const kw of keywords) {
+    const idx = lower.findIndex(h => h.includes(kw));
+    if (idx >= 0) return headers[idx];
+  }
+  return '';
+}
+
+function parseFlexibleDate(str) {
+  if (!str) return null;
+  str = str.trim();
+  let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return `${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+  m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+  if (m) {
+    let [, mo, da, yr] = m;
+    if (yr.length === 2) yr = (Number(yr) < 50 ? '20' : '19') + yr;
+    return `${yr}-${String(mo).padStart(2,'0')}-${String(da).padStart(2,'0')}`;
+  }
+  const d = new Date(str);
+  if (!isNaN(d.getTime())) return d.toISOString().slice(0,10);
+  return null;
+}
+
+function parseFlexibleTime(str) {
+  if (!str) return null;
+  str = str.trim();
+  let m = str.match(/^(\d{1,2}):(\d{2})\s*(AM|PM|am|pm)?/);
+  if (!m) return null;
+  let h = Number(m[1]), min = m[2];
+  const ap = (m[3]||'').toUpperCase();
+  if (ap === 'PM' && h < 12) h += 12;
+  if (ap === 'AM' && h === 12) h = 0;
+  return `${String(h).padStart(2,'0')}:${min}`;
+}
+
+function weekdayIndex(isoStr) {
+  const d = new Date(isoStr + 'T00:00:00');
+  const dow = d.getDay(); // 0=Sun..6=Sat
+  return dow === 0 ? 6 : dow - 1; // Mon=0..Sun=6 (5,6 = weekend, off-grid)
+}
+
+function matchEstimator(raw) {
+  if (!raw) return 'unassigned';
+  const norm = raw.toLowerCase().replace(/[^a-z ]/g,'').trim();
+  if (!norm) return 'unassigned';
+  for (const e of ESTIMATORS) {
+    if (e.id === 'unassigned') continue;
+    const parts = e.name.toLowerCase().split(' ');
+    const first = parts[0], last = parts[parts.length-1];
+    if (norm.includes(first) && norm.includes(last)) return e.id;
+    if (norm === first || norm === last) return e.id;
+  }
+  return 'unassigned';
+}
+
+function matchCity(raw) {
+  if (!raw) return '';
+  const norm = raw.trim().toLowerCase();
+  const found = Object.keys(CITIES).find(c => c.toLowerCase() === norm)
+    || FERRY_CITIES.find(c => c.toLowerCase() === norm);
+  return found || '';
+}
+
+function openImportModal() {
+  importState = { headers: [], rows: [], mapping: {}, stageValues: [], completedStages: new Set(), step: 1 };
+  renderImportModal();
+}
+
+function closeImportModal() {
+  importState = null;
+  document.getElementById('import-root').innerHTML = '';
+}
+
+function handleLeapFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const { headers, rows } = parseCSV(e.target.result);
+    if (headers.length === 0) {
+      alert('Could not find any columns in that file — is it a CSV export from LEAP?');
+      return;
+    }
+    importState.headers = headers;
+    importState.rows = rows;
+    FIELD_DEFS.forEach(f => { importState.mapping[f.key] = guessColumn(headers, f.keywords); });
+    importState.step = 2;
+    renderImportModal();
+  };
+  reader.readAsText(file);
+}
+
+function updateMapping(key, value) {
+  importState.mapping[key] = value;
+}
+
+function proceedToStageStep() {
+  FIELD_DEFS.forEach(f => {
+    const sel = document.getElementById('map-' + f.key);
+    if (sel) importState.mapping[f.key] = sel.value;
+  });
+  const missing = FIELD_DEFS.filter(f => f.required && !importState.mapping[f.key]);
+  if (missing.length) {
+    alert('Please map required field(s): ' + missing.map(f => f.label).join(', '));
+    return;
+  }
+  const stageCol = importState.mapping.stage;
+  if (stageCol) {
+    const vals = new Set(importState.rows.map(r => r[stageCol]).filter(Boolean));
+    importState.stageValues = Array.from(vals).sort();
+    importState.stageValues.forEach(v => {
+      if (/complet|done|finish/i.test(v)) importState.completedStages.add(v);
+    });
+  } else {
+    importState.stageValues = [];
+  }
+  importState.step = 3;
+  renderImportModal();
+}
+
+function toggleCompletedStage(value) {
+  if (importState.completedStages.has(value)) importState.completedStages.delete(value);
+  else importState.completedStages.add(value);
+}
+
+function runImport() {
+  const m = importState.mapping;
+  let added = 0, updated = 0, completedCount = 0, unassignedCount = 0, weekendCount = 0, skipped = 0;
+  const skipReasons = [];
+
+  importState.rows.forEach((row, idx) => {
+    const isoD = parseFlexibleDate(m.date ? row[m.date] : '');
+    if (!isoD) { skipped++; skipReasons.push(`Row ${idx+2}: unparseable date "${row[m.date]||''}"`); return; }
+
+    const estId = matchEstimator(m.estimator ? row[m.estimator] : '');
+    if (estId === 'unassigned') unassignedCount++;
+
+    const day = weekdayIndex(isoD);
+    if (day > 4) weekendCount++;
+
+    const stageVal = m.stage ? row[m.stage] : '';
+    const status = importState.completedStages.has(stageVal) ? 'completed' : 'scheduled';
+    if (status === 'completed') completedCount++;
+
+    const time = m.startTime ? parseFlexibleTime(row[m.startTime]) : null;
+    const start = time || '09:00';
+    const endMins = pt(start) + APPT_DURATION;
+    const end = ftShort(endMins);
+
+    const city = m.city ? matchCity(row[m.city]) : '';
+    const jobName = (m.jobName ? row[m.jobName] : '') || '(Unnamed Job)';
+    const jobId = m.jobId ? row[m.jobId] : '';
+    const sourceId = jobId ? ('leap_' + jobId) : ('leap_' + estId + '_' + isoD + '_' + jobName.replace(/\s+/g,'_'));
+
+    const blockData = {
+      est: estId, day, date: isoD, type: 'visit',
+      title: jobName + (!time ? ' (no time in import)' : ''),
+      address: m.address ? row[m.address] : '',
+      city,
+      start, end,
+      phone: m.phone ? row[m.phone] : '',
+      notes: (m.notes ? row[m.notes] : '') + (stageVal ? ` · Stage: ${stageVal}` : ''),
+      status,
+      stage: stageVal,
+      sourceId,
+    };
+
+    const existing = schedule.find(b => b.sourceId === sourceId);
+    if (existing) {
+      Object.assign(existing, blockData);
+      updated++;
+    } else {
+      schedule.push(Object.assign({ id: uid() }, blockData));
+      added++;
+    }
+  });
+
+  saveLS('schedule', schedule);
+  importState.summary = { added, updated, completedCount, unassignedCount, weekendCount, skipped, skipReasons };
+  importState.step = 4;
+  renderImportModal();
+  renderAll();
+}
+
+function renderImportModal() {
+  const root = document.getElementById('import-root');
+  if (!importState) { root.innerHTML = ''; return; }
+  let h = `<div class="mo" onclick="event.target===event.currentTarget&&closeImportModal()"><div class="md wide" onclick="event.stopPropagation()">`;
+  h += `<div class="mtitle" style="margin-bottom:10px">📥 Import LEAP Master List</div>`;
+
+  if (importState.step === 1) {
+    h += `<div class="import-drop" onclick="document.getElementById('leap-file-input').click()">
+      📄 Click to choose the Master List CSV export from LEAP<br>
+      <small style="color:var(--text3)">Expects utf-8 CSV, no metadata row — the standard Master List format</small>
+      <input type="file" id="leap-file-input" accept=".csv" onchange="handleLeapFile(this)">
+    </div>`;
+    h += `<div class="ma"><button class="btn" onclick="closeImportModal()">Cancel</button></div>`;
+  }
+
+  else if (importState.step === 2) {
+    h += `<div style="font-size:11px;color:var(--text2);margin-bottom:10px">Found ${importState.rows.length} row(s) and ${importState.headers.length} column(s). Map each field below — best guesses are pre-selected, override anything that's wrong.</div>`;
+    FIELD_DEFS.forEach(f => {
+      h += `<div class="map-row"><div class="map-label${f.required ? ' required' : ''}">${f.label}</div>`;
+      h += `<select class="fi" id="map-${f.key}">`;
+      h += `<option value="">-- not in this file --</option>`;
+      importState.headers.forEach(hd => h += `<option value="${escQ(hd)}"${importState.mapping[f.key]===hd?' selected':''}>${hd}</option>`);
+      h += `</select></div>`;
+    });
+    h += `<div class="ma"><button class="btn" onclick="closeImportModal()">Cancel</button><button class="btn primary" onclick="proceedToStageStep()">Next: Job Stages ›</button></div>`;
+  }
+
+  else if (importState.step === 3) {
+    if (importState.stageValues.length === 0) {
+      h += `<div style="font-size:12px;color:var(--text2);margin-bottom:10px">No Job Stage column was mapped, so every imported job will be marked <strong>Scheduled</strong> (not Completed). Go back if you want to map a stage column.</div>`;
+    } else {
+      h += `<div style="font-size:12px;color:var(--text2);margin-bottom:10px">Check every stage value below that means the job is <strong>done</strong>. We pre-checked anything containing "complete/done/finish" — review the rest, especially stages like "Materials Delivered" which usually mean still in progress.</div>`;
+      importState.stageValues.forEach(v => {
+        h += `<div class="stage-check-row"><input type="checkbox" id="stage-${escQ(v)}" ${importState.completedStages.has(v)?'checked':''} onchange="toggleCompletedStage('${escQ(v)}')"><label for="stage-${escQ(v)}">${v}</label></div>`;
+      });
+    }
+    h += `<div class="ma"><button class="btn" onclick="importState.step=2;renderImportModal()">‹ Back</button><button class="btn primary" onclick="runImport()">Import ${importState.rows.length} Row(s) →</button></div>`;
+  }
+
+  else if (importState.step === 4) {
+    const s = importState.summary;
+    h += `<div class="import-summary">
+      ✅ <strong>${s.added}</strong> new job(s) added<br>
+      🔄 <strong>${s.updated}</strong> existing job(s) updated (matched by Job ID / estimator+date+name)<br>
+      ✔️ <strong>${s.completedCount}</strong> marked Completed<br>
+      ${s.unassignedCount ? `<span class="warn">⚠️ ${s.unassignedCount} job(s) had an estimator name that didn't match anyone on the team — filed under "Unassigned," reassign manually.</span><br>` : ''}
+      ${s.weekendCount ? `<span class="warn">⚠️ ${s.weekendCount} job(s) fell on a Saturday/Sunday — stored, but won't show on the Mon–Fri grid.</span><br>` : ''}
+      ${s.skipped ? `<span class="err">❌ ${s.skipped} row(s) skipped — unparseable date.</span>` : ''}
+    </div>`;
+    if (s.skipReasons.length) {
+      h += `<div style="max-height:120px;overflow-y:auto;font-size:10px;color:var(--text2);margin-top:6px">${s.skipReasons.join('<br>')}</div>`;
+    }
+    h += `<div class="ma"><button class="btn primary" onclick="closeImportModal()">Done</button></div>`;
+  }
+
+  h += `</div></div>`;
+  root.innerHTML = h;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPLETED JOBS PANEL
+// ═══════════════════════════════════════════════════════════════════════════
+let completedFilterEst = 'all';
+
+function openCompletedPanel() { renderCompletedPanel(); }
+
+function closeCompletedPanel() { document.getElementById('completed-root').innerHTML = ''; }
+
+function setCompletedFilter(eid) { completedFilterEst = eid; renderCompletedPanel(); }
+
+function renderCompletedPanel() {
+  const root = document.getElementById('completed-root');
+  let jobs = schedule.filter(b => b.status === 'completed');
+  if (completedFilterEst !== 'all') jobs = jobs.filter(b => b.est === completedFilterEst);
+  jobs.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+
+  let h = `<div class="mo" onclick="event.target===event.currentTarget&&closeCompletedPanel()"><div class="md wide" onclick="event.stopPropagation()" style="width:640px">`;
+  h += `<div class="mtitle" style="margin-bottom:10px">✅ Completed Jobs (${jobs.length})</div>`;
+  h += `<div class="completed-filter"><label class="map-label">Estimator:</label><select class="fi" style="width:auto" onchange="setCompletedFilter(this.value)">`;
+  h += `<option value="all"${completedFilterEst==='all'?' selected':''}>All</option>`;
+  ESTIMATORS.forEach(e => h += `<option value="${e.id}"${completedFilterEst===e.id?' selected':''}>${e.name}</option>`);
+  h += `</select></div>`;
+
+  if (jobs.length === 0) {
+    h += `<div style="font-size:12px;color:var(--text2)">No completed jobs yet — they'll show up here once marked Completed, either manually or via a LEAP import.</div>`;
+  } else {
+    h += `<div style="max-height:50vh;overflow-y:auto"><table class="completed-table"><thead><tr>
+      <th>Date</th><th>Estimator</th><th>Job / Customer</th><th>City</th><th>Address</th><th>Stage</th>
+    </tr></thead><tbody>`;
+    jobs.forEach(b => {
+      const est = getEst(b.est);
+      h += `<tr><td>${b.date||'—'}</td><td>${est ? est.name : b.est}</td><td>${b.title}</td><td>${b.city||''}</td><td>${b.address||''}</td><td>${b.stage||''}</td></tr>`;
+    });
+    h += `</tbody></table></div>`;
+  }
+  h += `<div class="ma"><button class="btn primary" onclick="closeCompletedPanel()">Close</button></div>`;
+  h += `</div></div>`;
+  root.innerHTML = h;
+}
+
+// ─── EXPOSE GLOBALS ───────────────────────────────────────────────────────────
+window.openModal=openModal; window.closeModal=closeModal;
+window.bookSlot=bookSlot; window.setTraffic=setTraffic;
+window.openPanel=openPanel; window.renderPanel=renderPanel;
+window.shiftWeek=shiftWeek; window.removeBlock=removeBlock;
+window.saveEdit=saveEdit; window.recalcTravel=recalcTravel;
+window.openEstimatorEditor=openEstimatorEditor;
+window.saveEstimatorNames=saveEstimatorNames;
+window.closeNameEditor=closeNameEditor;
+window.onDragStart=onDragStart; window.onDragEnd=onDragEnd;
+window.onDragOver=onDragOver; window.onDrop=onDrop;
+window.newJob=newJob; window.findSlots=findSlots; window.slots=slots;
+window.openImportModal=openImportModal; window.closeImportModal=closeImportModal;
+window.handleLeapFile=handleLeapFile; window.updateMapping=updateMapping;
+window.proceedToStageStep=proceedToStageStep; window.toggleCompletedStage=toggleCompletedStage;
+window.runImport=runImport;
+window.openCompletedPanel=openCompletedPanel; window.closeCompletedPanel=closeCompletedPanel;
+window.setCompletedFilter=setCompletedFilter;
+
+renderAll();
+</script>
+</body>
+</html>

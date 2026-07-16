@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topside Roofing — Marketing &amp; Sales Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;--surface:#fff;--border:rgba(0,0,0,.09);--border-strong:rgba(0,0,0,.15);
+  --text-primary:#0b0b0b;--text-secondary:#52514e;--text-muted:#898781;
+  --accent:#1F4E79;--accent-light:#E6F1FB;--accent-text:#185FA5;
+  --success:#375623;--success-bg:#E2EFDA;
+  --warning:#7B4F12;--warning-bg:#FFF2CC;
+  --danger:#A32D2D;--danger-bg:#FCE4D6;
+  --radius:8px;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text-primary);min-height:100vh}
+.page{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
+
+.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:.5px solid var(--border-strong);flex-wrap:wrap;gap:12px}
+.header-title{font-size:20px;font-weight:600;margin-bottom:4px}
+.header-meta{font-size:13px;color:var(--text-muted)}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge-live{font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--success-bg);color:var(--success);display:flex;align-items:center;gap:5px}
+.badge-live::before{content:'';width:7px;height:7px;border-radius:50%;background:#375623;display:inline-block}
+.btn{font-size:12px;font-weight:500;padding:6px 13px;border-radius:var(--radius);border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-primary);cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .15s;white-space:nowrap}
+.btn:hover{background:var(--bg)}
+.btn svg{width:13px;height:13px;flex-shrink:0}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:#163d61}
+.btn-ai{background:#2a78d6;color:#fff;border-color:#2a78d6}
+.btn-ai:hover{background:#1d5fa8}
+
+.info-bar{font-size:12px;color:var(--text-muted);margin-bottom:1rem;padding:8px 12px;background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+
+.filter-bar{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap}
+.filter-btn{font-size:12px;font-weight:500;padding:5px 14px;border-radius:var(--radius);border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;transition:all .15s}
+.filter-btn.active{background:var(--accent-light);color:var(--accent-text);border-color:#B5D4F4}
+.filter-btn:hover:not(.active){background:var(--bg)}
+
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px}
+@media(max-width:700px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:1.25rem 1rem}
+.tile-label{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.tile-num{font-size:40px;font-weight:600;line-height:1;letter-spacing:-1px}
+.tile-sub{font-size:12px;margin-top:8px}
+.up{color:var(--success)}.warn{color:var(--warning)}.neutral{color:var(--text-secondary)}
+
+.charts-row{display:grid;grid-template-columns:55% calc(45% - 12px);gap:12px}
+@media(max-width:700px){.charts-row{grid-template-columns:1fr}}
+.chart-card{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:1.25rem}
+.chart-card-title{font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary)}
+.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+.bottom-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+@media(max-width:700px){.bottom-strip{grid-template-columns:1fr}}
+.stat-card{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem}
+.stat-label{font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.stat-val{font-size:24px;font-weight:600}
+.stat-sub{font-size:12px;color:var(--text-secondary);margin-top:4px}
+
+/* OVERLAY */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto}
+.overlay.open{display:flex}
+.panel{background:var(--surface);border-radius:12px;border:.5px solid var(--border);width:100%;max-width:700px;padding:1.5rem;margin:auto}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:.5px solid var(--border)}
+.panel-title{font-size:16px;font-weight:600}
+.panel-close{font-size:20px;cursor:pointer;color:var(--text-muted);background:none;border:none;line-height:1;padding:4px}
+.panel-close:hover{color:var(--text-primary)}
+.panel-note{font-size:12px;color:var(--text-muted);margin-bottom:1.25rem;padding:10px 12px;background:var(--accent-light);border-radius:var(--radius);border-left:3px solid var(--accent-text);line-height:1.6}
+.panel-section{margin-bottom:1.25rem}
+.panel-section-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:10px;padding-bottom:6px;border-bottom:.5px solid var(--border)}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:500px){.field-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;color:var(--text-secondary);font-weight:500}
+.field input{font-size:14px;padding:7px 10px;border-radius:var(--radius);border:.5px solid var(--border-strong);background:var(--bg);color:var(--text-primary);outline:none;transition:border-color .15s}
+.field input:focus{border-color:var(--accent-text)}
+.panel-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;padding-top:1rem;border-top:.5px solid var(--border);flex-wrap:wrap;align-items:center}
+.saved-msg{font-size:12px;color:var(--success);display:none}
+.saved-msg.show{display:block}
+
+/* AI UPLOAD PANEL */
+.upload-zone{border:2px dashed var(--border-strong);border-radius:12px;padding:2rem;text-align:center;cursor:pointer;transition:all .15s;margin-bottom:1rem;position:relative}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent-text);background:var(--accent-light)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-zone-icon{font-size:32px;margin-bottom:8px;color:var(--text-muted)}
+.upload-zone-title{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px}
+.upload-zone-sub{font-size:12px;color:var(--text-muted)}
+.preview-wrap{position:relative;margin-bottom:1rem}
+.preview-wrap img{width:100%;border-radius:var(--radius);border:.5px solid var(--border);max-height:300px;object-fit:contain;background:#f0f0ee}
+.preview-remove{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.ai-status{font-size:13px;padding:10px 14px;border-radius:var(--radius);margin-bottom:1rem;display:none}
+.ai-status.loading{display:block;background:var(--accent-light);color:var(--accent-text)}
+.ai-status.error{display:block;background:var(--danger-bg);color:var(--danger)}
+.ai-status.success{display:block;background:var(--success-bg);color:var(--success)}
+.ai-results{background:var(--bg);border:.5px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;display:none;font-size:13px;line-height:1.6;max-height:200px;overflow-y:auto;color:var(--text-secondary)}
+.ai-results.show{display:block}
+
+.api-key-field{display:flex;flex-direction:column;gap:4px;margin-bottom:1rem}
+.api-key-field label{font-size:12px;color:var(--text-secondary);font-weight:500}
+.api-key-field input{font-size:13px;padding:7px 10px;border-radius:var(--radius);border:.5px solid var(--border-strong);background:var(--bg);color:var(--text-primary);outline:none;font-family:monospace}
+.api-key-field .key-note{font-size:11px;color:var(--text-muted);margin-top:3px}
+
+.tabs{display:flex;gap:0;margin-bottom:1.25rem;border-bottom:.5px solid var(--border)}
+.tab{font-size:13px;font-weight:500;padding:8px 16px;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none}
+.tab.active{color:var(--accent-text);border-bottom-color:var(--accent-text)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.section-tabs{display:flex;gap:4px;margin-bottom:1.25rem;border-bottom:.5px solid var(--border-strong);overflow-x:auto}
+.section-tab{font-size:13px;font-weight:600;padding:9px 14px;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap}
+.section-tab.active{color:var(--accent-text);border-bottom-color:var(--accent-text)}
+.section-tab:hover:not(.active){color:var(--text-primary)}
+.section{display:none}
+.section.active{display:block}
+
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
+.section-title{font-size:15px;font-weight:600}
+.section-sub{font-size:12px;color:var(--text-muted);margin-top:2px}
+
+.table-card{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:1rem;overflow-x:auto;margin-bottom:12px}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+.data-table th{text-align:left;padding:8px 10px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);border-bottom:1px solid var(--border-strong);white-space:nowrap}
+.data-table td{padding:9px 10px;border-bottom:.5px solid var(--border);color:var(--text-secondary);white-space:nowrap}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr.row-warn td{background:var(--warning-bg)}
+.data-table tr.row-danger td{background:var(--danger-bg)}
+.data-table .row-actions{display:flex;gap:6px}
+.icon-btn{background:none;border:none;cursor:pointer;color:var(--text-muted);padding:3px;border-radius:4px;display:flex}
+.icon-btn:hover{color:var(--accent-text);background:var(--accent-light)}
+.icon-btn.danger:hover{color:var(--danger);background:var(--danger-bg)}
+.empty-row td{text-align:center;color:var(--text-muted);padding:1.5rem;font-style:italic}
+
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-success{background:var(--success-bg);color:var(--success)}
+.badge-warning{background:var(--warning-bg);color:var(--warning)}
+.badge-danger{background:var(--danger-bg);color:var(--danger)}
+.badge-neutral{background:var(--bg);color:var(--text-secondary);border:.5px solid var(--border-strong)}
+.badge-accent{background:var(--accent-light);color:var(--accent-text)}
+
+.mini-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:1rem}
+@media(max-width:700px){.mini-tiles{grid-template-columns:repeat(2,1fr)}}
+.mini-tile{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:1rem}
+.mini-tile-label{font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.mini-tile-val{font-size:26px;font-weight:600;line-height:1}
+.mini-tile-sub{font-size:12px;margin-top:6px}
+
+.select{font-size:13px;padding:7px 10px;border-radius:var(--radius);border:.5px solid var(--border-strong);background:var(--bg);color:var(--text-primary);outline:none;width:100%}
+textarea.ta{font-size:13px;padding:7px 10px;border-radius:var(--radius);border:.5px solid var(--border-strong);background:var(--bg);color:var(--text-primary);outline:none;width:100%;resize:vertical;min-height:60px;font-family:var(--font)}
+
+.footer{margin-top:2rem;padding-top:1rem;border-top:.5px solid var(--border);font-size:12px;color:var(--text-muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+
+@media print{
+  body{background:white}
+  .btn,.filter-bar,.overlay,.info-bar button,.section-tabs,.icon-btn,.add-row-btn{display:none!important}
+  .page{padding:1rem}
+  .tiles{grid-template-columns:repeat(4,1fr)!important}
+  .charts-row{grid-template-columns:55% calc(45% - 12px)!important}
+  .bottom-strip{grid-template-columns:repeat(3,1fr)!important}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div>
+      <div class="header-title">Marketing &amp; Sales Dashboard</div>
+      <div class="header-meta">Topside Construction Inc. dba Topside Roofing, Siding &amp; Gutters &nbsp;·&nbsp; Whatcom, Skagit, Island &amp; San Juan Counties, WA &nbsp;·&nbsp; <span id="updated-date"></span></div>
+    </div>
+    <div class="header-right">
+      <span class="badge-live">Live</span>
+      <button class="btn btn-ai" onclick="openPanel('ai')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        Upload screenshot
+      </button>
+      <button class="btn" onclick="openPanel('manual')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Manual entry
+      </button>
+      <button class="btn" onclick="window.print()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Print / PDF
+      </button>
+    </div>
+  </div>
+
+  <div class="section-tabs" id="section-tabs">
+    <button class="section-tab active" data-sec="overview" onclick="switchSection('overview')">Overview</button>
+    <button class="section-tab" data-sec="budget" onclick="switchSection('budget')">Budget vs. Spend</button>
+    <button class="section-tab" data-sec="campaigns" onclick="switchSection('campaigns')">Active Campaigns</button>
+    <button class="section-tab" data-sec="seo" onclick="switchSection('seo')">SEO &amp; Rankings</button>
+    <button class="section-tab" data-sec="followup" onclick="switchSection('followup')">Lead Follow-Up</button>
+    <button class="section-tab" data-sec="planner" onclick="switchSection('planner')">Campaign Planner</button>
+  </div>
+
+  <div id="info-bar" class="info-bar" style="display:none">
+    <span id="info-bar-text"></span>
+    <button class="btn" style="padding:3px 10px;font-size:11px" onclick="openPanel('manual')">Edit manually</button>
+  </div>
+
+  <div class="section active" id="sec-overview">
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="setRange(this,'30d')">Last 30 days</button>
+    <button class="filter-btn" onclick="setRange(this,'90d')">Last 90 days</button>
+    <button class="filter-btn" onclick="setRange(this,'ytd')">YTD</button>
+    <button class="filter-btn" onclick="setRange(this,'all')">All time</button>
+  </div>
+
+  <div class="tiles">
+    <div class="tile">
+      <div class="tile-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        New leads
+      </div>
+      <div class="tile-num" id="t-leads">—</div>
+      <div class="tile-sub neutral" id="t-leads-sub"></div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        In progress
+      </div>
+      <div class="tile-num" id="t-inprog">—</div>
+      <div class="tile-sub neutral">Estimates &amp; follow-ups</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Needs attention
+      </div>
+      <div class="tile-num" id="t-stuck">—</div>
+      <div class="tile-sub warn">No contact 7+ days</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Booked / won
+      </div>
+      <div class="tile-num" id="t-booked">—</div>
+      <div class="tile-sub up" id="t-booked-sub"></div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg>
+        Leads by source
+      </div>
+      <div class="legend" id="pie-legend"></div>
+      <div style="position:relative;height:200px"><canvas id="pieChart" role="img" aria-label="Leads by source"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+        Estimated revenue by channel
+      </div>
+      <div style="position:relative;height:240px"><canvas id="barChart" role="img" aria-label="Revenue by channel"></canvas></div>
+    </div>
+  </div>
+
+  <div class="bottom-strip">
+    <div class="stat-card">
+      <div class="stat-label">Avg. cost per lead</div>
+      <div class="stat-val" id="s-cpl">—</div>
+      <div class="stat-sub">Google Ads + LSA combined</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Close rate</div>
+      <div class="stat-val" id="s-close">—</div>
+      <div class="stat-sub">Leads → booked jobs</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Est. pipeline value</div>
+      <div class="stat-val" id="s-pipeline">—</div>
+      <div class="stat-sub">In-progress leads</div>
+    </div>
+  </div>
+
+  </div>
+  <!-- /Overview -->
+
+  <div class="section" id="sec-budget">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Marketing Budget vs. Actual Spend</div>
+        <div class="section-sub" id="budget-period-label">Set your monthly budget and log actual spend per channel</div>
+      </div>
+      <button class="btn btn-primary add-row-btn" onclick="openBudgetForm()">Set budget &amp; spend</button>
+    </div>
+
+    <div class="mini-tiles">
+      <div class="mini-tile"><div class="mini-tile-label">Monthly budget</div><div class="mini-tile-val" id="b-budget">—</div></div>
+      <div class="mini-tile"><div class="mini-tile-label">Spent MTD</div><div class="mini-tile-val" id="b-spent">—</div></div>
+      <div class="mini-tile"><div class="mini-tile-label">Remaining</div><div class="mini-tile-val" id="b-remaining">—</div></div>
+      <div class="mini-tile"><div class="mini-tile-label">% of budget used</div><div class="mini-tile-val" id="b-pct">—</div><div class="mini-tile-sub" id="b-pct-badge"></div></div>
+    </div>
+
+    <div class="table-card">
+      <table class="data-table">
+        <thead><tr><th>Channel</th><th>Budgeted</th><th>Spent</th><th>Variance</th><th>% Used</th></tr></thead>
+        <tbody id="budget-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="sec-campaigns">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Active Ads &amp; Campaigns</div>
+        <div class="section-sub">What's running right now across every channel</div>
+      </div>
+      <button class="btn btn-primary add-row-btn" onclick="openRowForm('campaign')">+ Add campaign</button>
+    </div>
+    <div class="table-card">
+      <table class="data-table">
+        <thead><tr><th>Campaign</th><th>Channel</th><th>Status</th><th>Start</th><th>End</th><th>Budget</th><th>Spend to date</th><th></th></tr></thead>
+        <tbody id="campaigns-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="sec-seo">
+    <div class="section-header">
+      <div>
+        <div class="section-title">SEO, Google Ranking &amp; Keywords</div>
+        <div class="section-sub">Tracked keyword rankings across Google organic &amp; local pack</div>
+      </div>
+      <button class="btn btn-primary add-row-btn" onclick="openRowForm('seo')">+ Add keyword</button>
+    </div>
+    <div class="table-card">
+      <table class="data-table">
+        <thead><tr><th>Keyword</th><th>Google rank</th><th>Local pack rank</th><th>Trend</th><th>Search volume</th><th>Target URL</th><th>Last checked</th><th></th></tr></thead>
+        <tbody id="seo-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="sec-followup">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Potential Leads — Needs Follow-Up</div>
+        <div class="section-sub">Leads that still need a call, quote, or check-in from Jessica or the office</div>
+      </div>
+      <button class="btn btn-primary add-row-btn" onclick="openRowForm('lead')">+ Add lead</button>
+    </div>
+    <div class="table-card">
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Contact</th><th>Source</th><th>Date in</th><th>Assigned to</th><th>Status</th><th>Last contact</th><th></th></tr></thead>
+        <tbody id="followup-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="sec-planner">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Campaign Planner — 7+ Day Lead Time</div>
+        <div class="section-sub">Every campaign must be planned at least 7 days before launch for review &amp; edits</div>
+      </div>
+      <button class="btn btn-primary add-row-btn" onclick="openRowForm('plan')">+ Plan campaign</button>
+    </div>
+    <div class="mini-tiles">
+      <div class="mini-tile"><div class="mini-tile-label">Planned campaigns</div><div class="mini-tile-val" id="p-total">—</div></div>
+      <div class="mini-tile"><div class="mini-tile-label">Next launch</div><div class="mini-tile-val" id="p-next">—</div></div>
+      <div class="mini-tile"><div class="mini-tile-label">Under 7-day lead time</div><div class="mini-tile-val" id="p-atrisk">—</div><div class="mini-tile-sub warn">Needs immediate attention</div></div>
+      <div class="mini-tile"><div class="mini-tile-label">Ready to launch</div><div class="mini-tile-val" id="p-ready">—</div></div>
+    </div>
+    <div class="table-card">
+      <table class="data-table">
+        <thead><tr><th>Campaign</th><th>Channel</th><th>Planned start</th><th>Lead time</th><th>Budget</th><th>Status</th><th></th></tr></thead>
+        <tbody id="planner-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Topside Construction Inc. &nbsp;·&nbsp; Prepared by Jessica &nbsp;·&nbsp; Confidential</span>
+    <span id="footer-date"></span>
+  </div>
+</div>
+
+<!-- PANEL OVERLAY -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+<div class="panel" id="main-panel">
+  <div class="panel-header">
+    <div class="panel-title" id="panel-title">Update dashboard</div>
+    <button class="panel-close" onclick="closePanel()">&#x2715;</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-ai" onclick="switchTab('ai')">
+      &#128247; Upload screenshot
+    </button>
+    <button class="tab" id="tab-manual" onclick="switchTab('manual')">
+      &#9998; Manual entry
+    </button>
+  </div>
+
+  <!-- AI TAB -->
+  <div class="tab-panel active" id="tp-ai">
+    <div class="panel-note">
+      Upload a screenshot from CallRail, Google Ads, LSA, Marketing 360, or any report. Claude will read the image and extract the numbers into the dashboard automatically. Accepts PNG, JPG, or PDF screenshot.
+    </div>
+
+    <div class="api-key-field">
+      <label>Anthropic API key (required for AI extraction)</label>
+      <input type="password" id="api-key-input" placeholder="sk-ant-..." autocomplete="off">
+      <div class="key-note">Your key is only used in your browser — never sent anywhere except directly to api.anthropic.com. Save it in the file by checking the box below.</div>
+      <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px;cursor:pointer">
+        <input type="checkbox" id="save-key-chk"> Remember key in this file (stored locally only)
+      </label>
+    </div>
+
+    <div id="upload-zone" class="upload-zone" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+      <input type="file" accept="image/*,.pdf" onchange="fileSelected(event)" id="file-input">
+      <div class="upload-zone-icon">&#128247;</div>
+      <div class="upload-zone-title">Drop screenshot here or click to browse</div>
+      <div class="upload-zone-sub">CallRail · Google Ads · LSA · Marketing 360 · Any report screenshot</div>
+    </div>
+
+    <div class="preview-wrap" id="preview-wrap" style="display:none">
+      <img id="preview-img" src="" alt="Uploaded screenshot preview">
+      <button class="preview-remove" onclick="clearImage()" title="Remove image">&#x2715;</button>
+    </div>
+
+    <div class="ai-status" id="ai-status"></div>
+    <div class="ai-results" id="ai-results"></div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+      <button class="btn" onclick="closePanel()">Cancel</button>
+      <button class="btn btn-ai" id="extract-btn" onclick="extractFromImage()" disabled>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Extract &amp; update dashboard
+      </button>
+    </div>
+  </div>
+
+  <!-- MANUAL TAB -->
+  <div class="tab-panel" id="tp-manual">
+    <div class="panel-note">
+      Enter numbers from your reports, screenshots, or exports. Leave any field blank to keep the current value.
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-section-title">Lead counts</div>
+      <div class="field-grid">
+        <div class="field"><label>New leads (total)</label><input type="number" id="f-leads" placeholder="e.g. 24"></div>
+        <div class="field"><label>In progress</label><input type="number" id="f-inprog" placeholder="e.g. 11"></div>
+        <div class="field"><label>Needs attention / stuck</label><input type="number" id="f-stuck" placeholder="e.g. 4"></div>
+        <div class="field"><label>Booked / won</label><input type="number" id="f-booked" placeholder="e.g. 9"></div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-section-title">Leads by source</div>
+      <div class="field-grid">
+        <div class="field"><label>Google Ads leads</label><input type="number" id="f-ads" placeholder="e.g. 8"></div>
+        <div class="field"><label>LSA leads</label><input type="number" id="f-lsa" placeholder="e.g. 6"></div>
+        <div class="field"><label>Organic SEO leads</label><input type="number" id="f-organic" placeholder="e.g. 4"></div>
+        <div class="field"><label>Referral leads</label><input type="number" id="f-referral" placeholder="e.g. 3"></div>
+        <div class="field"><label>Google Business Profile</label><input type="number" id="f-gbp" placeholder="e.g. 3"></div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-section-title">Revenue estimates</div>
+      <div class="field-grid">
+        <div class="field"><label>Google Ads revenue ($)</label><input type="number" id="f-rev-ads" placeholder="e.g. 42000"></div>
+        <div class="field"><label>LSA revenue ($)</label><input type="number" id="f-rev-lsa" placeholder="e.g. 31500"></div>
+        <div class="field"><label>Organic revenue ($)</label><input type="number" id="f-rev-organic" placeholder="e.g. 21000"></div>
+        <div class="field"><label>Referral revenue ($)</label><input type="number" id="f-rev-referral" placeholder="e.g. 15750"></div>
+        <div class="field"><label>GBP revenue ($)</label><input type="number" id="f-rev-gbp" placeholder="e.g. 9750"></div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-section-title">Summary metrics</div>
+      <div class="field-grid">
+        <div class="field"><label>Avg. cost per lead ($)</label><input type="number" id="f-cpl" placeholder="e.g. 185"></div>
+        <div class="field"><label>Pipeline value ($)</label><input type="number" id="f-pipeline" placeholder="e.g. 57750"></div>
+        <div class="field"><label>Period label</label><input type="text" id="f-period" placeholder="e.g. June 2026" maxlength="40"></div>
+      </div>
+    </div>
+
+    <div class="panel-actions">
+      <span class="saved-msg" id="saved-msg">&#10003; Saved</span>
+      <button class="btn" onclick="closePanel()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveManual()">Save &amp; refresh dashboard</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- GENERIC ROW FORM MODAL (campaigns / seo / leads / planner / budget) -->
+<div class="overlay" id="overlay2" onclick="overlayClick2(event)">
+<div class="panel" id="row-panel" style="max-width:560px">
+  <div class="panel-header">
+    <div class="panel-title" id="row-panel-title">Add item</div>
+    <button class="panel-close" onclick="closeRowForm()">&#x2715;</button>
+  </div>
+  <div id="row-panel-note" class="panel-note" style="display:none"></div>
+  <div class="panel-section">
+    <div class="field-grid" id="row-fields"></div>
+  </div>
+  <div class="panel-actions">
+    <button class="btn" id="row-delete-btn" style="display:none;color:var(--danger);border-color:var(--danger)" onclick="deleteCurrentRow()">Delete</button>
+    <button class="btn" onclick="closeRowForm()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveRowForm()">Save</button>
+  </div>
+</div>
+</div>
+
+<script>
+const COLORS = ['#2a78d6','#1baf7a','#eda100','#4a3aa7','#e34948'];
+const SK = 'topside_dash_v2';
+let pieChart, barChart, currentImageBase64 = null, currentImageType = null;
+
+const DEFAULTS = {
+  leads:null,inprog:null,stuck:null,booked:null,
+  ads:null,lsa:null,organic:null,referral:null,gbp:null,
+  revAds:null,revLsa:null,revOrganic:null,revReferral:null,revGbp:null,
+  cpl:null,pipeline:null,period:'',savedAt:null
+};
+
+function store(obj){ try{ localStorage.setItem(SK, JSON.stringify(obj)); }catch(e){} }
+function load(){ try{ const r=localStorage.getItem(SK); return r?Object.assign({},DEFAULTS,JSON.parse(r)):Object.assign({},DEFAULTS); }catch(e){ return Object.assign({},DEFAULTS); } }
+function storeKey(k){ try{ localStorage.setItem('topside_apikey',k); }catch(e){} }
+function loadKey(){ try{ return localStorage.getItem('topside_apikey')||''; }catch(e){ return ''; } }
+
+function render(d){
+  const cr = (d.leads&&d.booked) ? ((d.booked/d.leads)*100).toFixed(1) : null;
+  document.getElementById('t-leads').textContent = d.leads??'—';
+  document.getElementById('t-inprog').textContent = d.inprog??'—';
+  document.getElementById('t-stuck').textContent = d.stuck??'—';
+  document.getElementById('t-booked').textContent = d.booked??'—';
+  document.getElementById('t-leads-sub').textContent = d.period||'';
+  document.getElementById('t-booked-sub').textContent = cr ? cr+'% close rate' : '';
+  document.getElementById('s-cpl').textContent = d.cpl ? '$'+Number(d.cpl).toLocaleString() : '—';
+  document.getElementById('s-close').textContent = cr ? cr+'%' : '—';
+  document.getElementById('s-pipeline').textContent = d.pipeline ? '$'+Number(d.pipeline).toLocaleString() : '—';
+
+  const pl = ['Google Ads','LSA','Organic SEO','Referral','GBP'];
+  const pd = [d.ads||0,d.lsa||0,d.organic||0,d.referral||0,d.gbp||0];
+  const tot = pd.reduce((a,b)=>a+b,0);
+  document.getElementById('pie-legend').innerHTML = pl.map((l,i)=>
+    `<span class="legend-item"><span class="legend-dot" style="background:${COLORS[i]}"></span>${l} ${tot>0?Math.round(pd[i]/tot*100):0}%</span>`
+  ).join('');
+
+  if(pieChart) pieChart.destroy();
+  pieChart = new Chart(document.getElementById('pieChart'),{
+    type:'doughnut',
+    data:{labels:pl,datasets:[{data:pd,backgroundColor:COLORS,borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed}`}}}}
+  });
+
+  const bl = ['Google Ads','LSA','Organic','Referral','GBP'];
+  const bd = [d.revAds||0,d.revLsa||0,d.revOrganic||0,d.revReferral||0,d.revGbp||0];
+  if(barChart) barChart.destroy();
+  barChart = new Chart(document.getElementById('barChart'),{
+    type:'bar',
+    data:{labels:bl,datasets:[{data:bd,backgroundColor:COLORS,borderRadius:4,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' $'+ctx.parsed.x.toLocaleString()}}},
+      scales:{x:{grid:{color:'#e8e7e3'},ticks:{color:'#898781',font:{size:11},callback:v=>'$'+(v/1000).toFixed(0)+'k'}},y:{grid:{display:false},ticks:{color:'#52514e',font:{size:12}}}}}
+  });
+
+  if(d.savedAt){
+    const dt = new Date(d.savedAt);
+    document.getElementById('info-bar-text').textContent =
+      'Data last updated: '+dt.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+' at '+dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    document.getElementById('info-bar').style.display='flex';
+  }
+}
+
+function openPanel(tab){
+  const d = load();
+  // prefill manual
+  const map = {
+    'f-leads':'leads','f-inprog':'inprog','f-stuck':'stuck','f-booked':'booked',
+    'f-ads':'ads','f-lsa':'lsa','f-organic':'organic','f-referral':'referral','f-gbp':'gbp',
+    'f-rev-ads':'revAds','f-rev-lsa':'revLsa','f-rev-organic':'revOrganic',
+    'f-rev-referral':'revReferral','f-rev-gbp':'revGbp','f-cpl':'cpl','f-pipeline':'pipeline'
+  };
+  for(const [id,key] of Object.entries(map)){
+    const el = document.getElementById(id);
+    if(el) el.value = d[key]||'';
+  }
+  document.getElementById('f-period').value = d.period||'';
+  // prefill api key
+  const savedKey = loadKey();
+  if(savedKey) document.getElementById('api-key-input').value = savedKey;
+  document.getElementById('save-key-chk').checked = !!savedKey;
+  switchTab(tab||'ai');
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closePanel(){ document.getElementById('overlay').classList.remove('open'); }
+function overlayClick(e){ if(e.target===document.getElementById('overlay')) closePanel(); }
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('tp-'+tab).classList.add('active');
+}
+
+function setRange(btn){ document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+
+function switchSection(sec){
+  document.querySelectorAll('.section-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelector(`.section-tab[data-sec="${sec}"]`).classList.add('active');
+  document.getElementById('sec-'+sec).classList.add('active');
+}
+
+// ── FILE HANDLING ──
+function dragOver(e){ e.preventDefault(); document.getElementById('upload-zone').classList.add('drag'); }
+function dragLeave(){ document.getElementById('upload-zone').classList.remove('drag'); }
+function dropFile(e){
+  e.preventDefault();
+  dragLeave();
+  const f = e.dataTransfer.files[0];
+  if(f) handleFile(f);
+}
+function fileSelected(e){ const f=e.target.files[0]; if(f) handleFile(f); }
+
+function handleFile(file){
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const dataUrl = e.target.result;
+    const base64 = dataUrl.split(',')[1];
+    currentImageBase64 = base64;
+    currentImageType = file.type||'image/png';
+    document.getElementById('preview-img').src = dataUrl;
+    document.getElementById('preview-wrap').style.display='block';
+    document.getElementById('upload-zone').style.display='none';
+    document.getElementById('extract-btn').disabled=false;
+    setAIStatus('','');
+    document.getElementById('ai-results').classList.remove('show');
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImage(){
+  currentImageBase64=null; currentImageType=null;
+  document.getElementById('preview-wrap').style.display='none';
+  document.getElementById('upload-zone').style.display='block';
+  document.getElementById('file-input').value='';
+  document.getElementById('extract-btn').disabled=true;
+  setAIStatus('','');
+  document.getElementById('ai-results').classList.remove('show');
+}
+
+function setAIStatus(type, msg){
+  const el = document.getElementById('ai-status');
+  el.className = 'ai-status' + (type?' '+type:'');
+  el.textContent = msg;
+}
+
+// ── AI EXTRACTION ──
+async function extractFromImage(){
+  const apiKey = document.getElementById('api-key-input').value.trim();
+  if(!apiKey){ setAIStatus('error','Please enter your Anthropic API key above.'); return; }
+  if(!currentImageBase64){ setAIStatus('error','Please upload a screenshot first.'); return; }
+  if(document.getElementById('save-key-chk').checked) storeKey(apiKey);
+
+  const btn = document.getElementById('extract-btn');
+  btn.disabled = true;
+  setAIStatus('loading','Reading screenshot with Claude AI — this takes a few seconds...');
+  document.getElementById('ai-results').classList.remove('show');
+
+  const prompt = `You are a data extraction assistant for a roofing and exteriors contractor (Topside Roofing, serving Whatcom, Skagit, Island & San Juan Counties, WA). 
+Analyze this screenshot from a marketing or sales report and extract every relevant metric you can find.
+
+Return ONLY a valid JSON object (no markdown, no explanation) with these exact keys (use null for any you cannot find):
+{
+  "leads": <total new leads or calls>,
+  "inprog": <leads in progress / active estimates / active opportunities>,
+  "stuck": <leads needing attention / no contact / stale>,
+  "booked": <booked jobs / won deals / closed>,
+  "ads": <Google Ads leads/calls>,
+  "lsa": <LSA / Local Services Ads leads>,
+  "organic": <organic search / SEO leads>,
+  "referral": <referral leads>,
+  "gbp": <Google Business Profile leads>,
+  "revAds": <Google Ads estimated revenue in dollars, number only>,
+  "revLsa": <LSA estimated revenue in dollars, number only>,
+  "revOrganic": <organic revenue in dollars, number only>,
+  "revReferral": <referral revenue in dollars, number only>,
+  "revGbp": <GBP revenue in dollars, number only>,
+  "cpl": <average cost per lead in dollars, number only>,
+  "pipeline": <total pipeline value in dollars, number only>,
+  "period": <time period this data covers as a short string, e.g. "June 2026" or "Last 30 days">
+}
+
+Only return the JSON object. No other text.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        messages:[{
+          role:'user',
+          content:[
+            { type:'image', source:{ type:'base64', media_type: currentImageType, data: currentImageBase64 } },
+            { type:'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    if(!resp.ok){
+      const err = await resp.json().catch(()=>({}));
+      setAIStatus('error', 'API error: '+(err.error?.message||resp.status+' '+resp.statusText));
+      btn.disabled=false;
+      return;
+    }
+
+    const data = await resp.json();
+    const raw = data.content?.map(c=>c.text||'').join('').trim();
+    const clean = raw.replace(/```json|```/g,'').trim();
+
+    let extracted;
+    try { extracted = JSON.parse(clean); }
+    catch(e){
+      setAIStatus('error','Claude returned unexpected output. Try a clearer screenshot.');
+      document.getElementById('ai-results').textContent = raw;
+      document.getElementById('ai-results').classList.add('show');
+      btn.disabled=false;
+      return;
+    }
+
+    // show summary
+    const lines = Object.entries(extracted)
+      .filter(([,v])=>v!==null)
+      .map(([k,v])=>`${k}: ${v}`)
+      .join(' · ');
+    document.getElementById('ai-results').textContent = 'Extracted: '+lines;
+    document.getElementById('ai-results').classList.add('show');
+
+    // merge with existing data and save
+    const existing = load();
+    const merged = Object.assign({}, existing);
+    for(const [k,v] of Object.entries(extracted)){
+      if(v!==null && v!==undefined) merged[k] = v;
+    }
+    merged.savedAt = new Date().toISOString();
+    store(merged);
+    setAIStatus('success','Dashboard updated from screenshot!');
+    render(merged);
+    setTimeout(()=>closePanel(), 1800);
+
+  } catch(e){
+    setAIStatus('error','Network error: '+e.message);
+    btn.disabled=false;
+  }
+}
+
+// ── MANUAL SAVE ──
+function saveManual(){
+  const d = load();
+  const numFields = {
+    'f-leads':'leads','f-inprog':'inprog','f-stuck':'stuck','f-booked':'booked',
+    'f-ads':'ads','f-lsa':'lsa','f-organic':'organic','f-referral':'referral','f-gbp':'gbp',
+    'f-rev-ads':'revAds','f-rev-lsa':'revLsa','f-rev-organic':'revOrganic',
+    'f-rev-referral':'revReferral','f-rev-gbp':'revGbp','f-cpl':'cpl','f-pipeline':'pipeline'
+  };
+  for(const [id,key] of Object.entries(numFields)){
+    const v=document.getElementById(id).value.trim();
+    if(v!=='') d[key]=parseFloat(v);
+  }
+  const p=document.getElementById('f-period').value.trim();
+  if(p) d.period=p;
+  d.savedAt=new Date().toISOString();
+  store(d);
+  const msg=document.getElementById('saved-msg');
+  msg.classList.add('show');
+  setTimeout(()=>msg.classList.remove('show'),2200);
+  closePanel();
+  render(d);
+}
+
+// ══════════════════════════════════════════════
+// NEW SECTIONS: Budget, Campaigns, SEO, Follow-Up, Planner
+// ══════════════════════════════════════════════
+const BK = 'topside_budget_v1';
+const CK = 'topside_campaigns_v1';
+const SK2 = 'topside_seo_v1';
+const LK = 'topside_leads_queue_v1';
+const PK = 'topside_planner_v1';
+
+const CHANNELS = ['Google Ads','LSA','SEO / Organic','GBP','Referral','Social','Email','Marketing 360','Other'];
+const ASSIGNEES = ['Jessica','Phil','Office','Carson Engholm','Dustin Suiter','Duane Vander Molen','Braedan York','Ashley Anderson'];
+const LEAD_STATUSES = ['New','Contacted','Quote sent','Scheduled','Won','Lost'];
+const CAMPAIGN_STATUSES = ['Active','Paused','Ended'];
+const PLAN_STATUSES = ['Draft','Ready for review','Approved','Scheduled'];
+
+function loadArr(key){ try{ const r=localStorage.getItem(key); return r?JSON.parse(r):[]; }catch(e){ return []; } }
+function storeArr(key,arr){ try{ localStorage.setItem(key, JSON.stringify(arr)); }catch(e){} }
+function loadBudget(){ try{ const r=localStorage.getItem(BK); return r?JSON.parse(r):null; }catch(e){ return null; } }
+function storeBudget(obj){ try{ localStorage.setItem(BK, JSON.stringify(obj)); }catch(e){} }
+function uid(){ return 'r'+Date.now()+Math.random().toString(16).slice(2,6); }
+function fmtMoney(n){ return n||n===0 ? '$'+Number(n).toLocaleString() : '—'; }
+function daysUntil(dateStr){ if(!dateStr) return null; const d=new Date(dateStr+'T00:00:00'); const now=new Date(); now.setHours(0,0,0,0); return Math.round((d-now)/86400000); }
+
+// ── BUDGET ──
+function renderBudget(){
+  const b = loadBudget();
+  const tbody = document.getElementById('budget-table-body');
+  if(!b){
+    document.getElementById('b-budget').textContent='—';
+    document.getElementById('b-spent').textContent='—';
+    document.getElementById('b-remaining').textContent='—';
+    document.getElementById('b-pct').textContent='—';
+    document.getElementById('b-pct-badge').innerHTML='';
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No budget set yet — click "Set budget &amp; spend" to get started.</td></tr>';
+    return;
+  }
+  const totalBudget = Number(b.monthlyBudget)||0;
+  const rows = CHANNELS.map(ch=>({ch, spend: Number(b['spend_'+ch])||0, alloc: Number(b['alloc_'+ch])||0 }));
+  const totalSpend = rows.reduce((a,r)=>a+r.spend,0);
+  const remaining = totalBudget - totalSpend;
+  const pct = totalBudget>0 ? Math.round((totalSpend/totalBudget)*100) : 0;
+
+  document.getElementById('b-budget').textContent = fmtMoney(totalBudget);
+  document.getElementById('b-spent').textContent = fmtMoney(totalSpend);
+  document.getElementById('b-remaining').textContent = fmtMoney(remaining);
+  document.getElementById('b-pct').textContent = pct+'%';
+  const badge = document.getElementById('b-pct-badge');
+  if(pct>=100) badge.innerHTML = '<span class="badge badge-danger">Over budget</span>';
+  else if(pct>=90) badge.innerHTML = '<span class="badge badge-warning">Near limit</span>';
+  else badge.innerHTML = '<span class="badge badge-success">On track</span>';
+  document.getElementById('budget-period-label').textContent = b.period ? 'Period: '+b.period : 'Set your monthly budget and log actual spend per channel';
+
+  const active = rows.filter(r=>r.spend>0 || r.alloc>0);
+  tbody.innerHTML = (active.length? active : rows.filter(r=>r.ch!=='Other')).map(r=>{
+    const variance = r.alloc - r.spend;
+    const usedPct = r.alloc>0 ? Math.round((r.spend/r.alloc)*100) : (r.spend>0?100:0);
+    const cls = usedPct>=100 && r.alloc>0 ? 'row-danger' : (usedPct>=90 && r.alloc>0 ? 'row-warn' : '');
+    return `<tr class="${cls}"><td>${r.ch}</td><td>${r.alloc?fmtMoney(r.alloc):'—'}</td><td>${fmtMoney(r.spend)}</td><td>${r.alloc?fmtMoney(variance):'—'}</td><td>${r.alloc?usedPct+'%':'—'}</td></tr>`;
+  }).join('') || '<tr class="empty-row"><td colspan="5">No channel spend logged yet.</td></tr>';
+}
+
+function openBudgetForm(){
+  const b = loadBudget()||{};
+  document.getElementById('row-panel-title').textContent = 'Set monthly budget & spend';
+  document.getElementById('row-panel-note').style.display='block';
+  document.getElementById('row-panel-note').textContent = 'Enter your total monthly marketing budget, then log allocated budget and actual spend per channel. Leave a channel blank if unused.';
+  const fields = document.getElementById('row-fields');
+  let html = `
+    <div class="field" style="grid-column:1/-1"><label>Total monthly marketing budget ($)</label><input class="rf" id="rf-monthlyBudget" type="number" value="${b.monthlyBudget||''}"></div>
+    <div class="field" style="grid-column:1/-1"><label>Period label</label><input class="rf" id="rf-period" type="text" placeholder="e.g. July 2026" value="${b.period||''}"></div>`;
+  CHANNELS.forEach(ch=>{
+    html += `<div class="field"><label>${ch} — budgeted ($)</label><input class="rf" id="rf-alloc_${ch}" type="number" value="${b['alloc_'+ch]||''}"></div>
+             <div class="field"><label>${ch} — spent ($)</label><input class="rf" id="rf-spend_${ch}" type="number" value="${b['spend_'+ch]||''}"></div>`;
+  });
+  fields.innerHTML = html;
+  document.getElementById('row-delete-btn').style.display='none';
+  currentRowType='budget'; currentRowId=null;
+  document.getElementById('overlay2').classList.add('open');
+}
+
+// ── GENERIC TABLE CRUD ──
+let currentRowType=null, currentRowId=null;
+
+const FIELD_DEFS = {
+  campaign: [
+    {id:'name',label:'Campaign name',type:'text',span:2},
+    {id:'channel',label:'Channel',type:'select',opts:CHANNELS},
+    {id:'status',label:'Status',type:'select',opts:CAMPAIGN_STATUSES},
+    {id:'startDate',label:'Start date',type:'date'},
+    {id:'endDate',label:'End date',type:'date'},
+    {id:'budget',label:'Budget ($)',type:'number'},
+    {id:'spend',label:'Spend to date ($)',type:'number'},
+    {id:'notes',label:'Notes',type:'textarea',span:2}
+  ],
+  seo: [
+    {id:'keyword',label:'Keyword / search term',type:'text',span:2},
+    {id:'googleRank',label:'Google organic rank (#)',type:'number'},
+    {id:'localRank',label:'Local pack rank (#)',type:'number'},
+    {id:'prevRank',label:'Previous rank (#, optional)',type:'number'},
+    {id:'volume',label:'Monthly search volume',type:'number'},
+    {id:'url',label:'Target URL',type:'text',span:2},
+    {id:'lastChecked',label:'Last checked',type:'date'}
+  ],
+  lead: [
+    {id:'name',label:'Lead name',type:'text'},
+    {id:'contact',label:'Phone / email',type:'text'},
+    {id:'source',label:'Source',type:'select',opts:CHANNELS},
+    {id:'dateReceived',label:'Date received',type:'date'},
+    {id:'assignedTo',label:'Assigned to',type:'select',opts:ASSIGNEES},
+    {id:'status',label:'Status',type:'select',opts:LEAD_STATUSES},
+    {id:'lastContact',label:'Last contact date',type:'date'},
+    {id:'notes',label:'Notes',type:'textarea',span:2}
+  ],
+  plan: [
+    {id:'name',label:'Campaign name',type:'text',span:2},
+    {id:'channel',label:'Channel',type:'select',opts:CHANNELS},
+    {id:'plannedStart',label:'Planned start date',type:'date'},
+    {id:'budget',label:'Planned budget ($)',type:'number'},
+    {id:'status',label:'Status',type:'select',opts:PLAN_STATUSES},
+    {id:'notes',label:'Strategy notes / creative brief',type:'textarea',span:2}
+  ]
+};
+
+function buildFieldHTML(def, val){
+  const spanStyle = def.span===2 ? 'style="grid-column:1/-1"' : '';
+  if(def.type==='select'){
+    const opts = def.opts.map(o=>`<option value="${o}" ${val===o?'selected':''}>${o}</option>`).join('');
+    return `<div class="field" ${spanStyle}><label>${def.label}</label><select class="rf select" id="rf-${def.id}"><option value="">—</option>${opts}</select></div>`;
+  }
+  if(def.type==='textarea'){
+    return `<div class="field" ${spanStyle}><label>${def.label}</label><textarea class="rf ta" id="rf-${def.id}">${val||''}</textarea></div>`;
+  }
+  return `<div class="field" ${spanStyle}><label>${def.label}</label><input class="rf" id="rf-${def.id}" type="${def.type}" value="${val||''}"></div>`;
+}
+
+const TYPE_LABELS = {campaign:'campaign', seo:'keyword', lead:'lead', plan:'planned campaign'};
+const TYPE_KEYS = {campaign:CK, seo:SK2, lead:LK, plan:PK};
+
+function openRowForm(type, id){
+  currentRowType = type; currentRowId = id||null;
+  const defs = FIELD_DEFS[type];
+  const arr = loadArr(TYPE_KEYS[type]);
+  const existing = id ? arr.find(r=>r.id===id) : {};
+  document.getElementById('row-panel-title').textContent = (id?'Edit ':'Add ') + TYPE_LABELS[type];
+  document.getElementById('row-panel-note').style.display = type==='plan' ? 'block' : 'none';
+  if(type==='plan') document.getElementById('row-panel-note').textContent = 'Plan every campaign at least 7 days before its launch date so there\'s time to review, edit, and approve creative before it goes live.';
+  document.getElementById('row-fields').innerHTML = defs.map(d=>buildFieldHTML(d, existing[d.id])).join('');
+  document.getElementById('row-delete-btn').style.display = id ? 'inline-flex' : 'none';
+  document.getElementById('overlay2').classList.add('open');
+}
+
+function closeRowForm(){ document.getElementById('overlay2').classList.remove('open'); }
+function overlayClick2(e){ if(e.target===document.getElementById('overlay2')) closeRowForm(); }
+
+function saveRowForm(){
+  if(currentRowType==='budget'){
+    const b = {};
+    b.monthlyBudget = parseFloat(document.getElementById('rf-monthlyBudget').value)||0;
+    b.period = document.getElementById('rf-period').value.trim();
+    CHANNELS.forEach(ch=>{
+      const a = document.getElementById('rf-alloc_'+ch).value;
+      const s = document.getElementById('rf-spend_'+ch).value;
+      if(a!=='') b['alloc_'+ch] = parseFloat(a);
+      if(s!=='') b['spend_'+ch] = parseFloat(s);
+    });
+    storeBudget(b);
+    closeRowForm();
+    renderBudget();
+    return;
+  }
+
+  const defs = FIELD_DEFS[currentRowType];
+  const row = {};
+  defs.forEach(d=>{
+    const el = document.getElementById('rf-'+d.id);
+    row[d.id] = d.type==='number' ? (el.value===''?null:parseFloat(el.value)) : el.value.trim();
+  });
+
+  // 7-day lead time guardrail for the planner
+  if(currentRowType==='plan' && row.plannedStart){
+    const dLeft = daysUntil(row.plannedStart);
+    if(dLeft!==null && dLeft<7){
+      const proceed = confirm(`This launch date is only ${dLeft} day(s) out — under the 7-day minimum lead time. Save anyway?`);
+      if(!proceed) return;
+    }
+  }
+
+  const key = TYPE_KEYS[currentRowType];
+  let arr = loadArr(key);
+  if(currentRowId){
+    arr = arr.map(r=> r.id===currentRowId ? Object.assign({},r,row) : r);
+  } else {
+    row.id = uid();
+    arr.push(row);
+  }
+  storeArr(key, arr);
+  closeRowForm();
+  renderAllTables();
+}
+
+function deleteCurrentRow(){
+  if(!currentRowId) return;
+  if(!confirm('Delete this entry?')) return;
+  const key = TYPE_KEYS[currentRowType];
+  let arr = loadArr(key).filter(r=>r.id!==currentRowId);
+  storeArr(key, arr);
+  closeRowForm();
+  renderAllTables();
+}
+
+// ── RENDER: CAMPAIGNS ──
+function renderCampaigns(){
+  const arr = loadArr(CK);
+  const tbody = document.getElementById('campaigns-table-body');
+  if(!arr.length){ tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No campaigns logged yet — click "+ Add campaign".</td></tr>'; return; }
+  tbody.innerHTML = arr.map(r=>{
+    const statusBadge = r.status==='Active' ? 'badge-success' : r.status==='Paused' ? 'badge-warning' : 'badge-neutral';
+    return `<tr>
+      <td>${r.name||'—'}</td><td>${r.channel||'—'}</td>
+      <td><span class="badge ${statusBadge}">${r.status||'—'}</span></td>
+      <td>${r.startDate||'—'}</td><td>${r.endDate||'—'}</td>
+      <td>${fmtMoney(r.budget)}</td><td>${fmtMoney(r.spend)}</td>
+      <td class="row-actions">
+        <button class="icon-btn" onclick="openRowForm('campaign','${r.id}')" title="Edit">&#9998;</button>
+        <button class="icon-btn danger" onclick="quickDelete('campaign','${r.id}')" title="Delete">&#x2715;</button>
+      </td></tr>`;
+  }).join('');
+}
+
+// ── RENDER: SEO ──
+function renderSeo(){
+  const arr = loadArr(SK2);
+  const tbody = document.getElementById('seo-table-body');
+  if(!arr.length){ tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No keywords tracked yet — click "+ Add keyword".</td></tr>'; return; }
+  tbody.innerHTML = arr.map(r=>{
+    let trend = '—';
+    if(r.prevRank!=null && r.googleRank!=null){
+      const diff = r.prevRank - r.googleRank;
+      if(diff>0) trend = `<span class="badge badge-success">&#9650; ${diff}</span>`;
+      else if(diff<0) trend = `<span class="badge badge-danger">&#9660; ${Math.abs(diff)}</span>`;
+      else trend = `<span class="badge badge-neutral">—</span>`;
+    }
+    return `<tr>
+      <td>${r.keyword||'—'}</td><td>${r.googleRank??'—'}</td><td>${r.localRank??'—'}</td>
+      <td>${trend}</td><td>${r.volume??'—'}</td><td>${r.url||'—'}</td><td>${r.lastChecked||'—'}</td>
+      <td class="row-actions">
+        <button class="icon-btn" onclick="openRowForm('seo','${r.id}')" title="Edit">&#9998;</button>
+        <button class="icon-btn danger" onclick="quickDelete('seo','${r.id}')" title="Delete">&#x2715;</button>
+      </td></tr>`;
+  }).join('');
+}
+
+// ── RENDER: LEAD FOLLOW-UP ──
+function renderFollowup(){
+  const arr = loadArr(LK);
+  const tbody = document.getElementById('followup-table-body');
+  if(!arr.length){ tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No leads waiting on follow-up — nice work.</td></tr>'; return; }
+  tbody.innerHTML = arr.map(r=>{
+    const daysIn = r.dateReceived ? daysUntil(r.dateReceived)*-1 : null;
+    const overdue = daysIn!==null && daysIn>=3 && ['New','Contacted'].includes(r.status);
+    const statusBadge = r.status==='Won' ? 'badge-success' : r.status==='Lost' ? 'badge-neutral' : (r.status==='Scheduled'||r.status==='Quote sent') ? 'badge-accent' : 'badge-warning';
+    return `<tr class="${overdue?'row-warn':''}">
+      <td>${r.name||'—'}</td><td>${r.contact||'—'}</td><td>${r.source||'—'}</td>
+      <td>${r.dateReceived||'—'}${overdue?' <span class=\"badge badge-danger\">'+daysIn+'d, no contact</span>':''}</td>
+      <td>${r.assignedTo||'—'}</td><td><span class="badge ${statusBadge}">${r.status||'—'}</span></td>
+      <td>${r.lastContact||'—'}</td>
+      <td class="row-actions">
+        <button class="icon-btn" onclick="openRowForm('lead','${r.id}')" title="Edit">&#9998;</button>
+        <button class="icon-btn danger" onclick="quickDelete('lead','${r.id}')" title="Delete">&#x2715;</button>
+      </td></tr>`;
+  }).join('');
+}
+
+// ── RENDER: CAMPAIGN PLANNER ──
+function renderPlanner(){
+  const arr = loadArr(PK);
+  const tbody = document.getElementById('planner-table-body');
+  document.getElementById('p-total').textContent = arr.length;
+  const ready = arr.filter(r=>r.status==='Approved'||r.status==='Scheduled').length;
+  document.getElementById('p-ready').textContent = ready;
+  const atRisk = arr.filter(r=>{ const d=daysUntil(r.plannedStart); return d!==null && d<7 && d>=0; }).length;
+  document.getElementById('p-atrisk').textContent = atRisk;
+  const upcoming = arr.filter(r=>r.plannedStart && daysUntil(r.plannedStart)>=0).sort((a,b)=>new Date(a.plannedStart)-new Date(b.plannedStart))[0];
+  document.getElementById('p-next').textContent = upcoming ? upcoming.name+' ('+upcoming.plannedStart+')' : '—';
+
+  if(!arr.length){ tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No campaigns planned yet — click "+ Plan campaign" to schedule one at least 7 days out.</td></tr>'; return; }
+  tbody.innerHTML = arr.slice().sort((a,b)=>new Date(a.plannedStart||0)-new Date(b.plannedStart||0)).map(r=>{
+    const d = daysUntil(r.plannedStart);
+    let leadBadge = '—';
+    let rowCls = '';
+    if(d!==null){
+      if(d<0){ leadBadge = '<span class="badge badge-neutral">Past due</span>'; }
+      else if(d<7){ leadBadge = `<span class="badge badge-danger">${d}d — under 7-day minimum</span>`; rowCls='row-danger'; }
+      else { leadBadge = `<span class="badge badge-success">${d}d lead time</span>`; }
+    }
+    const statusBadge = r.status==='Approved'||r.status==='Scheduled' ? 'badge-success' : r.status==='Ready for review' ? 'badge-accent' : 'badge-neutral';
+    return `<tr class="${rowCls}">
+      <td>${r.name||'—'}</td><td>${r.channel||'—'}</td><td>${r.plannedStart||'—'}</td>
+      <td>${leadBadge}</td><td>${fmtMoney(r.budget)}</td>
+      <td><span class="badge ${statusBadge}">${r.status||'—'}</span></td>
+      <td class="row-actions">
+        <button class="icon-btn" onclick="openRowForm('plan','${r.id}')" title="Edit">&#9998;</button>
+        <button class="icon-btn danger" onclick="quickDelete('plan','${r.id}')" title="Delete">&#x2715;</button>
+      </td></tr>`;
+  }).join('');
+}
+
+function quickDelete(type,id){
+  if(!confirm('Delete this entry?')) return;
+  const key = TYPE_KEYS[type];
+  storeArr(key, loadArr(key).filter(r=>r.id!==id));
+  renderAllTables();
+}
+
+function renderAllTables(){
+  renderBudget();
+  renderCampaigns();
+  renderSeo();
+  renderFollowup();
+  renderPlanner();
+}
+
+// init
+const now = new Date();
+const fmt = now.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+document.getElementById('updated-date').textContent = 'Updated '+fmt;
+document.getElementById('footer-date').textContent = fmt;
+render(load());
+renderAllTables();
+</script>
+</body>
+</html>
