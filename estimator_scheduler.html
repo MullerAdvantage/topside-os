@@ -255,7 +255,8 @@ if (!ESTIMATORS.find(e => e.id === 'unassigned')) {
   ESTIMATORS.push({id:'unassigned', name:'Unassigned', initials:'—', color:'#8891A4', officeDays:[]});
 }
 
-let schedule = loadLS('schedule') || [
+const SCHEDULE_DATA_VERSION = 'leap-2026-07-16-1222';
+const DEFAULT_SCHEDULE = [
   {id:'office_carson_2',est:'carson',day:2,type:'office',title:'Office Day',start:'08:00',end:'17:00'},
   {id:'office_carson_4',est:'carson',day:4,type:'office',title:'Office Day',start:'08:00',end:'17:00'},
   {id:'office_dustin_0',est:'dustin',day:0,type:'office',title:'Office Day',start:'08:00',end:'17:00'},
@@ -302,6 +303,19 @@ let schedule = loadLS('schedule') || [
   {id:'leap_unassigned_2026-07-16_terryandersonjobprogress',est:'unassigned',day:3,date:'2026-07-16',type:'meeting',title:'Terry Anderson Job Progress',start:'14:00',end:'15:00',notes:'',status:'scheduled'},
   {id:'leap_2607-8828092-01',est:'carson',day:3,date:'2026-07-16',type:'visit',title:'Swirczek Roofing Estimate',city:'Lynden',address:'994 West Pole Road, Lynden, Washington, 98264',start:'14:00',end:'15:00',contact:'Ted Swirczek',notes:'',status:'scheduled',sourceId:'leap_2607-8828092-01'},
 ];
+
+let schedule;
+if (loadLS('scheduleDataVersion') === SCHEDULE_DATA_VERSION) {
+  schedule = loadLS('schedule') || DEFAULT_SCHEDULE;
+} else {
+  // New Leap data shipped since this browser last saved a schedule (or first visit) —
+  // discard whatever's cached locally and load the fresh version, then stamp it so this
+  // browser stops overriding future deploys with today's data.
+  schedule = DEFAULT_SCHEDULE;
+  saveLS('schedule', schedule);
+  saveLS('scheduleDataVersion', SCHEDULE_DATA_VERSION);
+}
+
 
 // Non-office blocks are date-specific events. Demo/seed data only carries a day-of-week
 // index (0-4), so on first load (no localStorage yet) stamp each with a real ISO date
