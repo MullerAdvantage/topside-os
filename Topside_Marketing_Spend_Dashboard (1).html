@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Topside — Marketing Spend Dashboard</title>
+<style>
+  :root{
+    --paper:#F3EEE2; --paper-line:#DCD3BC; --ink:#2B2A28; --ink-soft:#6B6558;
+    --safety:#D9531E; --safety-dark:#A93E14; --slate:#3E4C59; --card:#FFFDF8;
+    --green:#4C6B3F; --red:#A32D2D; --redbg:#FBEAEA; --amberbg:#FAEEDA; --amber:#854F0B;
+    --f-display:'Arial Narrow',Oswald,sans-serif;
+    --f-body:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --f-mono:'Courier New',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:linear-gradient(var(--paper-line) 1px, transparent 1px),linear-gradient(90deg, var(--paper-line) 1px, transparent 1px);
+    background-size:28px 28px;color:var(--ink);font-family:var(--f-body);padding:32px 40px 70px;
+  }
+  header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--ink);padding-bottom:16px;margin-bottom:26px;flex-wrap:wrap;gap:12px;}
+  h1{font-family:var(--f-display);font-weight:700;font-size:36px;text-transform:uppercase;letter-spacing:0.5px;}
+  .sub{color:var(--ink-soft);font-size:13.5px;margin-top:4px;}
+  .stamp{border:2px solid var(--safety);color:var(--safety-dark);font-family:var(--f-mono);font-size:11px;font-weight:600;
+    text-transform:uppercase;letter-spacing:1px;padding:6px 12px;transform:rotate(-2deg);white-space:nowrap;}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:30px;}
+  .kpi{background:var(--card);border:1px solid var(--paper-line);border-left:4px solid var(--slate);padding:14px 16px;}
+  .kpi.orange{border-left-color:var(--safety);} .kpi.red{border-left-color:var(--red);background:var(--redbg);}
+  .kpi .num{font-family:var(--f-mono);font-size:28px;font-weight:700;line-height:1;}
+  .kpi .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-soft);margin-top:5px;}
+  .kpi .note{font-size:10px;color:var(--ink-soft);margin-top:3px;}
+
+  .section-title{font-family:var(--f-display);font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+    margin:30px 0 12px;display:flex;align-items:center;gap:10px;}
+  .section-title::after{content:'';flex:1;height:2px;background:var(--ink);opacity:0.15;}
+
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--paper-line);}
+  th{background:var(--slate);color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:0.4px;text-align:left;padding:9px 12px;}
+  td{padding:9px 12px;font-size:13px;border-bottom:1px solid var(--paper-line);}
+  tr:last-child td{border-bottom:none;}
+  .num-cell{font-family:var(--f-mono);text-align:right;}
+  .row-bold td{font-weight:700;}
+  .row-flag td{background:var(--redbg);color:var(--red);font-weight:700;}
+  .row-alt td{background:#FBF7EE;}
+
+  .two-col{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;}
+  .risk-card{background:var(--card);border:1px solid var(--paper-line);border-left:4px solid var(--amber);padding:14px 16px;margin-bottom:12px;}
+  .risk-card .amt{font-family:var(--f-mono);font-weight:700;font-size:20px;color:var(--amber);}
+  .risk-card .desc{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
+  .risk-card.high{border-left-color:var(--red);}
+  .risk-card.high .amt{color:var(--red);}
+
+  .open-item{background:var(--card);border:1px solid var(--paper-line);border-left:4px solid var(--slate);padding:10px 14px;margin-bottom:8px;font-size:12.5px;}
+  .open-item b{display:block;font-size:13px;margin-bottom:2px;}
+
+  .footnote{margin-top:30px;font-size:11px;color:var(--ink-soft);border-top:1px solid var(--paper-line);padding-top:12px;max-width:900px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Marketing Spend Dashboard</h1>
+    <div class="sub">Marketing 360 (Madwire) — contracted vs. actual, by cycle · For Phil York</div>
+  </div>
+  <div class="stamp">As of July 1, 2026</div>
+</header>
+
+<div class="kpis">
+  <div class="kpi">
+    <div class="num">$7,195</div>
+    <div class="lbl">Contracted monthly (signed)</div>
+    <div class="note">Content Pro $600 + Content Credits $1,200 + Ad Credits $5,000 + base $395</div>
+  </div>
+  <div class="kpi red">
+    <div class="num">~$9,695</div>
+    <div class="lbl">Possible actual monthly rate</div>
+    <div class="note">If April's $2,500 add-on became permanent — UNCONFIRMED, needs bank verification</div>
+  </div>
+  <div class="kpi orange">
+    <div class="num">$2,050</div>
+    <div class="lbl">Unaccounted for (May cycle)</div>
+    <div class="note">Never itemized despite direct written request</div>
+  </div>
+  <div class="kpi orange">
+    <div class="num">$1,486</div>
+    <div class="lbl">March overage vs. Ad Credits line</div>
+    <div class="note">$6,485.55 spent against a $5,000 budget line</div>
+  </div>
+</div>
+
+<div class="section-title">Spend by cycle</div>
+<table>
+  <tr><th>Cycle</th><th>Authorized</th><th class="num-cell" style="text-align:right;">Reported/spent</th><th class="num-cell" style="text-align:right;">Variance</th><th>Status</th></tr>
+  <tr>
+    <td>March 2026 (full month)</td>
+    <td class="num-cell">$5,000.00</td>
+    <td class="num-cell">$6,485.55</td>
+    <td class="num-cell">+$1,485.55</td>
+    <td>Overage — unreconciled (V008)</td>
+  </tr>
+  <tr class="row-alt">
+    <td>Apr 20 – May 19 (base + verbal add-on)</td>
+    <td class="num-cell">$7,500.00</td>
+    <td class="num-cell">$7,050.00</td>
+    <td class="num-cell">–$450.00</td>
+    <td>Within authorized ceiling</td>
+  </tr>
+  <tr class="row-flag">
+    <td>↳ of which, unexplained</td>
+    <td class="num-cell">—</td>
+    <td class="num-cell">$2,050.00</td>
+    <td class="num-cell">—</td>
+    <td>No itemization provided (V003)</td>
+  </tr>
+</table>
+
+<div class="two-col">
+  <div>
+    <div class="section-title">April 20 – May 19 cycle, itemized</div>
+    <table>
+      <tr><th>Item</th><th class="num-cell" style="text-align:right;">Amount</th></tr>
+      <tr><td>Base ad budget</td><td class="num-cell">$5,000.00</td></tr>
+      <tr class="row-alt"><td>Additional Phil-approved (verbal, one cycle)</td><td class="num-cell">$2,500.00</td></tr>
+      <tr class="row-bold"><td>Total authorized</td><td class="num-cell">$7,500.00</td></tr>
+      <tr><td>Verified platform spend (LSA + Google Ads)</td><td class="num-cell">$3,932.11</td></tr>
+      <tr class="row-alt"><td>M360-stated remaining budget</td><td class="num-cell">$450.00</td></tr>
+      <tr class="row-bold"><td>Implied total "spent" per M360</td><td class="num-cell">$7,050.00</td></tr>
+      <tr><td>Explained (mgmt fee against base $5K only)</td><td class="num-cell">$1,067.89</td></tr>
+      <tr class="row-flag"><td>Unaccounted for</td><td class="num-cell">$2,050.00</td></tr>
+    </table>
+  </div>
+
+  <div>
+    <div class="section-title">Financial exposure</div>
+    <div class="risk-card high">
+      <div class="amt">$30,000/yr</div>
+      <div class="desc">Annualized cost if the $2,500 add-on is being billed permanently rather than as the one-time cycle it was approved for</div>
+    </div>
+    <div class="risk-card">
+      <div class="amt">$2,350</div>
+      <div class="desc">Onboarding Package clawback — owed only if services are cancelled before the Initial Term (6 months from 3/20/26) completes</div>
+    </div>
+    <div class="risk-card">
+      <div class="amt">≤ $500</div>
+      <div class="desc">Early Cancellation Fee if cancelling during a Renewal Term — lesser of remaining monthly payments or $500</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-title">Open items — need Phil's input or verification</div>
+<div class="open-item"><b>Actual current monthly rate unconfirmed</b>Check bank/QuickBooks for the last 2–3 charges from Madwire to see if $7,195 or something closer to $9,695 is actually being billed.</div>
+<div class="open-item"><b>March $1,485.55 overage unresolved</b>Unclear if this includes the undisclosed management fee or is a genuine budget overrun.</div>
+<div class="open-item"><b>Balance-due request from Robin Mills</b>Address on the payment request doesn't exactly match the signed contract's address (different zip, added suite number) — verify independently before mailing a check.</div>
+
+<div class="footnote">
+  This dashboard covers Marketing 360 / Madwire spend only — it does not include job costs, materials, payroll, or other operating expenses.
+  Figures are sourced from the signed contract, email threads with Robin Mills and Brennan Rachman, and Google Ads/GSC exports reviewed during this audit.
+  It is a static snapshot — regenerate it whenever new figures are confirmed (bank records, a written answer from M360, etc.).
+</div>
+
+</body>
+</html>

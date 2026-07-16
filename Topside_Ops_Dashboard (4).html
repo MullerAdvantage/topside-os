@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Topside Ops — Active Projects</title>
+<style>
+  :root{
+    --paper:#F3EEE2;
+    --paper-line:#DCD3BC;
+    --ink:#2B2A28;
+    --ink-soft:#6B6558;
+    --safety:#D9531E;
+    --safety-dark:#A93E14;
+    --slate:#3E4C59;
+    --slate-soft:#8996A3;
+    --green:#4C6B3F;
+    --card:#FFFDF8;
+    --amber:#B8791A;
+    --f-display:'Arial Narrow',Oswald,'Barlow Condensed',sans-serif;
+    --f-body:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --f-mono:'Courier New',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:
+      linear-gradient(var(--paper-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px);
+    background-size:28px 28px;
+    color:var(--ink);
+    font-family:var(--f-body);
+    padding:32px 40px 80px;
+  }
+  header{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:3px solid var(--ink);
+    padding-bottom:16px;margin-bottom:28px;
+  }
+  h1{
+    font-family:var(--f-display);
+    font-weight:700;font-size:40px;letter-spacing:0.5px;
+    text-transform:uppercase;
+  }
+  .sub{color:var(--ink-soft);font-size:14px;margin-top:4px;}
+  .stamp{
+    border:2px solid var(--safety);color:var(--safety-dark);
+    font-family:var(--f-mono);font-size:11px;font-weight:500;
+    text-transform:uppercase;letter-spacing:1px;padding:6px 12px;
+    transform:rotate(-2deg);white-space:nowrap;
+  }
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:32px;}
+  .kpi{
+    background:var(--card);border:1px solid var(--paper-line);
+    border-left:4px solid var(--slate);padding:14px 16px;
+  }
+  .kpi.orange{border-left-color:var(--safety);}
+  .kpi.green{border-left-color:var(--green);}
+  .kpi .num{font-family:var(--f-display);font-size:34px;font-weight:700;line-height:1;}
+  .kpi .lbl{font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--ink-soft);margin-top:4px;}
+
+  .layout{display:grid;grid-template-columns:2.2fr 1fr;gap:24px;}
+
+  .section-title{
+    font-family:var(--f-display);font-size:20px;font-weight:700;
+    text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .section-title::after{content:'';flex:1;height:2px;background:var(--ink);opacity:0.15;}
+
+  .board{display:flex;gap:14px;overflow-x:auto;padding-bottom:12px;}
+  .col{min-width:230px;flex:1;}
+  .col-head{
+    font-family:var(--f-mono);font-size:11px;text-transform:uppercase;
+    letter-spacing:0.5px;color:#fff;background:var(--slate);
+    padding:6px 10px;display:flex;justify-content:space-between;
+  }
+  .col-head .n{background:rgba(255,255,255,0.2);padding:0 6px;border-radius:3px;}
+  .col-body{background:var(--card);border:1px solid var(--paper-line);border-top:none;
+    min-height:60px;max-height:520px;overflow-y:auto;}
+  .ticket{
+    border-bottom:1px dashed var(--paper-line);padding:10px 10px;position:relative;
+  }
+  .ticket:last-child{border-bottom:none;}
+  .ticket .name{font-weight:600;font-size:13px;}
+  .ticket .id{font-family:var(--f-mono);font-size:10px;color:var(--ink-soft);margin-top:2px;}
+  .ticket .meta{display:flex;justify-content:space-between;align-items:center;margin-top:6px;}
+  .trade-tag{
+    font-size:9px;text-transform:uppercase;letter-spacing:0.4px;font-weight:600;
+    padding:2px 6px;border-radius:2px;
+  }
+  .trade-ROOFING{background:#E9D8C4;color:#6B4423;}
+  .trade-SIDING{background:#D6E2E8;color:#2F5468;}
+  .trade-OTHER{background:#E5E1D5;color:var(--ink-soft);}
+  .trade-GUTTERS{background:#DDE5D0;color:var(--green);}
+  .trade-WINDOWS{background:#E8DDF0;color:#5B3E8A;}
+  .rep{font-size:10px;color:var(--ink-soft);}
+
+  .sidebar-card{background:var(--card);border:1px solid var(--paper-line);margin-bottom:20px;}
+  .sched-row{
+    padding:10px 12px;border-bottom:1px solid var(--paper-line);font-size:12px;
+  }
+  .sched-row:last-child{border-bottom:none;}
+  .sched-row .t{font-weight:600;}
+  .sched-row .who{color:var(--ink-soft);font-size:11px;}
+  .sched-row .when{font-family:var(--f-mono);font-size:10px;color:var(--safety-dark);margin-top:3px;}
+
+  .crew-row{padding:9px 12px;border-bottom:1px solid var(--paper-line);font-size:12px;}
+  .crew-row:last-child{border-bottom:none;}
+  .crew-row .top{display:flex;justify-content:space-between;}
+  .crew-row .cust{font-weight:600;}
+  .crew-row .span{font-family:var(--f-mono);font-size:10px;color:var(--ink-soft);}
+  .crew-row .addr{color:var(--ink-soft);font-size:10.5px;margin-top:2px;}
+
+  .trade-bar-wrap{background:var(--card);border:1px solid var(--paper-line);padding:14px;}
+  .trade-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .trade-bar-row:last-child{margin-bottom:0;}
+  .trade-bar-label{width:70px;font-size:11px;font-weight:600;text-transform:uppercase;}
+  .trade-bar-track{flex:1;height:10px;background:var(--paper-line);position:relative;}
+  .trade-bar-fill{height:100%;background:var(--safety);}
+  .trade-bar-val{width:34px;text-align:right;font-family:var(--f-mono);font-size:11px;}
+
+  .footnote{margin-top:36px;font-size:11px;color:var(--ink-soft);border-top:1px solid var(--paper-line);padding-top:12px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Topside Ops — Active Projects</h1>
+    <div class="sub">Bellingham, WA · Whatcom, Skagit &amp; San Juan Counties · Source: Leap CRM export, data through 07/15/2026</div>
+  </div>
+  <div class="stamp">Refresh by re-uploading<br>Leap exports</div>
+</header>
+
+<div class="kpis" id="kpis"></div>
+
+<div class="layout">
+  <div>
+    <div class="section-title">Pipeline by stage</div>
+    <div class="board" id="board"></div>
+
+    <div class="section-title" style="margin-top:28px;">Trade mix — all jobs on file</div>
+    <div class="trade-bar-wrap" id="tradebars"></div>
+  </div>
+
+  <div>
+    <div class="section-title">Upcoming appointments</div>
+    <div class="sidebar-card" id="upcoming"></div>
+
+    <div class="section-title">Crew on active jobsites</div>
+    <div class="sidebar-card" id="crew"></div>
+  </div>
+</div>
+
+<div class="footnote">
+  This view reflects the Leap Master List, Job Schedules, and Appointments exports provided on 07/01/2026. It does not update automatically —
+  re-export those three reports from Leap and re-generate this file to refresh. "Pipeline by stage" excludes closed-out stages
+  (Completed, Invoiced, Follow Up) to keep the board focused on work in motion.
+</div>
+
+<script>
+var DATA = {"stageCounts": {"Follow Up": 307, "Completed": 84, "Appointment Booked": 50, "Lead": 33, "Deposit Rcvd -> Estimator": 18, "Invoiced": 15, "Bid": 11, "Signed Estimate/Project": 10, "Active Jobs": 9, "New Construction": 6, "Deposit Received": 5, "Commercial": 4, "Final Walkthrough": 1, "Material List Setup": 1, "Warranty Work": 1, "Materials Delivered": 1, "Materials Ordered": 1, "Job Scheduled": 1}, "tradeCounts": {"ROOFING": 420, "SIDING": 89, "OTHER": 50, "DOORS": 1, "GUTTERS": 22, "WINDOWS": 11, "PAINTING": 2}, "activeJobs": [{"Customer Name": "Ted Swirczek", "Job Id": "2607-8828092-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Jarret Pittman", "Job Id": "2607-8827018-01", "Trades": "SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Amy Riederich", "Job Id": "2607-8826848-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Tod Asmussen", "Job Id": "2607-8826716-01", "Trades": "ROOFING, SIDING", "Stage": "Bid", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Gary Virene", "Job Id": "2607-8826527-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Janelle Munns", "Job Id": "2607-8787487-02", "Trades": "ROOFING", "Stage": "Bid", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Mary Ellen Lykins", "Job Id": "2607-8824560-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Mark Vanderzalm", "Job Id": "2607-8400526-02", "Trades": "SIDING, OTHER", "Stage": "Bid", "Job Rep / Estimator": "Mike Lacey"}, {"Customer Name": "Tim Miller", "Job Id": "2607-306052-03", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Ian Heusser", "Job Id": "2607-8817811-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Chris Horne", "Job Id": "2607-8817593-01", "Trades": "OTHER", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Stephen Guilford", "Job Id": "2607-8817347-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Dave Erickson", "Job Id": "2607-8816531-01", "Trades": "OTHER", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Gig Harbor Fire and Medic One", "Job Id": "2607-8816101-01", "Trades": "DOORS, GUTTERS, ROOFING, SIDING, WINDOWS", "Stage": "Commercial", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Kal Mozes", "Job Id": "2607-8813093-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "LIsa Valentijn", "Job Id": "2607-8812905-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Huong Pham", "Job Id": "2607-8810139-01", "Trades": "ROOFING, OTHER, GUTTERS", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Pantec Mini Storage", "Job Id": "2607-8808822-01", "Trades": "ROOFING", "Stage": "Commercial", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Cody Tremaine", "Job Id": "2607-8808722-01", "Trades": "SIDING", "Stage": "New Construction", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Jill Brown", "Job Id": "2607-8806795-01", "Trades": "OTHER", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Jane Gregg", "Job Id": "2607-1771702-02", "Trades": "SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Lori Keuffel", "Job Id": "2607-8805380-01", "Trades": "SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Sharon Fischer", "Job Id": "2607-8805367-01", "Trades": "WINDOWS", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Emma Sethi", "Job Id": "2607-8803216-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Jeremy Salhus", "Job Id": "2607-4984116-03", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Jeremy Salhus", "Job Id": "2607-4984116-02", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Brad Orndorff", "Job Id": "2607-8803163-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Brad Day", "Job Id": "2607-8803001-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Mike Young", "Job Id": "2607-8802990-01", "Trades": "SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Jeanne Hager", "Job Id": "2607-1709365-03", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Braedan York"}, {"Customer Name": "Michael Marchetti", "Job Id": "2607-8801353-01", "Trades": "SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Diana Burgon", "Job Id": "2607-8801191-01", "Trades": "OTHER", "Stage": "Appointment Booked", "Job Rep / Estimator": "Jessica Muller, Dustin Suiter"}, {"Customer Name": "Melinda Larkin", "Job Id": "2607-8795379-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Landmark Real Estate Management LLC - Commercial", "Job Id": "2607-7483987-02", "Trades": "SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Ramin G.", "Job Id": "2607-8793382-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Craig Conley", "Job Id": "2607-8792468-01", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Cassondra Prater", "Job Id": "2607-689829-03", "Trades": "ROOFING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "John Bielen", "Job Id": "2606-8784258-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Jamie Vanarsdall", "Job Id": "2606-7766426-02", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Joshua Wolf", "Job Id": "2606-8782368-01", "Trades": "ROOFING", "Stage": "Bid", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Avery Wellman", "Job Id": "2606-8782174-01", "Trades": "SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Karen Eriksen", "Job Id": "2606-8781750-01", "Trades": "OTHER", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Aaron Van", "Job Id": "2606-8780981-01", "Trades": "OTHER", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Bob Merth", "Job Id": "2606-5967071-02", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Brant Faulkner", "Job Id": "2606-8780865-01", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Jill Robey", "Job Id": "2606-8777160-01", "Trades": "SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Peter Schmidt Construction", "Job Id": "2606-6869253-13", "Trades": "ROOFING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Chase Martin", "Job Id": "2606-8773923-01", "Trades": "OTHER, GUTTERS, WINDOWS", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Wes Huggins", "Job Id": "2606-8773370-01", "Trades": "OTHER", "Stage": "Bid", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Gary Waters", "Job Id": "2606-3030236-03", "Trades": "ROOFING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "William Houseman", "Job Id": "2606-8770478-01", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Leanne Wilhelmi", "Job Id": "2606-8770376-01", "Trades": "ROOFING", "Stage": "Bid", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Jonathan Blair", "Job Id": "2606-8769668-01", "Trades": "OTHER", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Faber Construction - Jeff", "Job Id": "2606-8135942-02", "Trades": "ROOFING", "Stage": "New Construction", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Deborah Glenn", "Job Id": "2606-8760954-01", "Trades": "SIDING, ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Bob Kelln", "Job Id": "2606-8756248-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Torrey Speer", "Job Id": "2606-8741773-01", "Trades": "OTHER, ROOFING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Carrie Holtrop", "Job Id": "2606-8749281-01", "Trades": "ROOFING, GUTTERS", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "City of Bonney Lake", "Job Id": "2606-8749218-01", "Trades": "ROOFING", "Stage": "Commercial", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Terry Anderson", "Job Id": "2606-8742866-01", "Trades": "ROOFING", "Stage": "Active Jobs", "Job Rep / Estimator": "Braedan York"}, {"Customer Name": "Chrysalis Inn and Spa", "Job Id": "2606-7199527-02", "Trades": "OTHER", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Francisco Reyes", "Job Id": "2606-8738189-01", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Scott Wrobel", "Job Id": "2606-2007783-02", "Trades": "GUTTERS, SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Hiro Yamamoto", "Job Id": "2606-8733584-01", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Chris Lett", "Job Id": "2606-8729418-01", "Trades": "ROOFING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Amanda Kolby", "Job Id": "2606-8724390-01", "Trades": "ROOFING", "Stage": "Active Jobs", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "David Woodmansee", "Job Id": "2606-8722028-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Trina Heidelbach", "Job Id": "2606-8721804-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Bud Strom", "Job Id": "2606-8711656-01", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Marty Kuljius", "Job Id": "2606-8709976-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "RestoreWell - Ken", "Job Id": "2606-8369528-02", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Manfred Sohni", "Job Id": "2606-8696139-01", "Trades": "ROOFING, GUTTERS", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Northbrook", "Job Id": "2605-1841280-07", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Glacier Water District", "Job Id": "2605-1154947-02", "Trades": "SIDING", "Stage": "Bid", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Laura Kaptinski", "Job Id": "2605-320553-03", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Eric Moffit", "Job Id": "2605-8657193-01", "Trades": "SIDING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Test Ing", "Job Id": "2605-501586-06", "Trades": "SIDING, WINDOWS", "Stage": "Final Walkthrough", "Job Rep / Estimator": "Ashley Anderson"}, {"Customer Name": "Jeff Coolen", "Job Id": "2605-2175039-04", "Trades": "OTHER", "Stage": "Active Jobs", "Job Rep / Estimator": "Braedan York"}, {"Customer Name": "David Imburgia", "Job Id": "2605-8651128-01", "Trades": "OTHER", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Julie Gates", "Job Id": "2605-8646619-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "King County Housing Authority", "Job Id": "2605-4605556-02", "Trades": "ROOFING", "Stage": "Commercial", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Alexei Ford Design Build - John", "Job Id": "2605-6409803-07", "Trades": "ROOFING", "Stage": "New Construction", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Ryan Lawson", "Job Id": "2605-8631272-01", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Anacortes Housing Authority - Phil", "Job Id": "2605-8596345-02", "Trades": "SIDING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Josh Browning", "Job Id": "2605-8617395-01", "Trades": "ROOFING, SIDING", "Stage": "Bid", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "John Korsmo", "Job Id": "2605-8615774-01", "Trades": "ROOFING", "Stage": "Bid", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Anacortes Housing Authority - Phil", "Job Id": "2604-8596345-01", "Trades": "ROOFING, GUTTERS", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Derek Geleynse", "Job Id": "2604-8585947-01", "Trades": "SIDING", "Stage": "Signed Estimate/Project", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Barclay Berry", "Job Id": "2604-8585927-01", "Trades": "ROOFING, SIDING", "Stage": "New Construction", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Frank & Heather Capristo", "Job Id": "2604-8566394-01", "Trades": "ROOFING, GUTTERS", "Stage": "Active Jobs", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Benjamin DeGeode", "Job Id": "2604-8565532-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Kevin Eschliman", "Job Id": "2604-8559668-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Carlton Tannehill", "Job Id": "2604-1923736-02", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "GAF - Liza", "Job Id": "2604-7890154-06", "Trades": "ROOFING", "Stage": "Material List Setup", "Job Rep / Estimator": "Itzel Ocaranza, Duane Vander Molen"}, {"Customer Name": "Robert Rockser", "Job Id": "2604-8526847-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Paulo Duarte", "Job Id": "2604-8518901-01", "Trades": "ROOFING, SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Matt Dressen", "Job Id": "2604-8518226-01", "Trades": "ROOFING", "Stage": "Active Jobs", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Kyle Coxon", "Job Id": "2604-8508728-01", "Trades": "ROOFING", "Stage": "New Construction", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Susan Green", "Job Id": "2604-8505549-01", "Trades": "SIDING", "Stage": "Active Jobs", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Jill Kintner", "Job Id": "2604-562295-05", "Trades": "ROOFING", "Stage": "Warranty Work", "Job Rep / Estimator": "Itzel Ocaranza"}, {"Customer Name": "Nick Jambor", "Job Id": "2603-8479763-01", "Trades": "ROOFING", "Stage": "Active Jobs", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Kelly Evert", "Job Id": "2603-8474519-01", "Trades": "ROOFING", "Stage": "Active Jobs", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Andrew Whisonant", "Job Id": "2603-8443051-01", "Trades": "ROOFING", "Stage": "Bid", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Kelly Cassaday", "Job Id": "2603-8286075-02", "Trades": "SIDING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Rich Williams", "Job Id": "2603-7696534-02", "Trades": "OTHER", "Stage": "Materials Delivered", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Merida Scully", "Job Id": "2603-292323-04", "Trades": "OTHER", "Stage": "Deposit Received", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Dickey's Remodel and Repair", "Job Id": "2603-8409675-01", "Trades": "ROOFING", "Stage": "New Construction", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "James Printz", "Job Id": "2603-8400201-01", "Trades": "ROOFING", "Stage": "Deposit Rcvd -> Estimator", "Job Rep / Estimator": "Unassigned"}, {"Customer Name": "Terry Matthews", "Job Id": "2603-8389990-01", "Trades": "ROOFING", "Stage": "Materials Ordered", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Anahat Construction LLC", "Job Id": "2603-6156144-07", "Trades": "ROOFING", "Stage": "Bid", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Bob Rohwer", "Job Id": "2603-6016395-02", "Trades": "ROOFING", "Stage": "Deposit Received", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Bellingham Unitarian Fellowship", "Job Id": "2602-8285511-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Unassigned"}, {"Customer Name": "Lynae Rickman", "Job Id": "2602-8256345-02", "Trades": "SIDING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Heather Pogor", "Job Id": "2602-8249302-01", "Trades": "ROOFING", "Stage": "Deposit Received", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Red Wood Gardens HOA", "Job Id": "2602-8233117-01", "Trades": "ROOFING", "Stage": "Appointment Booked", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Karen Hulford", "Job Id": "2602-8218591-01", "Trades": "ROOFING", "Stage": "Active Jobs", "Job Rep / Estimator": "Dustin Suiter"}, {"Customer Name": "Tyler Hughes-Gorman", "Job Id": "2601-8204593-01", "Trades": "SIDING", "Stage": "Deposit Received", "Job Rep / Estimator": "Duane Vander Molen"}, {"Customer Name": "Jeff Garner", "Job Id": "2601-8186902-01", "Trades": "ROOFING", "Stage": "Deposit Received", "Job Rep / Estimator": "Carson Engholm"}, {"Customer Name": "Patrice Walsh", "Job Id": "2601-626779-02", "Trades": "ROOFING", "Stage": "Job Scheduled", "Job Rep / Estimator": "Duane Vander Molen"}], "upcoming": [{"Title": "Office Day", "Customer Name": "", "Appointment For": "Carson Engholm", "Start Date Time": "Wed Jul 15, 12:00 AM", "Location": ""}, {"Title": "Office Day", "Customer Name": "", "Appointment For": "Carson Engholm", "Start Date Time": "Wed Jul 15, 8:00 AM", "Location": ""}, {"Title": "1 on 1 with Mike", "Customer Name": "", "Appointment For": "Carson Engholm", "Start Date Time": "Wed Jul 15, 9:00 AM", "Location": ""}, {"Title": "Salhus / city: Ferndale / ROOFING", "Customer Name": "Jeremy Salhus", "Appointment For": "Duane Vander Molen", "Start Date Time": "Wed Jul 15, 10:00 AM", "Location": "2095 Main Street, Ferndale, Washington, 98248 "}, {"Title": "Orndorff / city: Point Roberts / ROOFING", "Customer Name": "Brad Orndorff", "Appointment For": "Dustin Suiter", "Start Date Time": "Wed Jul 15, 10:00 AM", "Location": "2240 Cedar Point Avenue, Point Roberts, Washington, 98281 "}, {"Title": "Salhus / city: Ferndale / ROOFING", "Customer Name": "Jeremy Salhus", "Appointment For": "Duane Vander Molen", "Start Date Time": "Wed Jul 15, 10:30 AM", "Location": "5475 Ferndale Road, Ferndale, Washington, 98248 "}, {"Title": "Valentijn / city: Bellingham / ROOFING", "Customer Name": "LIsa Valentijn", "Appointment For": "Duane Vander Molen", "Start Date Time": "Wed Jul 15, 12:00 PM", "Location": "3600 Toad Lake Road, Bellingham, Washington, 98226 "}, {"Title": "LUNCH WITH BRAVA", "Customer Name": "", "Appointment For": "Carson Engholm", "Start Date Time": "Wed Jul 15, 12:00 PM", "Location": ""}, {"Title": "Larkin/Bellingham roof", "Customer Name": "Melinda Larkin", "Appointment For": "Dustin Suiter", "Start Date Time": "Wed Jul 15, 1:00 PM", "Location": "15031 Welcome Road, Deming, WA 98244"}], "crew": [{"Customer Name": "Gina Steinert", "Job Id": "2511-7889543-01", "Trade Type": "OTHER", "Work Crew": "Siders/Topside (S1)(S)", "Start Date Time": "Jun 22", "End Date Time": "Jul 16", "Job Address": "1330 Chuckanut Drive, Bellingham, Washington, 98229", "Job Rep/Estimator": "Duane Vander Molen"}, {"Customer Name": "Nick Jambor", "Job Id": "2603-8479763-01", "Trade Type": "ROOFING", "Work Crew": "Jose (Topside Roofing #1)(S)", "Start Date Time": "Jul 10", "End Date Time": "Jul 15", "Job Address": "3833 Kansas Street, Bellingham, Washington, 98229", "Job Rep/Estimator": "Dustin Suiter"}, {"Customer Name": "Amanda Kolby", "Job Id": "2606-8724390-01", "Trade Type": "ROOFING", "Work Crew": "Itzel Ocaranza, Ben(S)", "Start Date Time": "Jul 13", "End Date Time": "Jul 15", "Job Address": "3880 Lindsay Avenue, Bellingham, Washington, 98229", "Job Rep/Estimator": "Carson Engholm"}, {"Customer Name": "Terry Anderson", "Job Id": "2606-8742866-01", "Trade Type": "ROOFING", "Work Crew": "Ben(S)", "Start Date Time": "Jul 14", "End Date Time": "Jul 20", "Job Address": "1021 West Blackburn Road, Mount Vernon, Washington, 98273", "Job Rep/Estimator": "Braedan York"}], "totalJobs": 558, "totalActive": 119};
+
+var stageOrder = ["Lead","Appointment Booked","Bid","Signed Estimate/Project","Deposit Rcvd -> Estimator",
+  "Deposit Received","Materials Ordered","Material List Setup","New Construction","Job Scheduled",
+  "Active Jobs","Commercial","Warranty Work","Final Walkthrough"];
+
+function esc(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+// KPIs
+var kpiEl = document.getElementById('kpis');
+var kpis = [
+  {n: DATA.totalJobs, l:'Total jobs on file', cls:''},
+  {n: DATA.totalActive, l:'Active in pipeline', cls:'orange'},
+  {n: DATA.stageCounts['Completed']||0, l:'Completed', cls:'green'},
+  {n: DATA.stageCounts['Lead']||0, l:'New leads (unworked)', cls:''},
+  {n: DATA.upcoming.length, l:'Upcoming appointments', cls:'orange'}
+];
+kpiEl.innerHTML = kpis.map(function(k){
+  return '<div class="kpi ' + k.cls + '"><div class="num">' + k.n + '</div><div class="lbl">' + k.l + '</div></div>';
+}).join('');
+
+// Board
+var boardEl = document.getElementById('board');
+boardEl.innerHTML = stageOrder.map(function(stage){
+  var items = DATA.activeJobs.filter(function(j){ return j.Stage === stage; });
+  if(items.length === 0) return '';
+  var tickets = items.map(function(j){
+    var trade = (j.Trades||'OTHER').split(',')[0].trim();
+    return '<div class="ticket">' +
+      '<div class="name">' + esc(j['Customer Name']) + '</div>' +
+      '<div class="id">' + esc(j['Job Id']) + '</div>' +
+      '<div class="meta">' +
+        '<span class="trade-tag trade-' + esc(trade) + '">' + esc(trade) + '</span>' +
+        '<span class="rep">' + esc(j['Job Rep / Estimator']) + '</span>' +
+      '</div></div>';
+  }).join('');
+  return '<div class="col">' +
+    '<div class="col-head"><span>' + esc(stage) + '</span><span class="n">' + items.length + '</span></div>' +
+    '<div class="col-body">' + tickets + '</div></div>';
+}).join('');
+
+// Trade bars
+var tradeEl = document.getElementById('tradebars');
+var tradeEntries = Object.keys(DATA.tradeCounts).map(function(k){ return [k, DATA.tradeCounts[k]]; });
+tradeEntries.sort(function(a,b){ return b[1]-a[1]; });
+var maxTrade = Math.max.apply(null, tradeEntries.map(function(e){ return e[1]; }));
+tradeEl.innerHTML = tradeEntries.map(function(e){
+  var t = e[0], c = e[1];
+  return '<div class="trade-bar-row">' +
+    '<div class="trade-bar-label">' + esc(t) + '</div>' +
+    '<div class="trade-bar-track"><div class="trade-bar-fill" style="width:' + (c/maxTrade*100).toFixed(0) + '%"></div></div>' +
+    '<div class="trade-bar-val">' + c + '</div></div>';
+}).join('');
+
+// Upcoming
+var upEl = document.getElementById('upcoming');
+if(DATA.upcoming.length === 0){
+  upEl.innerHTML = '<div class="sched-row">No upcoming appointments found in the exported window.</div>';
+} else {
+  upEl.innerHTML = DATA.upcoming.map(function(a){
+    return '<div class="sched-row">' +
+      '<div class="t">' + esc(a.Title) + '</div>' +
+      '<div class="who">' + esc(a['Appointment For']) + (a['Customer Name'] ? ' &middot; ' + esc(a['Customer Name']) : '') + '</div>' +
+      '<div class="when">' + esc(a['Start Date Time']) + '</div></div>';
+  }).join('');
+}
+
+// Crew
+var crewEl = document.getElementById('crew');
+if(DATA.crew.length === 0){
+  crewEl.innerHTML = '<div class="crew-row">No active jobsite schedules found in the exported window.</div>';
+} else {
+  crewEl.innerHTML = DATA.crew.map(function(c){
+    return '<div class="crew-row">' +
+      '<div class="top"><span class="cust">' + esc(c['Customer Name']) + '</span><span class="span">' + esc(c['Start Date Time']) + '&ndash;' + esc(c['End Date Time']) + '</span></div>' +
+      '<div class="addr">' + esc(c['Work Crew']) + ' &middot; ' + esc(c['Job Address']) + '</div></div>';
+  }).join('');
+}
+</script>
+
+</body>
+</html>
