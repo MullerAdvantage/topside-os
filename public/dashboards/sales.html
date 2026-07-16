@@ -1072,7 +1072,7 @@ function openTool(type){
   if(type==='scope'){
     c='<button class="modal-close" onclick="closeTool()">&#x2715;</button><h3>Scope description generator</h3><div class="modal-sub">Professional customer-facing scope of work — ready to paste into Leap.</div>'+akField+'<div class="form-row"><div class="form-group"><label>Trade type</label><select id="s-trade"><option>Roofing — full replacement</option><option>Roofing — repair</option><option>Siding — full exterior</option><option>Siding — partial</option><option>Gutters — full perimeter</option><option>Gutters — partial + repair</option><option>Roof + Siding + Gutters bundle</option></select></div><div class="form-group"><label>Material / product line</label><input type="text" id="s-mat" placeholder="e.g. GAF Timberline HDZ, HardiePlank, 0.027 aluminum gutters"></div></div><div class="form-row"><div class="form-group"><label>Job size / scope notes</label><input type="text" id="s-size" placeholder="e.g. 28 squares, 8/12 pitch, 3 layers, 2 chimneys"></div><div class="form-group"><label>Special conditions</label><input type="text" id="s-notes" placeholder="e.g. HOA approval needed, steep pitch, insurance claim"></div></div><button class="btn-run fire" onclick="runScope()">Generate scope description</button><div class="spinner" id="s-spin">Generating with Claude AI...</div><div class="modal-result" id="s-res"></div><button class="btn-copy" id="s-copy" style="display:none" onclick="copyRes(\'s-res\')">Copy to clipboard</button>';
   } else if(type==='calc'){
-    c='<button class="modal-close" onclick="closeTool()">&#x2715;</button><h3>Material quantity calculator</h3><div class="modal-sub">Enter measurements — get full material list. No manual math.</div><div class="form-row"><div class="form-group"><label>Roof squares (measured)</label><input type="number" id="c-sq" placeholder="e.g. 28" oninput="runCalc()"></div><div class="form-group"><label>Pitch (rise/12)</label><select id="c-pitch" onchange="runCalc()"><option value="1.00">Flat/low (1-3/12) ×1.00</option><option value="1.04">4/12 ×1.04</option><option value="1.08" selected>5-6/12 ×1.08</option><option value="1.17">7-8/12 ×1.17</option><option value="1.25">9-10/12 ×1.25</option><option value="1.36">11-12/12 ×1.36</option><option value="1.46">13+/12 steep ×1.46</option></select></div></div><div class="form-row"><div class="form-group"><label>Complexity / waste</label><select id="c-waste" onchange="runCalc()"><option value="0.10">Simple gable (10%)</option><option value="0.15" selected>Standard hips/valleys (15%)</option><option value="0.20">Complex dormers (20%)</option></select></div><div class="form-group"><label>Penetrations (chimneys etc.)</label><input type="number" id="c-pen" value="1" oninput="runCalc()"></div></div><div class="modal-result show" id="c-res" style="font-family:var(--f-mono);font-size:12px;">Enter squares above to calculate.</div><button class="btn-copy" onclick="copyRes(\'c-res\')">Copy to clipboard</button>';
+    c='<button class="modal-close" onclick="closeTool()">&#x2715;</button><h3>Material quantity calculator</h3><div class="modal-sub">Enter measurements — get full material list. No manual math.</div><div class="form-row"><div class="form-group"><label>Roof squares (measured)</label><input type="number" id="c-sq" placeholder="e.g. 28" oninput="runCalc()"></div><div class="form-group"><label>Pitch (rise/12)</label><select id="c-pitch" onchange="runCalc()"><option value="1.00">Flat/low (1-3/12) ×1.00</option><option value="1.04">4/12 ×1.04</option><option value="1.08" selected>5-6/12 ×1.08</option><option value="1.17">7-8/12 ×1.17</option><option value="1.25">9-10/12 ×1.25</option><option value="1.36">11-12/12 ×1.36</option><option value="1.46">13+/12 steep ×1.46</option></select></div></div><div class="form-row"><div class="form-group"><label>Complexity / waste</label><select id="c-waste" onchange="runCalc()"><option value="0.10">Simple gable (10%)</option><option value="0.15" selected>Standard hips/valleys (15%)</option><option value="0.20">Complex dormers (20%)</option></select></div><div class="form-group"><label>Penetrations (chimneys etc.)</label><input type="number" id="c-pen" value="1" oninput="runCalc()"></div></div><div class="form-row"><div class="form-group"><label>Shingle brand/line — sets starter &amp; ridge coverage</label><select id="c-brand" onchange="runCalc()"><option value="gaf">GAF (Pro-Start / Seal-A-Ridge)</option><option value="iko">IKO (Leading Edge / Hip &amp; Ridge)</option><option value="malarkey">Malarkey (standard starter/ridge)</option><option value="certainteed">CertainTeed (SwiftStart / Shadow Ridge)</option><option value="custom">Custom — enter LF/bundle below</option></select></div></div><div class="form-row" id="c-custom-row" style="display:none"><div class="form-group"><label>Starter coverage (LF/bundle)</label><input type="number" id="c-starter-lf" value="100" oninput="runCalc()"></div><div class="form-group"><label>Ridge cap coverage (LF/bundle)</label><input type="number" id="c-ridge-lf" value="25" oninput="runCalc()"></div></div><div class="form-row"><div class="form-group"><label>Eave length (LF) &mdash; optional, improves accuracy</label><input type="number" id="c-eave" placeholder="measure on site or from plan" oninput="runCalc()"></div><div class="form-group"><label>Ridge + hip length (LF) &mdash; optional, improves accuracy</label><input type="number" id="c-ridgelen" placeholder="measure on site or from plan" oninput="runCalc()"></div></div><div class="modal-result show" id="c-res" style="font-family:var(--f-mono);font-size:12px;">Enter squares above to calculate.</div><button class="btn-copy" onclick="copyRes(\'c-res\')">Copy to clipboard</button>';
     setTimeout(runCalc,50);
   } else if(type==='followup'){
     c='<button class="modal-close" onclick="closeTool()">&#x2715;</button><h3>Follow-up SMS templates</h3><div class="modal-sub">Standard template (instant) or AI-customized (requires API key).</div>'+akField+'<div class="form-row"><div class="form-group"><label>Scenario</label><select id="f-sce">'+Object.keys(TEMPLATES).map(function(k){return'<option>'+k+'</option>';}).join('')+'</select></div><div class="form-group"><label>Customer first name</label><input type="text" id="f-cn" placeholder="e.g. Tom"></div></div><div class="form-group"><label>Your name (rep)</label><input type="text" id="f-rn" placeholder="e.g. Carson"></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;"><button class="btn-run" onclick="getTemplate()">Standard template</button><button class="btn-run fire" onclick="runFollowup()">AI-customized</button></div><div class="spinner" id="f-spin">Generating...</div><div class="modal-result" id="f-res"></div><button class="btn-copy" id="f-copy" style="display:none" onclick="copyRes(\'f-res\')">Copy to clipboard</button>';
@@ -1116,15 +1116,48 @@ function runScope(){
   callClaude('Write a professional customer-facing scope of work for Topside Roofing, Siding & Gutters (Bellingham, WA). Trade: '+trade+'. Material: '+(mat||'standard')+'. Details: '+(size||'not specified')+'. Special: '+(notes||'none')+'. Plain language a homeowner understands. What will be done, removed, included, and warranted. 3-5 short paragraphs. Professional but not stuffy. No bullet points.','s-spin','s-res','s-copy');
 }
 
+var BRAND_COVERAGE={gaf:{starter:120,ridge:25},iko:{starter:100,ridge:25},malarkey:{starter:100,ridge:25},certainteed:{starter:100,ridge:20}};
+
 function runCalc(){
   var sq=parseFloat((document.getElementById('c-sq')||{}).value)||0;
   var pitch=parseFloat((document.getElementById('c-pitch')||{}).value)||1.08;
   var waste=parseFloat((document.getElementById('c-waste')||{}).value)||0.15;
   var pen=parseInt((document.getElementById('c-pen')||{}).value)||0;
+  var eaveLF=parseFloat((document.getElementById('c-eave')||{}).value)||0;
+  var ridgeLF=parseFloat((document.getElementById('c-ridgelen')||{}).value)||0;
+  var brand=(document.getElementById('c-brand')||{}).value||'gaf';
+  var customRow=document.getElementById('c-custom-row');
+  if(customRow) customRow.style.display=(brand==='custom')?'flex':'none';
+  var cov=BRAND_COVERAGE[brand];
+  var starterLF, ridgeCapLF, brandLabel;
+  if(brand==='custom'){
+    starterLF=parseFloat((document.getElementById('c-starter-lf')||{}).value)||100;
+    ridgeCapLF=parseFloat((document.getElementById('c-ridge-lf')||{}).value)||25;
+    brandLabel='custom';
+  } else {
+    starterLF=cov.starter; ridgeCapLF=cov.ridge; brandLabel=brand.toUpperCase();
+  }
   var el=document.getElementById('c-res'); if(!el)return;
   if(!sq){el.textContent='Enter squares above to calculate.';return;}
-  var adj=sq*pitch,ww=adj*(1+waste),bundles=Math.ceil(ww*3),starter=Math.ceil(adj*1.1/105*10)/10,underlay=Math.ceil(ww),ridge=Math.ceil(ww*0.05*3),iw=Math.ceil(adj*0.15);
-  el.textContent='INPUT\n  Measured squares:   '+sq.toFixed(1)+' sq\n  Pitch multiplier:   ×'+pitch+' → '+adj.toFixed(1)+' adj. sq\n  Waste factor:       '+(waste*100).toFixed(0)+'%\n  Total with waste:   '+ww.toFixed(1)+' sq\n\nMATERIALS\n  Shingles:           '+bundles+' bundles ('+Math.ceil(ww)+' squares)\n  Underlayment:       '+underlay+' rolls\n  Starter strip:      '+starter+' rolls\n  Ridge cap:          '+ridge+' bundles\n  Ice & water shield: '+iw+' squares\n  Pipe boots:         '+Math.max(2,pen+1)+' (confirm on site)\n  Step flashing:      '+(pen>0?pen*10+' LF (approx)':'N/A')+'\n\nNOTE: Decking, nails, drip edge, and dump fee not included.';
+  var adj=sq*pitch,ww=adj*(1+waste),bundles=Math.ceil(ww*3),underlay=Math.ceil(ww),iw=Math.ceil(adj*0.15);
+
+  // Starter strip: uses actual eave length when provided; otherwise a rough proxy from squares.
+  var starter, starterNote;
+  if(eaveLF>0){
+    starter=Math.ceil(eaveLF/starterLF); starterNote='(from entered eave length, '+starterLF+' LF/bundle)';
+  } else {
+    starter=Math.ceil((adj*1.1)/starterLF); starterNote='(ESTIMATED — enter eave length above for accuracy, '+starterLF+' LF/bundle)';
+  }
+
+  // Ridge cap: uses actual ridge+hip length when provided; otherwise a 5%-of-area rule of thumb.
+  var ridge, ridgeNote;
+  if(ridgeLF>0){
+    ridge=Math.ceil(ridgeLF/ridgeCapLF); ridgeNote='(from entered ridge/hip length, '+ridgeCapLF+' LF/bundle)';
+  } else {
+    ridge=Math.ceil(ww*0.05*3); ridgeNote='(ESTIMATED — enter ridge/hip length above for accuracy)';
+  }
+
+  el.textContent='INPUT\n  Measured squares:   '+sq.toFixed(1)+' sq\n  Pitch multiplier:   ×'+pitch+' → '+adj.toFixed(1)+' adj. sq\n  Waste factor:       '+(waste*100).toFixed(0)+'%\n  Total with waste:   '+ww.toFixed(1)+' sq\n  Shingle line:       '+brandLabel+'\n\nMATERIALS\n  Shingles:           '+bundles+' bundles ('+Math.ceil(ww)+' squares)\n  Underlayment:       '+underlay+' rolls\n  Starter strip:      '+starter+' bundles '+starterNote+'\n  Ridge cap:          '+ridge+' bundles '+ridgeNote+'\n  Ice & water shield: '+iw+' squares\n  Pipe boots:         '+Math.max(2,pen+1)+' (confirm on site)\n  Step flashing:      '+(pen>0?pen*10+' LF (approx)':'N/A')+'\n\nCOVERAGE FIGURES: general industry defaults — confirm against the actual product data sheet/bundle wrapper before final ordering.\nNOTE: Decking, nails, drip edge, and dump fee not included.';
 }
 
 function getTemplate(){
