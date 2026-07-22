@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topside Intelligence Platform | Reports</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d0d;--surface:#171717;--surface2:#1e1e1e;--border:#2a2a2a;
+  --text-primary:#f0f0f0;--text-secondary:#b3b3b3;--text-muted:#7a7a7a;
+  --accent:#1F4E79;--accent-light:#2a5f92;--accent-text:#5B9BD5;
+  --gold:#C9A227;--success:#4a8f5c;--warning:#c99a3a;--danger:#c1554d;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text-primary);min-height:100vh}
+#tip-topnav{position:sticky;top:0;z-index:9999;background:#0d0d0d;border-bottom:1px solid #2a2a2a;
+  display:flex;align-items:center;flex-wrap:wrap;gap:2px;padding:8px 14px}
+#tip-topnav .tip-brand{color:#C9A227;font-weight:700;font-size:13px;letter-spacing:.04em;margin-right:14px;white-space:nowrap}
+#tip-topnav a{color:#c7c7c7;text-decoration:none;font-size:12.5px;font-weight:500;padding:7px 10px;border-radius:6px;white-space:nowrap}
+#tip-topnav a:hover{background:#1e1e1e;color:#fff}
+#tip-topnav a.active{background:#1F4E79;color:#fff}
+.page{max-width:1200px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.page-header{margin-bottom:1.75rem;padding-bottom:1.25rem;border-bottom:2px solid var(--accent)}
+.co-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:6px}
+.page-title{font-size:26px;font-weight:600;letter-spacing:-.5px;margin-bottom:4px}
+.page-meta{font-size:13px;color:var(--text-muted)}
+.section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin:26px 0 12px}
+.section-label:first-of-type{margin-top:0}
+.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;text-decoration:none;color:var(--text-primary);display:flex;flex-direction:column;gap:6px;transition:border-color .15s,transform .1s}
+.card:hover{border-color:var(--accent-text);transform:translateY(-1px)}
+.card .c-title{font-size:14.5px;font-weight:600}
+.card .c-sub{font-size:12px;color:var(--text-muted);line-height:1.5}
+.card .c-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 8px;border-radius:99px;width:fit-content}
+.badge-live{background:#1d3a2a;color:#6fbf83}
+.badge-pending{background:#3a2f14;color:var(--warning)}
+.badge-soon{background:#2a2a2a;color:var(--text-muted)}
+@media (max-width:900px){.card-grid{grid-template-columns:1fr}}
+
+details.report{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
+details.report summary{padding:14px 18px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.report summary::-webkit-details-marker{display:none}
+details.report summary::after{content:'+';color:var(--text-muted);font-size:18px}
+details.report[open] summary::after{content:'–'}
+.report-body{padding:0 18px 18px;border-top:1px solid var(--border)}
+.report-sub{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin:14px 0 6px}
+.report-body p, .report-body .ph{font-size:12.5px;color:var(--text-secondary);line-height:1.6}
+.ph{background:var(--surface2);border:1px dashed var(--border);border-radius:6px;padding:10px 12px;color:var(--text-muted);font-style:italic}
+</style>
+</head>
+<body>
+<nav id="tip-topnav"><span class="tip-brand">TOPSIDE INTELLIGENCE PLATFORM</span><a href="/">Executive Dashboard</a><a href="/marketing-intelligence.html">Marketing Intelligence</a><a href="/dashboards/sales.html">Sales Intelligence</a><a href="/dashboards/operations.html">Project Intelligence</a><a href="/financial-intelligence.html">Financial Intelligence</a><a href="/company-health-gradebook.html">Company Health Gradebook</a><a href="/reports.html" class="active">Reports</a><a href="/tools.html">Tools</a><a href="/administration.html">Administration</a></nav>
+<div class="page">
+  <div class="page-header">
+    <div class="co-name">Topside Construction Inc. · Topside Roofing, Siding &amp; Gutters</div>
+    <div class="page-title">Reports</div>
+    <div class="page-meta">Weekly · Monthly · Quarterly · Annual · Marketing · Sales · Financial · Project</div>
+  </div>
+
+<div class="section-label">Report Templates</div>
+
+<details class="report">
+  <summary>Weekly Executive Brief</summary>
+  <div class="report-body">
+    <div class="report-sub">Summary</div>
+    <div class="ph">Template shell — no report-generation engine is wired to source data yet. Populate once the reporting pipeline is built.</div>
+    <div class="report-sub">KPIs</div>
+    <div class="ph">Placeholder — KPI set to be defined per report type once data sources (Leap, QuickBooks, M360, Google Ads) are connected.</div>
+    <div class="report-sub">Charts</div>
+    <div class="ph">Placeholder — charts render once live data is wired in.</div>
+    <div class="report-sub">Recommendations</div>
+    <div class="ph">Placeholder — auto-generated recommendations pending data pipeline.</div>
+    <div class="report-sub">Export to PDF</div>
+    <div class="ph">Placeholder — export not yet implemented.</div>
+    <div class="report-sub">Historical Comparison</div>
+    <div class="ph">Placeholder — historical archive not yet implemented.</div>
+  </div>
+</details>
+<details class="report">
+  <summary>Monthly Report</summary>
+  <div class="report-body">
+    <div class="report-sub">Summary</div>
+    <div class="ph">Template shell — no report-generation engine is wired to source data yet. Populate once the reporting pipeline is built.</div>
+    <div class="report-sub">KPIs</div>
+    <div class="ph">Placeholder — KPI set to be defined per report type once data sources (Leap, QuickBooks, M360, Google Ads) are connected.</div>
+    <div class="report-sub">Charts</div>
+    <div class="ph">Placeholder — charts render once live data is wired in.</div>
+    <div class="report-sub">Recommendations</div>
+    <div class="ph">Placeholder — auto-generated recommendations pending data pipeline.</div>
+    <div class="report-sub">Export to PDF</div>
+    <div class="ph">Placeholder — export not yet implemented.</div>
+    <div class="report-sub">Historical Comparison</div>
+    <div class="ph">Placeholder — historical archive not yet implemented.</div>
+  </div>
+</details>
+<details class="report">
+  <summary>Quarterly Report</summary>
+  <div class="report-body">
+    <div class="report-sub">Summary</div>
+    <div class="ph">Template shell — no report-generation engine is wired to source data yet. Populate once the reporting pipeline is built.</div>
+    <div class="report-sub">KPIs</div>
+    <div class="ph">Placeholder — KPI set to be defined per report type once data sources (Leap, QuickBooks, M360, Google Ads) are connected.</div>
+    <div class="report-sub">Charts</div>
+    <div class="ph">Placeholder — charts render once live data is wired in.</div>
+    <div class="report-sub">Recommendations</div>
+    <div class="ph">Placeholder — auto-generated recommendations pending data pipeline.</div>
+    <div class="report-sub">Export to PDF</div>
+    <div class="ph">Placeholder — export not yet implemented.</div>
+    <div class="report-sub">Historical Comparison</div>
+    <div class="ph">Placeholder — historical archive not yet implemented.</div>
+  </div>
+</details>
+<details class="report">
+  <summary>Annual Report</summary>
+  <div class="report-body">
+    <div class="report-sub">Summary</div>
+    <div class="ph">Template shell — no report-generation engine is wired to source data yet. Populate once the reporting pipeline is built.</div>
+    <div class="report-sub">KPIs</div>
+    <div class="ph">Placeholder — KPI set to be defined per report type once data sources (Leap, QuickBooks, M360, Google Ads) are connected.</div>
+    <div class="report-sub">Charts</div>
+    <div class="ph">Placeholder — charts render once live data is wired in.</div>
+    <div class="report-sub">Recommendations</div>
+    <div class="ph">Placeholder — auto-generated recommendations pending data pipeline.</div>
+    <div class="report-sub">Export to PDF</div>
+    <div class="ph">Placeholder — export not yet implemented.</div>
+    <div class="report-sub">Historical Comparison</div>
+    <div class="ph">Placeholder — historical archive not yet implemented.</div>
+  </div>
+</details>
+<details class="report">
+  <summary>Marketing Report</summary>
+  <div class="report-body">
+    <div class="report-sub">Summary</div>
+    <div class="ph">Template shell — no report-generation engine is wired to source data yet. Populate once the reporting pipeline is built.</div>
+    <div class="report-sub">KPIs</div>
+    <div class="ph">Placeholder — KPI set to be defined per report type once data sources (Leap, QuickBooks, M360, Google Ads) are connected.</div>
+    <div class="report-sub">Charts</div>
+    <div class="ph">Placeholder — charts render once live data is wired in.</div>
+    <div class="report-sub">Recommendations</div>
+    <div class="ph">Placeholder — auto-generated recommendations pending data pipeline.</div>
+    <div class="report-sub">Export to PDF</div>
+    <div class="ph">Placeholder — export not yet implemented.</div>
+    <div class="report-sub">Historical Comparison</div>
+    <div class="ph">Placeholder — historical archive not yet implemented.</div>
+  </div>
+</details>
+<details class="report">
+  <summary>Sales Report</summary>
+  <div class="report-body">
+    <div class="report-sub">Summary</div>
+    <div class="ph">Template shell — no report-generation engine is wired to source data yet. Populate once the reporting pipeline is built.</div>
+    <div class="report-sub">KPIs</div>
+    <div class="ph">Placeholder — KPI set to be defined per report type once data sources (Leap, QuickBooks, M360, Google Ads) are connected.</div>
+    <div class="report-sub">Charts</div>
+    <div class="ph">Placeholder — charts render once live data is wired in.</div>
+    <div class="report-sub">Recommendations</div>
+    <div class="ph">Placeholder — auto-generated recommendations pending data pipeline.</div>
+    <div class="report-sub">Export to PDF</div>
+    <div class="ph">Placeholder — export not yet implemented.</div>
+    <div class="report-sub">Historical Comparison</div>
+    <div class="ph">Placeholder — historical archive not yet implemented.</div>
+  </div>
+</details>
+<details class="report">
+  <summary>Financial Report</summary>
+  <div class="report-body">
+    <div class="report-sub">Summary</div>
+    <div class="ph">Template shell — no report-generation engine is wired to source data yet. Populate once the reporting pipeline is built.</div>
+    <div class="report-sub">KPIs</div>
+    <div class="ph">Placeholder — KPI set to be defined per report type once data sources (Leap, QuickBooks, M360, Google Ads) are connected.</div>
+    <div class="report-sub">Charts</div>
+    <div class="ph">Placeholder — charts render once live data is wired in.</div>
+    <div class="report-sub">Recommendations</div>
+    <div class="ph">Placeholder — auto-generated recommendations pending data pipeline.</div>
+    <div class="report-sub">Export to PDF</div>
+    <div class="ph">Placeholder — export not yet implemented.</div>
+    <div class="report-sub">Historical Comparison</div>
+    <div class="ph">Placeholder — historical archive not yet implemented.</div>
+  </div>
+</details>
+<details class="report">
+  <summary>Project Report</summary>
+  <div class="report-body">
+    <div class="report-sub">Summary</div>
+    <div class="ph">Template shell — no report-generation engine is wired to source data yet. Populate once the reporting pipeline is built.</div>
+    <div class="report-sub">KPIs</div>
+    <div class="ph">Placeholder — KPI set to be defined per report type once data sources (Leap, QuickBooks, M360, Google Ads) are connected.</div>
+    <div class="report-sub">Charts</div>
+    <div class="ph">Placeholder — charts render once live data is wired in.</div>
+    <div class="report-sub">Recommendations</div>
+    <div class="ph">Placeholder — auto-generated recommendations pending data pipeline.</div>
+    <div class="report-sub">Export to PDF</div>
+    <div class="ph">Placeholder — export not yet implemented.</div>
+    <div class="report-sub">Historical Comparison</div>
+    <div class="ph">Placeholder — historical archive not yet implemented.</div>
+  </div>
+</details>
+<p style="margin-top:18px;font-size:11.5px;color:var(--text-muted);font-style:italic">
+  These are structural templates only — no reports currently pull live data. Each section will be wired to its
+  source (Leap CRM, QuickBooks, Marketing360, Google Ads) as those pipelines are built out.
+</p>
+
+</div>
+</body>
+</html>

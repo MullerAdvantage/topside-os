@@ -1,107 +1,330 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>MA-IN | Muller's Ad-vantage</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topside Intelligence Platform | Executive Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background:#111;
-    color:white;
-    text-align:center;
-    padding:40px;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;--surface:#fff;--border:rgba(0,0,0,.09);--border-strong:rgba(0,0,0,.14);
+  --text-primary:#0b0b0b;--text-secondary:#52514e;--text-muted:#898781;
+  --accent:#1F4E79;--accent-light:#E6F1FB;--accent-text:#185FA5;
+  --success:#375623;--success-bg:#E2EFDA;
+  --warning:#7B4F12;--warning-bg:#FFF2CC;
+  --danger:#A32D2D;--danger-bg:#FCE4D6;
+  --gold:#C9A227;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --mono:'Courier New',ui-monospace,monospace
 }
+body{font-family:var(--font);background:var(--bg);color:var(--text-primary);min-height:100vh}
 
-h1 {
-    font-size:48px;
-}
+#tip-topnav{position:sticky;top:0;z-index:9999;background:#0d0d0d;border-bottom:1px solid #2a2a2a;
+  display:flex;align-items:center;flex-wrap:wrap;gap:2px;padding:8px 14px;font-family:var(--font)}
+#tip-topnav .tip-brand{color:#C9A227;font-weight:700;font-size:13px;letter-spacing:.04em;margin-right:14px;white-space:nowrap}
+#tip-topnav a{color:#c7c7c7;text-decoration:none;font-size:12.5px;font-weight:500;padding:7px 10px;border-radius:6px;white-space:nowrap}
+#tip-topnav a:hover{background:#1e1e1e;color:#fff}
+#tip-topnav a.active{background:#1F4E79;color:#fff}
 
-.card {
-    background:#222;
-    padding:20px;
-    margin:20px auto;
-    max-width:400px;
-    border-radius:10px;
-}
+.page{max-width:1200px;margin:0 auto;padding:2rem 1.5rem 4rem}
 
-a {
-    color:white;
-    text-decoration:none;
-    display:block;
-    padding:12px;
-    background:#333;
-    margin:10px;
-    border-radius:8px;
-}
+.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.75rem;padding-bottom:1.25rem;border-bottom:2px solid var(--accent);flex-wrap:wrap;gap:12px}
+.co-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:6px}
+.header-title{font-size:28px;font-weight:600;letter-spacing:-.5px;margin-bottom:4px}
+.header-meta{font-size:13px;color:var(--text-muted)}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.badge-live{font-size:11px;font-weight:600;padding:4px 12px;border-radius:99px;background:var(--success-bg);color:var(--success);display:flex;align-items:center;gap:5px}
+.badge-live::before{content:'';width:7px;height:7px;border-radius:50%;background:#375623;display:inline-block}
+.btn-print{font-size:12px;font-weight:500;padding:7px 16px;border-radius:6px;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:6px}
+.btn-print:hover{background:var(--bg)}
 
-a:hover {
-    background:#555;
+.section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin:28px 0 12px}
+.section-label:first-of-type{margin-top:0}
+
+.grades{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:8px}
+.grade-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 12px;text-align:center}
+.grade-card .g-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:6px}
+.grade-card .g-val{font-size:26px;font-weight:700;color:var(--text-muted)}
+.grade-pending{font-size:10px;color:var(--text-muted);margin-top:4px}
+
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.tile-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px}
+.tile-val{font-size:32px;font-weight:700;letter-spacing:-.5px}
+.tile-sub{font-size:12px;color:var(--text-muted);margin-top:4px}
+.tile.accent .tile-val{color:var(--accent-text)}
+.tile.success .tile-val{color:var(--success)}
+.tile.warn .tile-val{color:var(--warning)}
+
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px}
+.chart-card h3{font-size:14px;font-weight:600;margin-bottom:14px;color:var(--text-primary)}
+.chart-wrap{position:relative;height:260px}
+
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:0}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;text-align:center}
+.stat-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:6px}
+.stat-val{font-size:24px;font-weight:700;color:var(--accent-text)}
+
+.two-col{display:grid;grid-template-columns:1.3fr .7fr;gap:16px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.panel h3{font-size:14px;font-weight:600;margin-bottom:12px}
+.panel ul{list-style:none;font-size:13px;color:var(--text-secondary);line-height:1.9}
+.panel ul li{padding-left:18px;position:relative}
+.panel ul li::before{content:'—';position:absolute;left:0;color:var(--text-muted)}
+.pending-note{font-size:11.5px;color:var(--text-muted);font-style:italic;margin-top:8px}
+
+.quick-links{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.quick-links a{display:block;background:var(--accent-light);color:var(--accent-text);text-decoration:none;font-size:12.5px;font-weight:600;padding:12px 14px;border-radius:8px;text-align:center}
+.quick-links a:hover{background:#d6e8fa}
+
+.footnote{margin-top:24px;font-size:11px;color:var(--text-muted);line-height:1.6;border-top:1px solid var(--border);padding-top:14px}
+
+@media print{ .btn-print,#tip-topnav{display:none} body{background:#fff} }
+@media (max-width:900px){
+  .tiles{grid-template-columns:repeat(2,1fr)}
+  .charts-row{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:1fr}
+  .two-col{grid-template-columns:1fr}
+  .grades{grid-template-columns:repeat(3,1fr)}
+  .quick-links{grid-template-columns:repeat(2,1fr)}
 }
 </style>
-
 </head>
-
 <body>
+<nav id="tip-topnav">
+  <span class="tip-brand">TOPSIDE INTELLIGENCE PLATFORM</span>
+  <a href="/" class="active">Executive Dashboard</a>
+  <a href="/marketing-intelligence.html">Marketing Intelligence</a>
+  <a href="/dashboards/sales.html">Sales Intelligence</a>
+  <a href="/dashboards/operations.html">Project Intelligence</a>
+  <a href="/financial-intelligence.html">Financial Intelligence</a>
+  <a href="/company-health-gradebook.html">Company Health Gradebook</a>
+  <a href="/reports.html">Reports</a>
+  <a href="/tools.html">Tools</a>
+  <a href="/administration.html">Administration</a>
+</nav>
 
-<h1>MA-IN</h1>
+<div class="page">
 
-<h2>
-Muller's Ad-vantage<br>
-Marketing Agency & Integrated Network
-</h2>
+  <div class="header">
+    <div>
+      <div class="co-name">Topside Construction Inc. · Topside Roofing, Siding &amp; Gutters</div>
+      <div class="header-title">Executive Dashboard</div>
+      <div class="header-meta">Whatcom · Skagit · Island · San Juan Counties, WA — Data as of <span id="data-date">unknown</span> (Leap CRM export)</div>
+    </div>
+    <div class="header-right">
+      <div class="badge-live">Live Leap Data</div>
+      <button class="btn-print" onclick="window.print()">🖨 Print / PDF</button>
+    </div>
+  </div>
 
+  <div class="section-label">Company Health Grade</div>
+  <div class="grades">
+    <div class="grade-card"><div class="g-label">Overall</div><div class="g-val">—</div><div class="grade-pending">Pending</div></div>
+    <div class="grade-card"><div class="g-label">Marketing</div><div class="g-val">—</div><div class="grade-pending">Pending</div></div>
+    <div class="grade-card"><div class="g-label">Sales</div><div class="g-val">—</div><div class="grade-pending">Pending</div></div>
+    <div class="grade-card"><div class="g-label">Project</div><div class="g-val">—</div><div class="grade-pending">Pending</div></div>
+    <div class="grade-card"><div class="g-label">Financial</div><div class="g-val">—</div><div class="grade-pending">Pending</div></div>
+    <div class="grade-card"><div class="g-label">Risk</div><div class="g-val">—</div><div class="grade-pending">Pending</div></div>
+  </div>
+  <div class="pending-note">Grades populate once entered in the <a href="/company-health-gradebook.html">Company Health Gradebook</a> — no scoring data exists yet, so nothing is estimated here.</div>
 
-<div class="card">
+  <div class="section-label" style="margin-top:28px">Executive Snapshot — Live Pipeline Data</div>
+  <div class="tiles">
+    <div class="tile accent">
+      <div class="tile-label">Total Jobs on File</div>
+      <div class="tile-val" id="tile-total">—</div>
+      <div class="tile-sub">All stages, Leap Master List</div>
+    </div>
+    <div class="tile warn">
+      <div class="tile-label">Active in Pipeline</div>
+      <div class="tile-val" id="tile-pipeline">—</div>
+      <div class="tile-sub">Signed through warranty work</div>
+    </div>
+    <div class="tile success">
+      <div class="tile-label">Completed / Invoiced</div>
+      <div class="tile-val" id="tile-completed-invoiced">—</div>
+      <div class="tile-sub" id="tile-completed-invoiced-sub"></div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">Appointments Booked</div>
+      <div class="tile-val" id="tile-appts">—</div>
+      <div class="tile-sub">Not yet bid</div>
+    </div>
+  </div>
 
-<h3>Command Center</h3>
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>Trade Mix — All Jobs</h3>
+      <div class="chart-wrap"><canvas id="tradePie"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Revenue by Trade (all priced jobs)</h3>
+      <div class="chart-wrap"><canvas id="revBar"></canvas></div>
+    </div>
+  </div>
 
-<a href="/dashboards/marketing.html">
-Marketing Intelligence
-</a>
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>Jobs by Rep / Estimator</h3>
+      <div class="chart-wrap"><canvas id="repBar"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Jobs by Stage</h3>
+      <div class="chart-wrap"><canvas id="stageBar"></canvas></div>
+    </div>
+  </div>
 
-<a href="/dashboards/marketing360-health.html">
-Marketing 360 Health Check
-</a>
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Active Pipeline Revenue</div>
+      <div class="stat-val" id="stat-pipeline-rev">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg. Priced Job Value</div>
+      <div class="stat-val" id="stat-avg-job">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Dominant Trade</div>
+      <div class="stat-val" id="stat-dom-trade">—</div>
+    </div>
+  </div>
 
-<a href="/dashboards/marketing-spend.html">
-Marketing Spend Dashboard (M360 Contract)
-</a>
+  <div class="section-label">Executive Summary &amp; Actions</div>
+  <div class="two-col">
+    <div class="panel">
+      <h3>Critical Alerts</h3>
+      <ul>
+        <li>76% of pipeline records are missing job price data (per last AIOS audit) — recheck via Project Intelligence.</li>
+        <li>Estimator-scheduler roster is out of sync with active staff (Itzel Ocaranza, Phil York, Ashley Anderson, Mike Lacey not yet reflected).</li>
+        <li>61 unassigned jobs in current Leap data.</li>
+      </ul>
+      <div class="pending-note">This list is manually maintained from the most recent audit — no automated alert engine is wired up yet.</div>
+    </div>
+    <div class="panel">
+      <h3>Open Actions</h3>
+      <ul>
+        <li>Confirm M360 early-termination fee from signed contract text.</li>
+        <li>Fix trade chart category coverage (4 vs 7 trades) on Company Health Dashboard.</li>
+        <li>Finalize CTA/offer for KISM 92.9 radio endorsement script.</li>
+        <li>Rotate Cloudflare tunnel token for topside-office.</li>
+      </ul>
+    </div>
+  </div>
 
-<a href="/dashboards/operations.html">
-Operations Dashboard
-</a>
+  <div class="section-label">Quick Links</div>
+  <div class="quick-links">
+    <a href="/dashboards/marketing360-health.html">M360 Health Check</a>
+    <a href="/dashboards/estimator-scheduler.html">Estimator Scheduler</a>
+    <a href="/leap-upload.html">Morning Data Upload</a>
+    <a href="/reports.html">Recent Reports</a>
+  </div>
 
-<a href="/dashboards/sales.html">
-Sales Dashboard
-</a>
-
-<a href="/dashboards/phil-dashboard.html">
-Executive Dashboard
-</a>
-
-<a href="/dashboards/phil-financials.html">
-Project Financials (Job Revenue &amp; Billing)
-</a>
-
-<a href="/dashboards/exec-snapshot.html">
-Executive Snapshot
-</a>
-
-<a href="/leap-upload.html">
-Morning Data Upload
-</a>
-
-<a href="/dashboards/estimator-scheduler.html">
-Estimator Scheduler
-</a>
+  <div class="footnote" id="footnote">
+    Source: Leap CRM Master List export. Loading…
+  </div>
 
 </div>
 
+<script>
+const navy = '#1F4E79', gold = '#C9A227', slate='#52514e', green='#375623', rust='#A32D2D', tan='#7B4F12', steel='#898781';
+const palette = [navy, gold, '#4C7C9E', rust, tan, steel, '#7C5C3E'];
+const TRADE_LABELS = { ROOFING:'Roofing', SIDING:'Siding', GUTTERS:'Gutters', OTHER:'Other', WINDOWS:'Windows', PAINTING:'Painting', DOORS:'Doors' };
+const NARROW_PIPELINE_STAGES = ['Signed Estimate/Project','Deposit Rcvd -> Estimator','Deposit Received',
+  'Materials Ordered','Material List Setup','Materials Delivered','New Construction','Job Scheduled',
+  'Active Jobs','Commercial','Warranty Work','Final Walkthrough'];
 
-<p>
-Powered by Topside Intelligence Platform
-</p>
+function fmtMoney(n) { return '$' + Math.round(n).toLocaleString(); }
 
+function renderDashboard(bundle) {
+  const stageCounts = bundle.stageCounts || {};
+  const tradeCounts = bundle.tradeCounts || {};
+  const repJobCounts = bundle.repJobCounts || {};
+  const activeJobs = bundle.activeJobs || [];
+  const revenue = bundle.revenue || {};
+  const totalJobs = bundle.totalJobs || 0;
 
+  const completed = stageCounts['Completed'] || 0;
+  const invoiced = stageCounts['Invoiced'] || 0;
+  const leads = stageCounts['Lead'] || 0;
+  const apptBooked = stageCounts['Appointment Booked'] || 0;
+  const bids = stageCounts['Bid'] || 0;
+  const followUp = stageCounts['Follow Up'] || 0;
+
+  const pipelineJobs = activeJobs.filter(j => NARROW_PIPELINE_STAGES.includes(j.Stage));
+  const pricedPipeline = pipelineJobs.filter(j => typeof j['Job Price'] === 'number' && j['Job Price'] > 0);
+  const pipelineRevenue = pricedPipeline.reduce((s,j) => s + j['Job Price'], 0);
+  const avgPipelineValue = pricedPipeline.length ? pipelineRevenue / pricedPipeline.length : 0;
+
+  document.getElementById('tile-total').textContent = totalJobs;
+  document.getElementById('tile-pipeline').textContent = pipelineJobs.length;
+  document.getElementById('tile-completed-invoiced').textContent = completed + invoiced;
+  document.getElementById('tile-completed-invoiced-sub').textContent = completed + ' completed + ' + invoiced + ' invoiced';
+  document.getElementById('tile-appts').textContent = apptBooked;
+
+  const tradeEntries = Object.entries(tradeCounts).sort((a,b) => b[1]-a[1]);
+  new Chart(document.getElementById('tradePie'), {
+    type: 'doughnut',
+    data: { labels: tradeEntries.map(e => TRADE_LABELS[e[0]] || e[0]),
+      datasets: [{ data: tradeEntries.map(e => e[1]), backgroundColor: palette, borderWidth: 2, borderColor:'#fff' }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12, font:{size:11} } } } }
+  });
+
+  const revTradeEntries = Object.entries(revenue.byTradeAll || {}).sort((a,b) => b[1]-a[1]);
+  new Chart(document.getElementById('revBar'), {
+    type: 'bar',
+    data: { labels: revTradeEntries.map(e => TRADE_LABELS[e[0]] || e[0]),
+      datasets: [{ label:'Revenue ($)', data: revTradeEntries.map(e => Math.round(e[1])), backgroundColor: navy, borderRadius:4 }] },
+    options: { indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } },
+      scales:{ x:{ ticks:{ callback:(v)=>'$'+(v/1000).toFixed(0)+'k' } } } }
+  });
+
+  const repEntries = Object.entries(repJobCounts).sort((a,b) => b[1]-a[1]);
+  new Chart(document.getElementById('repBar'), {
+    type: 'bar',
+    data: { labels: repEntries.map(e => e[0]),
+      datasets: [{ label:'Jobs', data: repEntries.map(e => e[1]), backgroundColor: gold, borderRadius:4 }] },
+    options: { indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } }
+  });
+
+  const stageEntries = Object.entries(stageCounts).sort((a,b) => b[1]-a[1]);
+  new Chart(document.getElementById('stageBar'), {
+    type: 'bar',
+    data: { labels: stageEntries.map(e => e[0]),
+      datasets: [{ label:'Jobs', data: stageEntries.map(e => e[1]), backgroundColor: '#4C7C9E', borderRadius:4 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } },
+      scales:{ x:{ ticks:{ font:{size:9}, maxRotation:60, minRotation:45 } } } }
+  });
+
+  document.getElementById('stat-pipeline-rev').textContent = fmtMoney(pipelineRevenue);
+  document.getElementById('stat-avg-job').textContent = fmtMoney(avgPipelineValue);
+  const dominant = tradeEntries[0];
+  if (dominant) document.getElementById('stat-dom-trade').textContent = TRADE_LABELS[dominant[0]] || dominant[0];
+
+  document.getElementById('footnote').innerHTML =
+    'Source: Leap CRM Master List export (' + totalJobs + ' job records). "Active in Pipeline" = jobs in ' +
+    'Signed Estimate/Project, Deposit Rcvd &rarr; Estimator, Deposit Received, Materials Ordered, Material List ' +
+    'Setup, Materials Delivered, New Construction, Job Scheduled, Active Jobs, Commercial, Warranty Work, or ' +
+    'Final Walkthrough stages. Leads (' + leads + '), Appointments Booked (' + apptBooked + '), and Bids (' + bids + ') are tracked separately and ' +
+    'excluded from the pipeline count. "Completed/Invoiced" combines the Completed (' + completed + ') and Invoiced (' + invoiced + ') ' +
+    'stages. A ' + followUp + '-record Follow Up backlog exists in the CRM and is tracked in Project Intelligence, not ' +
+    'shown here. Revenue and rep figures use each job\'s primary listed trade/rep where multiple were assigned.';
+}
+
+fetch('/api/leap-data').then(r => r.json()).then(json => {
+  if (!json.bundle) {
+    document.getElementById('footnote').innerHTML =
+      'No data uploaded yet — go to <a href="/leap-upload.html">Morning Data Upload</a> to upload this morning\'s Leap export.';
+    return;
+  }
+  renderDashboard(json.bundle);
+  const updated = json.updated_at ? new Date(json.updated_at) : null;
+  document.getElementById('data-date').textContent = updated ? updated.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : 'unknown';
+}).catch(err => {
+  document.getElementById('footnote').textContent = 'Failed to load live data: ' + err.message;
+});
+</script>
 </body>
 </html>

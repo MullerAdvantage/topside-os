@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topside Intelligence Platform | Marketing Intelligence</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d0d;--surface:#171717;--surface2:#1e1e1e;--border:#2a2a2a;
+  --text-primary:#f0f0f0;--text-secondary:#b3b3b3;--text-muted:#7a7a7a;
+  --accent:#1F4E79;--accent-light:#2a5f92;--accent-text:#5B9BD5;
+  --gold:#C9A227;--success:#4a8f5c;--warning:#c99a3a;--danger:#c1554d;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text-primary);min-height:100vh}
+#tip-topnav{position:sticky;top:0;z-index:9999;background:#0d0d0d;border-bottom:1px solid #2a2a2a;
+  display:flex;align-items:center;flex-wrap:wrap;gap:2px;padding:8px 14px}
+#tip-topnav .tip-brand{color:#C9A227;font-weight:700;font-size:13px;letter-spacing:.04em;margin-right:14px;white-space:nowrap}
+#tip-topnav a{color:#c7c7c7;text-decoration:none;font-size:12.5px;font-weight:500;padding:7px 10px;border-radius:6px;white-space:nowrap}
+#tip-topnav a:hover{background:#1e1e1e;color:#fff}
+#tip-topnav a.active{background:#1F4E79;color:#fff}
+.page{max-width:1200px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.page-header{margin-bottom:1.75rem;padding-bottom:1.25rem;border-bottom:2px solid var(--accent)}
+.co-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:6px}
+.page-title{font-size:26px;font-weight:600;letter-spacing:-.5px;margin-bottom:4px}
+.page-meta{font-size:13px;color:var(--text-muted)}
+.section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin:26px 0 12px}
+.section-label:first-of-type{margin-top:0}
+.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;text-decoration:none;color:var(--text-primary);display:flex;flex-direction:column;gap:6px;transition:border-color .15s,transform .1s}
+.card:hover{border-color:var(--accent-text);transform:translateY(-1px)}
+.card .c-title{font-size:14.5px;font-weight:600}
+.card .c-sub{font-size:12px;color:var(--text-muted);line-height:1.5}
+.card .c-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 8px;border-radius:99px;width:fit-content}
+.badge-live{background:#1d3a2a;color:#6fbf83}
+.badge-pending{background:#3a2f14;color:var(--warning)}
+.badge-soon{background:#2a2a2a;color:var(--text-muted)}
+@media (max-width:900px){.card-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav id="tip-topnav"><span class="tip-brand">TOPSIDE INTELLIGENCE PLATFORM</span><a href="/">Executive Dashboard</a><a href="/marketing-intelligence.html" class="active">Marketing Intelligence</a><a href="/dashboards/sales.html">Sales Intelligence</a><a href="/dashboards/operations.html">Project Intelligence</a><a href="/financial-intelligence.html">Financial Intelligence</a><a href="/company-health-gradebook.html">Company Health Gradebook</a><a href="/reports.html">Reports</a><a href="/tools.html">Tools</a><a href="/administration.html">Administration</a></nav>
+<div class="page">
+  <div class="page-header">
+    <div class="co-name">Topside Construction Inc. · Topside Roofing, Siding &amp; Gutters</div>
+    <div class="page-title">Marketing Intelligence</div>
+    <div class="page-meta">SEO · Advertising · Website · Content · Reviews · Competitor Intelligence · Social · Attribution</div>
+  </div>
+
+<div class="section-label">SEO</div>
+<div class="card-grid">
+  <a class="card" href="#"><div class="c-badge badge-soon">Not Connected</div><div class="c-title">Google Search Console</div><div class="c-sub">No live data source connected yet.</div></a>
+  <a class="card" href="#"><div class="c-badge badge-soon">Not Connected</div><div class="c-title">Google Analytics</div><div class="c-sub">No live data source connected yet.</div></a>
+  <a class="card" href="#"><div class="c-badge badge-soon">Not Connected</div><div class="c-title">Google Business Profile</div><div class="c-sub">No live data source connected yet.</div></a>
+</div>
+
+<div class="section-label">Advertising</div>
+<div class="card-grid">
+  <a class="card" href="#"><div class="c-badge badge-soon">Not Connected</div><div class="c-title">Google Ads</div><div class="c-sub">Budget tracking placeholder — no API connection.</div></a>
+  <a class="card" href="#"><div class="c-badge badge-soon">Not Connected</div><div class="c-title">Meta Ads</div><div class="c-sub">Budget tracking placeholder — no API connection.</div></a>
+  <a class="card" href="#"><div class="c-badge badge-soon">Not Connected</div><div class="c-title">Local Services Ads</div><div class="c-sub">Budget tracking placeholder — no API connection.</div></a>
+  <a class="card" href="/dashboards/marketing360-health.html"><div class="c-badge badge-live">Live</div><div class="c-title">Marketing360 Health Check</div><div class="c-sub">Ongoing M360 campaign monitoring dashboard.</div></a>
+  <a class="card" href="/dashboards/marketing-spend.html"><div class="c-badge badge-live">Live</div><div class="c-title">Budget Tracking — M360 Contract</div><div class="c-sub">Marketing spend dashboard for the M360 contract.</div></a>
+</div>
+
+<div class="section-label">Website, Content &amp; Reviews</div>
+<div class="card-grid">
+  <a class="card" href="/dashboards/marketing.html"><div class="c-badge badge-live">Live</div><div class="c-title">Marketing Overview</div><div class="c-sub">Core marketing dashboard — website, content, campaign performance.</div></a>
+  <a class="card" href="#"><div class="c-badge badge-soon">Not Built</div><div class="c-title">Reviews</div><div class="c-sub">Review response tracking — not yet built.</div></a>
+  <a class="card" href="#"><div class="c-badge badge-soon">Not Built</div><div class="c-title">Competitor Intelligence</div><div class="c-sub">Mt. Baker Roofing, Axiom, SRS, Roofscapes NW tracking — see Tools &gt; Competitor Analyzer.</div></a>
+</div>
+
+<div class="section-label">Social &amp; Attribution</div>
+<div class="card-grid">
+  <a class="card" href="#"><div class="c-badge badge-soon">Not Built</div><div class="c-title">Social Media</div><div class="c-sub">No content pipeline dashboard yet.</div></a>
+  <a class="card" href="#"><div class="c-badge badge-soon">Not Built</div><div class="c-title">Campaign Performance</div><div class="c-sub">Cross-channel performance rollup — not yet built.</div></a>
+  <a class="card" href="#"><div class="c-badge badge-soon">Not Built</div><div class="c-title">Lead Attribution</div><div class="c-sub">Source-of-lead tracking — not yet built.</div></a>
+</div>
+
+</div>
+</body>
+</html>

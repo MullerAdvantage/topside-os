@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topside Intelligence Platform | Company Health Gradebook</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d0d;--surface:#171717;--surface2:#1e1e1e;--border:#2a2a2a;
+  --text-primary:#f0f0f0;--text-secondary:#b3b3b3;--text-muted:#7a7a7a;
+  --accent:#1F4E79;--accent-text:#5B9BD5;--gold:#C9A227;
+  --success:#4a8f5c;--warning:#c99a3a;--danger:#c1554d;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text-primary);min-height:100vh}
+#tip-topnav{position:sticky;top:0;z-index:9999;background:#0d0d0d;border-bottom:1px solid #2a2a2a;
+  display:flex;align-items:center;flex-wrap:wrap;gap:2px;padding:8px 14px}
+#tip-topnav .tip-brand{color:#C9A227;font-weight:700;font-size:13px;letter-spacing:.04em;margin-right:14px;white-space:nowrap}
+#tip-topnav a{color:#c7c7c7;text-decoration:none;font-size:12.5px;font-weight:500;padding:7px 10px;border-radius:6px;white-space:nowrap}
+#tip-topnav a:hover{background:#1e1e1e;color:#fff}
+#tip-topnav a.active{background:#1F4E79;color:#fff}
+.page{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.page-header{margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:2px solid var(--accent)}
+.co-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:6px}
+.page-title{font-size:26px;font-weight:600;letter-spacing:-.5px;margin-bottom:4px}
+.page-meta{font-size:13px;color:var(--text-muted)}
+.notice{background:#241d0d;border:1px solid #4a3a15;color:var(--warning);font-size:12.5px;padding:12px 16px;border-radius:8px;margin-bottom:20px;line-height:1.5}
+.period-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.period-tabs button{background:var(--surface);border:1px solid var(--border);color:var(--text-secondary);padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer}
+.period-tabs button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.grade-form{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px}
+.grade-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.grade-field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:6px}
+.grade-field select{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text-primary);padding:8px 10px;border-radius:6px;font-size:14px}
+.rec-field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:6px}
+.rec-field textarea{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text-primary);padding:10px;border-radius:6px;font-size:13px;min-height:70px;font-family:var(--font);resize:vertical}
+.save-row{display:flex;justify-content:flex-end;margin-top:14px}
+.btn{background:var(--accent);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+.btn:hover{background:#245a8a}
+.section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin:26px 0 12px}
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+th,td{padding:10px 12px;text-align:left;font-size:12.5px;border-bottom:1px solid var(--border)}
+th{color:var(--text-muted);text-transform:uppercase;font-size:10.5px;letter-spacing:.05em}
+tr:last-child td{border-bottom:none}
+.empty-state{color:var(--text-muted);font-size:12.5px;font-style:italic;padding:16px}
+@media (max-width:900px){.grade-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<nav id="tip-topnav">
+  <span class="tip-brand">TOPSIDE INTELLIGENCE PLATFORM</span>
+  <a href="/">Executive Dashboard</a>
+  <a href="/marketing-intelligence.html">Marketing Intelligence</a>
+  <a href="/dashboards/sales.html">Sales Intelligence</a>
+  <a href="/dashboards/operations.html">Project Intelligence</a>
+  <a href="/financial-intelligence.html">Financial Intelligence</a>
+  <a href="/company-health-gradebook.html" class="active">Company Health Gradebook</a>
+  <a href="/reports.html">Reports</a>
+  <a href="/tools.html">Tools</a>
+  <a href="/administration.html">Administration</a>
+</nav>
+
+<div class="page">
+  <div class="page-header">
+    <div class="co-name">Topside Construction Inc. · Topside Roofing, Siding &amp; Gutters</div>
+    <div class="page-title">Company Health Gradebook</div>
+    <div class="page-meta">Daily · Weekly · Monthly · Quarterly · Annual grading with historical archive</div>
+  </div>
+
+  <div class="notice">
+    <strong>Data integrity note:</strong> No automated scoring pipeline feeds this gradebook yet — grades are entered
+    manually below and saved to this browser's local storage. This is a new build; it is separate from any prior
+    "company_health_dashboard.html" audit file referenced in past sessions, which is not present in this repository.
+    If that file exists elsewhere, it needs to be located and either merged in or rebuilt intentionally — it was not
+    assumed or recreated here.
+  </div>
+
+  <div class="period-tabs" id="periodTabs">
+    <button data-period="Daily" class="active">Daily</button>
+    <button data-period="Weekly">Weekly</button>
+    <button data-period="Monthly">Monthly</button>
+    <button data-period="Quarterly">Quarterly</button>
+    <button data-period="Annual">Annual</button>
+  </div>
+
+  <div class="grade-form">
+    <div class="grade-grid">
+      <div class="grade-field"><label>Overall Grade</label><select id="g-overall"><option value="">—</option></select></div>
+      <div class="grade-field"><label>Marketing Grade</label><select id="g-marketing"><option value="">—</option></select></div>
+      <div class="grade-field"><label>Sales Grade</label><select id="g-sales"><option value="">—</option></select></div>
+      <div class="grade-field"><label>Projects Grade</label><select id="g-projects"><option value="">—</option></select></div>
+      <div class="grade-field"><label>Financial Grade</label><select id="g-financial"><option value="">—</option></select></div>
+      <div class="grade-field"><label>Operations Grade</label><select id="g-operations"><option value="">—</option></select></div>
+      <div class="grade-field"><label>Risk Grade</label><select id="g-risk"><option value="">—</option></select></div>
+    </div>
+    <div class="rec-field">
+      <label>Recommendations</label>
+      <textarea id="g-recommendations" placeholder="Notes and recommendations for this grading period..."></textarea>
+    </div>
+    <div class="save-row"><button class="btn" id="saveBtn">Save Entry</button></div>
+  </div>
+
+  <div class="section-label">Historical Archive — <span id="archiveLabel">Daily</span></div>
+  <table id="archiveTable">
+    <thead><tr><th>Date Saved</th><th>Overall</th><th>Mkt</th><th>Sales</th><th>Proj</th><th>Fin</th><th>Ops</th><th>Risk</th><th>Recommendations</th></tr></thead>
+    <tbody id="archiveBody"></tbody>
+  </table>
+</div>
+
+<script>
+const GRADES = ['A+','A','A-','B+','B','B-','C+','C','C-','D','F'];
+const FIELDS = ['overall','marketing','sales','projects','financial','operations','risk'];
+let currentPeriod = 'Daily';
+
+FIELDS.forEach(f => {
+  const sel = document.getElementById('g-' + f);
+  GRADES.forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g; sel.appendChild(o); });
+});
+
+function storageKey(period) { return 'tip_gradebook_' + period; }
+
+function loadArchive(period) {
+  const raw = localStorage.getItem(storageKey(period));
+  return raw ? JSON.parse(raw) : [];
+}
+
+function renderArchive(period) {
+  document.getElementById('archiveLabel').textContent = period;
+  const rows = loadArchive(period).slice().reverse();
+  const tbody = document.getElementById('archiveBody');
+  tbody.innerHTML = '';
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No entries saved yet for this period.</td></tr>';
+    return;
+  }
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${new Date(r.savedAt).toLocaleString()}</td>` +
+      FIELDS.map(f => `<td>${r[f] || '—'}</td>`).join('') +
+      `<td>${(r.recommendations || '').replace(/</g,'&lt;')}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById('periodTabs').addEventListener('click', (e) => {
+  if (e.target.tagName !== 'BUTTON') return;
+  document.querySelectorAll('#periodTabs button').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentPeriod = e.target.dataset.period;
+  renderArchive(currentPeriod);
+});
+
+document.getElementById('saveBtn').addEventListener('click', () => {
+  const entry = { savedAt: new Date().toISOString(), recommendations: document.getElementById('g-recommendations').value };
+  FIELDS.forEach(f => entry[f] = document.getElementById('g-' + f).value);
+  const rows = loadArchive(currentPeriod);
+  rows.push(entry);
+  localStorage.setItem(storageKey(currentPeriod), JSON.stringify(rows));
+  document.getElementById('g-recommendations').value = '';
+  renderArchive(currentPeriod);
+});
+
+renderArchive(currentPeriod);
+</script>
+</body>
+</html>
