@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Agency — Ad Strategy Advisor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/shared.css">
+<style>
+  .tabs{display:flex;gap:6px;margin-bottom:14px}
+  .tabs button{flex:1}
+  .tabs button.active{background:var(--accent);border-color:var(--accent);color:#191113}
+  #prompt-box{white-space:pre-wrap;font-family:var(--font-mono);font-size:11.5px;background:var(--panel2);border:1px solid var(--border2);border-radius:8px;padding:14px;max-height:340px;overflow-y:auto;color:var(--text2)}
+  .step-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#191113;font-family:var(--font-mono);font-weight:700;font-size:12px;margin-right:8px}
+  #result-box{white-space:pre-wrap;font-family:var(--font-mono);font-size:12px;background:var(--panel2);border:1px solid var(--border2);border-radius:8px;padding:16px;min-height:80px;max-height:520px;overflow-y:auto;color:var(--text)}
+  #result-error{color:#ff6b6b;font-size:12.5px;margin-top:8px;display:none}
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:-2px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .btn[disabled]{opacity:.6;cursor:not-allowed}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">AGENCY<span>.</span></div>
+  <nav>
+    <a href="/dashboard.html?d=executive">Executive</a>
+    <a href="/dashboard.html?d=advertising-control">Advertising Control</a>
+    <a href="/dashboard.html?d=marketing-intelligence">Marketing Intelligence</a>
+    <a href="/dashboard.html?d=sales-intelligence">Sales Intelligence</a>
+    <a href="/dashboard.html?d=financial-intelligence">Financial Intelligence</a>
+    <a href="/dashboard.html?d=project-intelligence">Project Intelligence</a>
+    <a href="/dashboard.html?d=health-gradebook">Health Gradebook</a>
+    <a href="/upload.html">Upload Data</a>
+    <a href="/tools/ad-strategy-advisor.html" class="active">Ad Strategy</a>
+    <a href="/tools/social-post-generator.html">Social Posts</a>
+  </nav>
+</div>
+<div class="lap-divider"></div>
+
+<div class="page">
+  <h1>Ad Strategy Advisor</h1>
+  <p>Enter a performance summary, hit Submit, and get ad/campaign strategy suggestions generated right here.</p>
+
+  <div class="tabs">
+    <button class="btn active" id="tab-manual" onclick="setTab('manual')">Type / Paste a Summary</button>
+    <button class="btn" id="tab-upload" onclick="setTab('upload')">Upload a Text File</button>
+  </div>
+
+  <div class="panel" id="manual-panel">
+    <textarea id="summary-text" rows="10" style="width:100%" placeholder="Paste or type a performance summary — e.g. last month's ad spend, lead counts, close rates, weak counties, underperforming campaigns…"></textarea>
+  </div>
+
+  <div class="panel" id="upload-panel" style="display:none">
+    <div class="drop-zone" onclick="document.getElementById('file-input').click()">
+      📄 Click to choose a file (.txt, .csv, or .md)
+      <small>For a screenshot/image summary, transcribe the key numbers into the text box on the "Type / Paste a Summary" tab instead — this tool submits text only.</small>
+      <input type="file" id="file-input" accept=".txt,.csv,.md" style="display:none" onchange="handleFile(this)">
+    </div>
+    <div id="file-preview" style="margin-top:12px;font-size:12px;color:var(--text2)"></div>
+  </div>
+
+  <div class="panel">
+    <h3><span class="step-num">1</span>Submit for ad strategy suggestions</h3>
+    <button class="btn primary" id="submit-btn" onclick="getSuggestions()">Get Ad Strategy Suggestions</button>
+    <span id="result-error"></span>
+
+    <h3 style="margin-top:22px"><span class="step-num">2</span>Suggestions</h3>
+    <div id="result-box">Enter or upload a summary above, then click "Get Ad Strategy Suggestions."</div>
+  </div>
+</div>
+
+<script>
+let mode = 'manual';
+let fileText = '';
+
+function setTab(t){
+  mode = t;
+  document.getElementById('tab-manual').classList.toggle('active', t==='manual');
+  document.getElementById('tab-upload').classList.toggle('active', t==='upload');
+  document.getElementById('manual-panel').style.display = t==='manual' ? '' : 'none';
+  document.getElementById('upload-panel').style.display = t==='upload' ? '' : 'none';
+}
+
+function handleFile(input){
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    fileText = reader.result;
+    document.getElementById('file-preview').textContent = `Loaded ${file.name} (${fileText.length.toLocaleString()} characters).`;
+  };
+  reader.readAsText(file);
+}
+
+function currentSummary(){
+  return mode === 'manual' ? document.getElementById('summary-text').value.trim() : fileText.trim();
+}
+
+async function getSuggestions(){
+  const summary = currentSummary();
+  const errEl = document.getElementById('result-error');
+  const resultBox = document.getElementById('result-box');
+  const btn = document.getElementById('submit-btn');
+
+  errEl.style.display = 'none';
+  errEl.textContent = '';
+
+  if (!summary){
+    errEl.textContent = 'Enter or upload a performance summary first — there\'s nothing to submit yet.';
+    errEl.style.display = 'inline';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Generating…';
+  resultBox.textContent = 'Generating ad strategy suggestions…';
+
+  try {
+    const res = await fetch('/api/ad-strategy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ summary })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || `Request failed (${res.status})`);
+    }
+
+    resultBox.textContent = data.result || 'No suggestions returned.';
+  } catch (err) {
+    resultBox.textContent = 'Enter or upload a summary above, then click "Get Ad Strategy Suggestions."';
+    errEl.textContent = err.message;
+    errEl.style.display = 'inline';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Get Ad Strategy Suggestions';
+  }
+}
+
+</script>
+</body>
+</html>
